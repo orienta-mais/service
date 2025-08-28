@@ -19,7 +19,7 @@ public class ValidateEmailService implements ValidateEmailUseCase {
     @Override
     public ValidateEmailModelResponse validateEmail(Email emailModelRequest) {
         if (authUserRepository.existsByEmail(emailModelRequest.getEmail())) {
-            throw new EmailAlreadyExistsException("Email já cadastrado");
+            throw new EmailAlreadyExistsException("Email already exists");
         }
         return new ValidateEmailModelResponse("EMAIL_VALIDATED", true);
     }

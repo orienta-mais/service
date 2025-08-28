@@ -1,6 +1,6 @@
 package umc.pfc.orientamais.domain.model.mentor;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -35,9 +35,9 @@ public class RegisterUserService implements RegisterUserUseCase {
         strategies.stream()
                 .filter(s -> s.supports(request.getRole()))
                 .findFirst()
-                .orElseThrow(() -> new UnsupportedRoleException("Role inválida!: " + request.getRole()))
+                .orElseThrow(() -> new UnsupportedRoleException("Invalid role!: " + request.getRole()))
                 .register(request, user);
 
-        return new RegisterUserModelResponse("USER_CREATED", "Usuário criado com sucesso!");
+        return new RegisterUserModelResponse("USER_CREATED", "User created successfully!");
     }
 }
