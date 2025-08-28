@@ -2,6 +2,7 @@ package umc.pfc.orientamais.adapters.input.rest.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
 
@@ -23,7 +24,7 @@ public class UserRegisterModelRequest {
     @Length(min = 8, max = 50, message = "Sua senha deve conter no mínimo 8 caracteres!")
     private String password;
 
-    @NotBlank(message = "Este campo é obrigatório!")
+    @NotNull(message = "Este campo é obrigatório!")
     private LocalDate birthDate;
 
     private String socialMedias;

@@ -1,5 +1,6 @@
 package umc.pfc.orientamais.adapters.input.rest.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class Register {
     private final RegisterUserUseCase registerUserUseCase;
 
     @PostMapping("/validate-email")
-    public ResponseEntity<ValidateEmailModelResponse> validateEmail(@RequestBody EmailModelRequest emailModelRequest) {
+    public ResponseEntity<ValidateEmailModelResponse> validateEmail(@Valid @RequestBody EmailModelRequest emailModelRequest) {
         var email = mapper.map(emailModelRequest, Email.class);
         ValidateEmailModelResponse validateEmailResponse = validateEmailUseCase.validateEmail(email);
         return ResponseEntity
@@ -35,7 +36,7 @@ public class Register {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterUserModelResponse> register(@RequestBody UserRegisterModelRequest userRegisterModelRequest) {
+    public ResponseEntity<RegisterUserModelResponse> register(@Valid @RequestBody UserRegisterModelRequest userRegisterModelRequest) {
         RegisterUserModelResponse registerResponse = registerUserUseCase.registerUser(userRegisterModelRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)

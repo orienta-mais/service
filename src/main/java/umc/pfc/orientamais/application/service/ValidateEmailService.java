@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.ValidateEmailModelResponse;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
+import umc.pfc.orientamais.domain.exceptions.EmailAlreadyExistsException;
 import umc.pfc.orientamais.domain.model.Email;
 
 @Service
@@ -18,7 +19,7 @@ public class ValidateEmailService implements ValidateEmailUseCase {
     @Override
     public ValidateEmailModelResponse validateEmail(Email emailModelRequest) {
         if (authUserRepository.existsByEmail(emailModelRequest.getEmail())) {
-            throw new IllegalArgumentException("Email já cadastrado");
+            throw new EmailAlreadyExistsException("Email já cadastrado");
         }
         return new ValidateEmailModelResponse("EMAIL_VALIDATED", true);
     }

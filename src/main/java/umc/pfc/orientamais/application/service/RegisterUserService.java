@@ -10,6 +10,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.response.RegisterUserModelRes
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.application.port.input.RegisterUserUseCase;
 import umc.pfc.orientamais.application.service.register.strategy.RoleRegistrationStrategy;
+import umc.pfc.orientamais.domain.exceptions.UnsupportedRoleException;
 import umc.pfc.orientamais.domain.model.AuthUser;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class RegisterUserService implements RegisterUserUseCase {
         strategies.stream()
                 .filter(s -> s.supports(request.getRole()))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Role inválida!: " + request.getRole()))
+                .orElseThrow(() -> new UnsupportedRoleException("Role inválida!: " + request.getRole()))
                 .register(request, user);
 
         return new RegisterUserModelResponse("USER_CREATED", "Usuário criado com sucesso!");
