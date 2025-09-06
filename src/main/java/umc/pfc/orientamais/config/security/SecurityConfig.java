@@ -26,7 +26,11 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/api/validate-email",
-                                "/api/register"
+                                "/api/register",
+                                "leason/create-leason",
+                                "leason/create-leason",
+                                "leason/list-leason-by-id",
+                                "leason/update-leason"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
