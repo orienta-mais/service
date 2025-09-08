@@ -1,4 +1,4 @@
-package umc.pfc.orientamais.adapters.input.rest.controller;
+package umc.pfc.orientamais.adapters.input.rest.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

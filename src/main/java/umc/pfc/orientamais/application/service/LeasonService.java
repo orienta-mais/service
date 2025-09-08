@@ -4,9 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import umc.pfc.orientamais.adapters.input.rest.controller.DeleteLeasonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.controller.ListLeasonByIdModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.controller.UpdateLeasonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.DeleteLeasonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.ListLeasonByIdModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLeasonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLeasonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LeasonModelResponse;
@@ -14,8 +14,6 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.LeasonReposito
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
 import umc.pfc.orientamais.application.port.input.LeasonUseCase;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
-import umc.pfc.orientamais.domain.exceptions.UnsupportedRoleException;
-import umc.pfc.orientamais.domain.model.AuthUser;
 import umc.pfc.orientamais.domain.model.Leason;
 
 import java.util.UUID;
