@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.RegisterUserModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.ValidateEmailModelResponse;
 import umc.pfc.orientamais.application.port.input.RegisterUserUseCase;
 import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
@@ -36,8 +36,8 @@ public class Register {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterUserModelResponse> register(@Valid @RequestBody UserRegisterModelRequest userRegisterModelRequest) {
-        RegisterUserModelResponse registerResponse = registerUserUseCase.registerUser(userRegisterModelRequest);
+    public ResponseEntity<GenericModelResponse> register(@Valid @RequestBody UserRegisterModelRequest userRegisterModelRequest) {
+        GenericModelResponse registerResponse = registerUserUseCase.registerUser(userRegisterModelRequest);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(registerResponse);

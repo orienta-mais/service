@@ -1,8 +1,8 @@
 package umc.pfc.orientamais.application.port.input;
 
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.RegisterUserModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 
 public interface RegisterUserUseCase {
-    RegisterUserModelResponse registerUser(UserRegisterModelRequest request);
+    GenericModelResponse registerUser(UserRegisterModelRequest request);
 }

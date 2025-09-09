@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class RegisterUserModelResponse {
+public class GenericModelResponse {
     private String code;
     private String message;
 }
