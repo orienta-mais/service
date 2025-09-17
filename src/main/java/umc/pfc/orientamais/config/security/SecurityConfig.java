@@ -24,13 +24,14 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/swagger-ui.html",
-                                "/api/validate-email",
-                                "/api/register",
-                                "leason/create-leason",
-                                "leason/create-leason",
-                                "leason/list-leason-by-id",
-                                "leason/update-leason"
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/mentor/validate-email",
+                                "/api/mentor/register"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/auth/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
