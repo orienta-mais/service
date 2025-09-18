@@ -1,18 +1,23 @@
-version: '3.8'
+version: "3.9"
 
 services:
   postgres:
     image: postgres
-    container_name: orientamais-postgres
+    container_name: orienta_postgres
     restart: always
-    environment:
-      POSTGRES_USER: orientamais
-      POSTGRES_PASSWORD: orientamais
-      POSTGRES_DB: orientamais
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_DB: orienta
+      POSTGRES_USER: orienta_user
+      POSTGRES_PASSWORD: orienta_pass
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orienta_user -d orienta"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
