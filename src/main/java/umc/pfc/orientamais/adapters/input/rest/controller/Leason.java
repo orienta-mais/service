@@ -14,7 +14,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse
 import umc.pfc.orientamais.application.port.input.LeasonUseCase;
 
 @RestController
-@RequestMapping("/leason")
+@RequestMapping("/api/mentor/leason")
 @RequiredArgsConstructor
 public class Leason {
 
