@@ -8,5 +8,8 @@ import java.util.UUID;
 
 public interface RegistrationTokenRepository extends JpaRepository<RegistrationToken, UUID> {
     Optional<RegistrationToken> findByToken(String token);
+
+    Optional<RegistrationToken> findByEmail(String email);
+    void deleteByEmail(String email);
 }
 
