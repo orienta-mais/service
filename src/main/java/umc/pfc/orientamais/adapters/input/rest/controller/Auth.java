@@ -1,5 +1,6 @@
 package umc.pfc.orientamais.adapters.input.rest.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,12 +19,12 @@ public class Auth {
     private final LoginUseCase loginUseCase;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(loginUseCase.login(request.email(), request.password()));
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<LoginResponse> refreshToken(@RequestBody String refreshToken) {
+    public ResponseEntity<LoginResponse> refreshToken(@RequestBody @Valid String refreshToken) {
         return ResponseEntity.ok(loginUseCase.refreshToken(refreshToken));
     }
 }

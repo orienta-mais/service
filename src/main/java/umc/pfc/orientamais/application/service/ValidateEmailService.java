@@ -1,17 +1,20 @@
 package umc.pfc.orientamais.application.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.RegistrationTokenRepository;
 import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
 import umc.pfc.orientamais.application.service.email.EmailSenderService;
+import umc.pfc.orientamais.application.service.utils.EmailTemplateBuilder;
+import umc.pfc.orientamais.application.service.utils.RegistrationTokenFactory;
 import umc.pfc.orientamais.domain.exceptions.EmailAlreadyExistsException;
+import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
+import umc.pfc.orientamais.domain.model.AuthUserRole;
 import umc.pfc.orientamais.domain.model.RegistrationToken;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,11 @@ public class ValidateEmailService implements ValidateEmailUseCase {
     private final AuthUserRepository authUserRepository;
     private final RegistrationTokenRepository tokenRepository;
     private final EmailSenderService emailSender;
+    private final RegistrationTokenFactory tokenFactory;
+    private final EmailTemplateBuilder templateProvider;
+
+    @Value("${app.registration.url}")
+    private String registerUrl;
 
     @Override
     public void validateAndSendLink(EmailModelRequest request) {
@@ -27,16 +35,28 @@ public class ValidateEmailService implements ValidateEmailUseCase {
             throw new EmailAlreadyExistsException("Email já cadastrado: " + request.email());
         }
 
-        String token = UUID.randomUUID().toString();
-        RegistrationToken registrationToken = new RegistrationToken(
-                request.email(),
-                token,
-                LocalDateTime.now().plusHours(24)
-        );
+        RegistrationToken token = tokenFactory.create(request.email(), AuthUserRole.MENTOR);
+        try {
+            tokenRepository.save(token);
+        } catch (Exception e) {
+            RegistrationToken oldToken = tokenRepository.findByEmail(request.email()).orElse(token);
+            tokenRepository.deleteByEmail(oldToken.getEmail());
+            tokenRepository.save(token);
+        }
 
-        tokenRepository.save(registrationToken);
+        String link = UriComponentsBuilder
+                .fromUriString(registerUrl)
+                .path("mentor")
+                .queryParam("token", token.getToken())
+                .toUriString();
 
-        String link = "http://frontend-orienta.com/register?token=" + token;
-        emailSender.sendEmail(request.email(), "Complete seu cadastro", "Clique aqui: " + link);
+        String htmlContent = templateProvider.buildMentorRegisterEmail(link);
+
+        try {
+            emailSender.sendEmail(request.email(), "Complete seu cadastro", htmlContent);
+        } catch (Exception e) {
+            tokenRepository.delete(token);
+            throw new InternalErrorException("Erro ao enviar e-mail de validação");
+        }
     }
 }
