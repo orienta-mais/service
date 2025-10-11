@@ -15,23 +15,23 @@ import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
 import umc.pfc.orientamais.domain.model.AuthUserRole;
 
 @RestController
-@RequestMapping("/api/mentor")
+@RequestMapping("/api/mentored")
 @RequiredArgsConstructor
-public class Mentor {
+public class Mentored {
 
     private final ValidateEmailUseCase validateEmailUseCase;
     private final RegisterUseCase registerUseCase;
 
     @PostMapping("/validate-email")
     public ResponseEntity<GenericModelResponse> validateEmail(@Valid @RequestBody EmailModelRequest request) {
-        validateEmailUseCase.validateAndSendLink(request, AuthUserRole.MENTOR);
+        validateEmailUseCase.validateAndSendLink(request, AuthUserRole.MENTORED);
         return ResponseEntity.ok(
                 new GenericModelResponse("EMAIL_VALIDATED", "Validation link sent to email"));
     }
 
     @PostMapping("/register")
     public ResponseEntity<GenericModelResponse> register(@Valid @RequestBody UserRegisterModelRequest request) {
-        registerUseCase.register(request, AuthUserRole.MENTOR);
+        registerUseCase.register(request, AuthUserRole.MENTORED);
         return ResponseEntity.ok(
                 new GenericModelResponse("USER_CREATED", "User registered successfully"));
     }
