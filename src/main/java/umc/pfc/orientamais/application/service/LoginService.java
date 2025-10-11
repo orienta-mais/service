@@ -36,14 +36,27 @@ public class LoginService implements LoginUseCase {
 
     @Override
     public LoginResponse refreshToken(String token) {
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(token).orElse(null);
-        if (refreshToken == null || jwtProvider.isRefreshTokenExpired(refreshToken)) {
+        String cleanToken = token.replace("Bearer ", "");
+        RefreshToken storedToken = refreshTokenRepository.findByToken(cleanToken)
+                .orElseThrow(() -> new NotFoundException("Refresh token não encontrado ou inválido."));
+
+        if (jwtProvider.isRefreshTokenExpired(storedToken)) {
             throw new NotFoundException("Refresh token expirado. Faça login novamente.");
         }
-        String email = jwtProvider.validateAndGetUser(token);
-        AuthUser user = authUserRepository.findByEmail(email).orElse(null);
+
+        String email = jwtProvider.validateAndGetUser(storedToken.getToken());
+        AuthUser user = authUserRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado."));
+
         String newAccessToken = jwtProvider.generateAccessToken(user);
         String newRefreshToken = jwtProvider.generateRefreshToken(user);
-        return new LoginResponse("SUCCESS", "Token renovado com sucesso", newAccessToken, newRefreshToken);
+        refreshTokenRepository.delete(storedToken);
+
+        return new LoginResponse(
+                "SUCCESS",
+                "Token renovado com sucesso",
+                newAccessToken,
+                newRefreshToken
+        );
     }
 }
