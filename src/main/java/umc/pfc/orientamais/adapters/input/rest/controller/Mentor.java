@@ -37,7 +37,7 @@ public class Mentor {
     }
 
     @GetMapping("/leason/find-all")
-    public ResponseEntity<?> listlessonById(@Valid @RequestBody ListlessonByMentorIdModelRequest request) {
+    public ResponseEntity<?> listlessonById(@Valid @RequestParam ListlessonByMentorIdModelRequest request) {
         try {
             var reponse = lessonUseCase.listLeasonByMentorId(request);
             return ResponseEntity
