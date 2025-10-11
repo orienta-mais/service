@@ -23,7 +23,7 @@ public class RegisterMentorService implements RegisterMentorUseCase {
 
     private final AuthUserRepository authUserRepository;
     private final RegistrationTokenRepository tokenRepository;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
     private final MentorRepository mentorRepository;
     private final LessonRepository lessonRepository;
 

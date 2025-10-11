@@ -1,15 +1,21 @@
 package umc.pfc.orientamais.config.security.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
+import umc.pfc.orientamais.adapters.output.persistence.repository.RefreshTokenRepository;
+import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
+import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
 import umc.pfc.orientamais.domain.model.AuthUser;
+import umc.pfc.orientamais.domain.model.RefreshToken;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
@@ -24,41 +30,65 @@ public class JwtProvider {
     @Value("${jwt.refresh-expiration-ms}")
     private long refreshTokenValidity;
 
-    public String generateAccessToken(AuthUser user) {
-        return Jwts.builder()
-                .setSubject(user.getEmail())
-                .claim("role", user.getRole())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidity))
-                .signWith(SignatureAlgorithm.HS256, secretKey.getBytes())
-                .compact();
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final MentorRepository mentorRepository;
+
+    public String generateAccessToken(AuthUser userAuth) {
+        try {
+            var user = mentorRepository.findByUserId(userAuth.getId());
+            Algorithm algorithm = Algorithm.HMAC256(secretKey);
+            return JWT.create()
+                    .withIssuer("orienta-mais")
+                    .withSubject(userAuth.getEmail())
+                    .withClaim("id", String.valueOf(user.getId()))
+                    .withClaim("name", String.valueOf(user.getName()))
+                    .withClaim("role", String.valueOf(userAuth.getRole()))
+                    .withExpiresAt(this.generateExpirationDate(accessTokenValidity))
+                    .sign(algorithm);
+        } catch (JWTCreationException e) {
+            throw new InternalErrorException("Erro ao gerar token JWT");
+        }
     }
 
     public String generateRefreshToken(AuthUser user) {
-        return Jwts.builder()
-                .setSubject(user.getEmail())
-                .claim("role", user.getRole())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenValidity))
-                .signWith(SignatureAlgorithm.HS256, secretKey.getBytes())
-                .compact();
+        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+        String token = JWT.create()
+                .withIssuer("orienta-mais")
+                .withSubject(user.getEmail())
+                .withClaim("role", String.valueOf(user.getRole()))
+                .withExpiresAt(this.generateExpirationDate(refreshTokenValidity))
+                .sign(algorithm);
+
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setToken(token);
+        refreshToken.setUser(user);
+        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenValidity));
+        refreshTokenRepository.save(refreshToken);
+        return token;
     }
 
-    public AuthUser validateAndGetUser(String token) {
+    public boolean isRefreshTokenExpired(RefreshToken token) {
+        return token.getExpiryDate().isBefore(Instant.now());
+    }
+
+    public String validateAndGetUser(String token) {
         try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(secretKey.getBytes())
+            Algorithm algorithm = Algorithm.HMAC256(secretKey);
+            return JWT.require(algorithm)
+                    .withIssuer("orienta-mais")
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-
-            String email = claims.getSubject();
-            String role = claims.get("role", String.class);
-
-            return new AuthUser(email, null, role);
-
-        } catch (JwtException e) {
-            throw new RuntimeException("Token inválido ou expirado");
+                    .verify(token)
+                    .getSubject();
         }
+        catch (TokenExpiredException e) {
+            throw new InvalidOrExpiredTokenException();
+        }
+        catch (JWTVerificationException e) {
+            return null;
+        }
+    }
+
+    private Instant generateExpirationDate(Long expirationTimeInMs) {
+        return Instant.now().plusMillis(expirationTimeInMs);
     }
 }
