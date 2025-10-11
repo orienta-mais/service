@@ -1,9 +1,13 @@
 package umc.pfc.orientamais.application.service.email;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
 
 @Service
 @RequiredArgsConstructor
@@ -11,13 +15,20 @@ public class EmailSenderService {
 
     private final JavaMailSender mailSender;
 
-    public void sendEmail(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        message.setFrom("orientamais.app@gmail.com");
+    @Value("${spring.mail.username}")
+    private String senderAddress;
 
-        mailSender.send(message);
+    public void sendEmail(String to, String subject, String content) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(content, true);
+            helper.setFrom(senderAddress);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new InternalErrorException("Erro ao enviar email");
+        }
     }
 }

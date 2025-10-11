@@ -28,9 +28,10 @@ public class AuthUser {
     private String password;
 
     @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private AuthUserRole role;
 
-    public AuthUser(String email, String password, String role) {
+    public AuthUser(String email, String password, AuthUserRole role) {
         this.email = email;
         this.password = password;
         this.role = role;

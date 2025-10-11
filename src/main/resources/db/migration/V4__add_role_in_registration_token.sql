@@ -1,0 +1,2 @@
+ALTER TABLE registration_token
+    ADD COLUMN role VARCHAR(50) NOT NULL DEFAULT 'MIGRATED';
