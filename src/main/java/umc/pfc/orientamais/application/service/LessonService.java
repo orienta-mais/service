@@ -67,9 +67,8 @@ public class LessonService implements LessonUseCase {
     }
 
     @Override
-    public List<LessonModelResponse> listLeasonByMentorId(ListlessonByMentorIdModelRequest request) {
-        UUID lessonId = UUID.fromString(request.getMentorId());
-        var lessons = lessonRepository.findByMentorId(lessonId);
+    public List<LessonModelResponse> listLeasonByMentorId(UUID request) {
+        var lessons = lessonRepository.findByMentorId(request);
         return lessons.stream()
                 .map(lesson -> mapper.map(lesson, LessonModelResponse.class))
                 .toList();

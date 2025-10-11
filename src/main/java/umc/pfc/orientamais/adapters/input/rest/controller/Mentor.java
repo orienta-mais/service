@@ -13,6 +13,8 @@ import umc.pfc.orientamais.application.port.input.LessonUseCase;
 import umc.pfc.orientamais.application.port.input.RegisterMentorUseCase;
 import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/mentor")
 @RequiredArgsConstructor
@@ -37,9 +39,9 @@ public class Mentor {
     }
 
     @GetMapping("/leason/find-all")
-    public ResponseEntity<?> listlessonById(@Valid @RequestParam ListlessonByMentorIdModelRequest request) {
+    public ResponseEntity<?> listlessonById(@Valid @RequestParam UUID mentorId) {
         try {
-            var reponse = lessonUseCase.listLeasonByMentorId(request);
+            var reponse = lessonUseCase.listLeasonByMentorId(mentorId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(reponse);

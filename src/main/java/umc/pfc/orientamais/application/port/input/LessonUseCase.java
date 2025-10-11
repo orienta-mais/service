@@ -6,6 +6,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface LessonUseCase {
     GenericModelResponse createlesson(CreatelessonModelRequest request);
@@ -16,5 +17,5 @@ public interface LessonUseCase {
 
     GenericModelResponse updatelesson(@Valid UpdatelessonModelRequest request);
 
-    List<LessonModelResponse> listLeasonByMentorId(ListlessonByMentorIdModelRequest request);
+    List<LessonModelResponse> listLeasonByMentorId(UUID request);
 }
