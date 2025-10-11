@@ -2,14 +2,13 @@ package umc.pfc.orientamais.adapters.input.rest.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;
-import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 @Setter
-public class LeasonModelResponse {
+public class LessonModelResponse {
     private UUID id;
     private String title;
     private String description;

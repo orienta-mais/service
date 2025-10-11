@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class UpdateLeasonModelRequest {
+public class UpdatelessonModelRequest {
     private String id;
     private String title;
     private String description;

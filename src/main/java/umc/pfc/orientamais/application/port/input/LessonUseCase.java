@@ -1,0 +1,20 @@
+package umc.pfc.orientamais.application.port.input;
+
+import jakarta.validation.Valid;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.*;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+
+import java.util.List;
+
+public interface LessonUseCase {
+    GenericModelResponse createlesson(CreatelessonModelRequest request);
+
+    GenericModelResponse deletelesson(@Valid DeletelessonModelRequest request);
+
+    LessonModelResponse listlessonById(@Valid ListlessonByIdModelRequest request);
+
+    GenericModelResponse updatelesson(@Valid UpdatelessonModelRequest request);
+
+    List<LessonModelResponse> listLeasonByMentorId(ListlessonByMentorIdModelRequest request);
+}

@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CreateLeasonModelRequest {
+public class CreatelessonModelRequest {
 
     @NotBlank(message = "O título da aula é obrigatório.")
     @Size(max = 200, message = "O título da aula deve ter no máximo 200 caracteres.")

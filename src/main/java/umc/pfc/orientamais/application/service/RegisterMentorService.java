@@ -8,6 +8,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequ
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.RegistrationTokenRepository;
+import umc.pfc.orientamais.adapters.output.persistence.repository.LessonRepository;
 import umc.pfc.orientamais.application.port.input.RegisterMentorUseCase;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
 import umc.pfc.orientamais.domain.model.AuthUser;
@@ -24,6 +25,7 @@ public class RegisterMentorService implements RegisterMentorUseCase {
     private final RegistrationTokenRepository tokenRepository;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final MentorRepository mentorRepository;
+    private final LessonRepository lessonRepository;
 
     @Override
     @Transactional

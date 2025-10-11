@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "class")
-public class Leason {
+public class Lesson {
 
     @Id
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
