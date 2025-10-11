@@ -48,6 +48,7 @@ public class ValidateEmailService implements ValidateEmailUseCase {
                 .fromUriString(registerUrl)
                 .path("mentor")
                 .queryParam("token", token.getToken())
+                .queryParam("email", token.getEmail())
                 .toUriString();
 
         String htmlContent = templateProvider.buildMentorRegisterEmail(link);
