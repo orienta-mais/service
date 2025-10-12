@@ -3,7 +3,9 @@ package umc.pfc.orientamais.domain.model.mentor;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 import umc.pfc.orientamais.domain.model.AuthUser;
+import umc.pfc.orientamais.domain.model.Profile;
 import umc.pfc.orientamais.domain.model.clazz.Class;
 
 import java.time.LocalDate;
@@ -14,7 +16,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "mentor")
-public class Mentor {
+public class Mentor implements Profile {
 
     @Id
     @GeneratedValue
@@ -48,4 +50,16 @@ public class Mentor {
 
     @OneToMany(mappedBy = "mentor")
     private List<MentorInterest> interests;
+
+    @Override
+    public void fillFromRequest(AuthUser user, UserRegisterModelRequest request) {
+        this.user = user;
+        this.name = request.name();
+        this.lastName = request.lastName();
+        this.birthDate = request.birthDate();
+        this.socialMedias = request.socialMedias();
+        this.description = request.description();
+        this.state = request.state();
+        this.nationality = request.nationality();
+    }
 }

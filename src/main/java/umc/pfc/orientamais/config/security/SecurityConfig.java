@@ -18,6 +18,7 @@ import umc.pfc.orientamais.config.security.jwt.JwtAuthenticationFilter;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CorsConfig corsConfig;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -28,6 +29,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .sessionManagement(
                         session -> session
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -38,7 +40,9 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/api/auth/**",
                                 "/api/mentor/validate-email",
-                                "/api/mentor/register"
+                                "/api/mentor/register",
+                                "/api/mentored/validate-email",
+                                "/api/mentored/register"
                         ).permitAll()
                         .requestMatchers("/api/mentor/**").hasAnyRole("MENTOR", "ADMIN")
                         .requestMatchers("/api/mentored/**").hasAnyRole("MENTORED", "ADMIN")
