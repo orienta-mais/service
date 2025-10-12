@@ -33,7 +33,11 @@ public class Auth {
             throw new InvalidOrExpiredTokenException();
         }
 
-        String refreshToken = authHeader.substring(7);
+        String refreshToken = authHeader.substring(7).trim();
+        if (refreshToken.isEmpty()) {
+            throw new InvalidOrExpiredTokenException();
+        }
+
         LoginResponse response = loginUseCase.refreshToken(refreshToken);
         return ResponseEntity.ok(response);
     }

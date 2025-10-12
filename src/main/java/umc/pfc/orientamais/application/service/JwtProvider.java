@@ -1,4 +1,4 @@
-package umc.pfc.orientamais.config.security.jwt;
+package umc.pfc.orientamais.application.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -32,6 +32,7 @@ public class JwtProvider {
     private long accessTokenValidity;
     @Value("${jwt.refresh-expiration-ms}")
     private long refreshTokenValidity;
+    private final String issuer = "orienta-mais";
 
     public String generateAccessToken(AuthUser userAuth) {
         try {
@@ -39,7 +40,7 @@ public class JwtProvider {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
             return JWT.create()
-                    .withIssuer("orienta-mais")
+                    .withIssuer(issuer)
                     .withSubject(userAuth.getEmail())
                     .withClaim("id", profile.getId().toString())
                     .withClaim("name", profile.getName())
@@ -55,7 +56,7 @@ public class JwtProvider {
     public String generateRefreshToken(AuthUser user) {
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
         String token = JWT.create()
-                .withIssuer("orienta-mais")
+                .withIssuer(issuer)
                 .withSubject(user.getEmail())
                 .withClaim("role", String.valueOf(user.getRole()))
                 .withExpiresAt(this.generateExpirationDate(refreshTokenValidity))
@@ -77,7 +78,7 @@ public class JwtProvider {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
             return JWT.require(algorithm)
-                    .withIssuer("orienta-mais")
+                    .withIssuer(issuer)
                     .build()
                     .verify(token)
                     .getSubject();
