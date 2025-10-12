@@ -7,7 +7,6 @@ import umc.pfc.orientamais.adapters.input.rest.dto.response.LoginResponse;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.RefreshTokenRepository;
 import umc.pfc.orientamais.application.port.input.LoginUseCase;
-import umc.pfc.orientamais.config.security.jwt.JwtProvider;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.AuthUser;
 import umc.pfc.orientamais.domain.model.RefreshToken;
