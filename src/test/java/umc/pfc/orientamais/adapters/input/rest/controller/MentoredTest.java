@@ -26,10 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class MentorTest {
+class MentoredTest {
 
     @InjectMocks
-    private Mentor mentorController;
+    private Mentored mentoredController;
 
     @Mock
     private ValidateEmailUseCase validateEmailUseCase;
@@ -42,9 +42,9 @@ class MentorTest {
 
     @BeforeEach
     void setUp() {
-        emailRequest = new EmailModelRequest("mentor@email.com");
+        emailRequest = new EmailModelRequest("mentored@email.com");
         registerRequest = new UserRegisterModelRequest(
-                "mentor@email.com",
+                "mentored@email.com",
                 "Name",
                 "Last Name",
                 "12345678",
@@ -53,67 +53,67 @@ class MentorTest {
                 null,
                 "SP",
                 "BR",
-                AuthUserRole.MENTOR,
+                AuthUserRole.MENTORED,
                 "token123"
         );
     }
 
     @Test
     void shouldValidateEmailSuccessfully() {
-        doNothing().when(validateEmailUseCase).validateAndSendLink(emailRequest, AuthUserRole.MENTOR);
+        doNothing().when(validateEmailUseCase).validateAndSendLink(emailRequest, AuthUserRole.MENTORED);
 
-        ResponseEntity<GenericModelResponse> response = mentorController.validateEmail(emailRequest);
+        ResponseEntity<GenericModelResponse> response = mentoredController.validateEmail(emailRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         assertEquals("EMAIL_VALIDATED", response.getBody().getCode());
         assertEquals("Validation link sent to email", response.getBody().getMessage());
-        verify(validateEmailUseCase).validateAndSendLink(emailRequest, AuthUserRole.MENTOR);
+        verify(validateEmailUseCase).validateAndSendLink(emailRequest, AuthUserRole.MENTORED);
     }
 
     @Test
     void shouldThrowWhenValidateEmailFails() {
         doThrow(new InvalidOrExpiredTokenException())
-                .when(validateEmailUseCase).validateAndSendLink(emailRequest, AuthUserRole.MENTOR);
+                .when(validateEmailUseCase).validateAndSendLink(emailRequest, AuthUserRole.MENTORED);
 
         assertThrows(InvalidOrExpiredTokenException.class, () ->
-                mentorController.validateEmail(emailRequest));
+                mentoredController.validateEmail(emailRequest));
 
-        verify(validateEmailUseCase).validateAndSendLink(emailRequest, AuthUserRole.MENTOR);
+        verify(validateEmailUseCase).validateAndSendLink(emailRequest, AuthUserRole.MENTORED);
     }
 
     @Test
     void shouldRegisterUserSuccessfully() {
-        doNothing().when(registerUseCase).register(registerRequest, AuthUserRole.MENTOR);
+        doNothing().when(registerUseCase).register(registerRequest, AuthUserRole.MENTORED);
 
-        ResponseEntity<GenericModelResponse> response = mentorController.register(registerRequest);
+        ResponseEntity<GenericModelResponse> response = mentoredController.register(registerRequest);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(response.getBody());
         assertEquals("USER_CREATED", response.getBody().getCode());
         assertEquals("User registered successfully", response.getBody().getMessage());
-        verify(registerUseCase).register(registerRequest, AuthUserRole.MENTOR);
+        verify(registerUseCase).register(registerRequest, AuthUserRole.MENTORED);
     }
 
     @Test
     void shouldThrowWhenRegisterFailsDueToExistingEmail() {
         doThrow(new EmailAlreadyExistsException("Email already exists"))
-                .when(registerUseCase).register(registerRequest, AuthUserRole.MENTOR);
+                .when(registerUseCase).register(registerRequest, AuthUserRole.MENTORED);
 
         assertThrows(EmailAlreadyExistsException.class, () ->
-                mentorController.register(registerRequest));
+                mentoredController.register(registerRequest));
 
-        verify(registerUseCase).register(registerRequest, AuthUserRole.MENTOR);
+        verify(registerUseCase).register(registerRequest, AuthUserRole.MENTORED);
     }
 
     @Test
     void shouldThrowWhenRegisterFailsWithInternalError() {
         doThrow(new InternalErrorException("Database error"))
-                .when(registerUseCase).register(registerRequest, AuthUserRole.MENTOR);
+                .when(registerUseCase).register(registerRequest, AuthUserRole.MENTORED);
 
         assertThrows(InternalErrorException.class, () ->
-                mentorController.register(registerRequest));
+                mentoredController.register(registerRequest));
 
-        verify(registerUseCase).register(registerRequest, AuthUserRole.MENTOR);
+        verify(registerUseCase).register(registerRequest, AuthUserRole.MENTORED);
     }
 }
