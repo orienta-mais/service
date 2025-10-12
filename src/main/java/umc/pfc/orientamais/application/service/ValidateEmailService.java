@@ -30,12 +30,12 @@ public class ValidateEmailService implements ValidateEmailUseCase {
     private String registerUrl;
 
     @Override
-    public void validateAndSendLink(EmailModelRequest request) {
+    public void validateAndSendLink(EmailModelRequest request, AuthUserRole role) {
         if (authUserRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException("Email já cadastrado: " + request.email());
         }
 
-        RegistrationToken token = tokenFactory.create(request.email(), AuthUserRole.MENTOR);
+        RegistrationToken token = tokenFactory.create(request.email(), role);
         try {
             tokenRepository.save(token);
         } catch (Exception e) {
@@ -46,7 +46,7 @@ public class ValidateEmailService implements ValidateEmailUseCase {
 
         String link = UriComponentsBuilder
                 .fromUriString(registerUrl)
-                .path("mentor")
+                .path(role.toString().toLowerCase())
                 .queryParam("token", token.getToken())
                 .queryParam("email", token.getEmail())
                 .toUriString();
