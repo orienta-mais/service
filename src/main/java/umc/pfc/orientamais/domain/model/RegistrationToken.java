@@ -31,9 +31,14 @@ public class RegistrationToken {
     @Column(nullable = false)
     private LocalDateTime expiration;
 
-    public RegistrationToken(String email, String token, LocalDateTime expiration) {
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AuthUserRole role;
+
+    public RegistrationToken(String email, String token, LocalDateTime expiration, AuthUserRole role) {
         this.email = email;
         this.token = token;
         this.expiration = expiration;
+        this.role = role;
     }
 }
