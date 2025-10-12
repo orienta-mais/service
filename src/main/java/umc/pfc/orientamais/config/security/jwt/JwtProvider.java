@@ -9,10 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
+import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.RefreshTokenRepository;
 import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
 import umc.pfc.orientamais.domain.model.AuthUser;
+import umc.pfc.orientamais.domain.model.Profile;
 import umc.pfc.orientamais.domain.model.RefreshToken;
 
 import java.time.Instant;
@@ -21,30 +23,30 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class JwtProvider {
 
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final MentorRepository mentorRepository;
+    private final MentoredRepository mentoredRepository;
     @Value("${jwt.secret}")
     private String secretKey;
-
     @Value("${jwt.expiration-ms}")
     private long accessTokenValidity;
-
     @Value("${jwt.refresh-expiration-ms}")
     private long refreshTokenValidity;
 
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final MentorRepository mentorRepository;
-
     public String generateAccessToken(AuthUser userAuth) {
         try {
-            var user = mentorRepository.findByUserId(userAuth.getId());
+            Profile profile = findProfile(userAuth);
             Algorithm algorithm = Algorithm.HMAC256(secretKey);
+
             return JWT.create()
                     .withIssuer("orienta-mais")
                     .withSubject(userAuth.getEmail())
-                    .withClaim("id", String.valueOf(user.getId()))
-                    .withClaim("name", String.valueOf(user.getName()))
-                    .withClaim("role", String.valueOf(userAuth.getRole()))
-                    .withExpiresAt(this.generateExpirationDate(accessTokenValidity))
+                    .withClaim("id", profile.getId().toString())
+                    .withClaim("name", profile.getName())
+                    .withClaim("role", userAuth.getRole().name())
+                    .withExpiresAt(generateExpirationDate(accessTokenValidity))
                     .sign(algorithm);
+
         } catch (JWTCreationException e) {
             throw new InternalErrorException("Erro ao gerar token JWT");
         }
@@ -79,16 +81,24 @@ public class JwtProvider {
                     .build()
                     .verify(token)
                     .getSubject();
-        }
-        catch (TokenExpiredException e) {
+        } catch (TokenExpiredException e) {
             throw new InvalidOrExpiredTokenException();
-        }
-        catch (JWTVerificationException e) {
+        } catch (JWTVerificationException e) {
             return null;
         }
     }
 
     private Instant generateExpirationDate(Long expirationTimeInMs) {
         return Instant.now().plusMillis(expirationTimeInMs);
+    }
+
+    private Profile findProfile(AuthUser userAuth) {
+        return switch (userAuth.getRole()) {
+            case MENTOR -> mentorRepository.findByUserId(userAuth.getId())
+                    .orElseThrow(() -> new InternalErrorException("Perfil de mentor não encontrado"));
+            case MENTORED -> mentoredRepository.findByUserId(userAuth.getId())
+                    .orElseThrow(() -> new InternalErrorException("Perfil de mentorado não encontrado"));
+            default -> throw new InternalErrorException("Tipo de usuário inválido");
+        };
     }
 }
