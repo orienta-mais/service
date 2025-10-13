@@ -54,10 +54,10 @@ public class LessonService implements LessonUseCase {
     }
 
     @Override
-    public GenericModelResponse updatelesson(UpdatelessonModelRequest request) {
-        UUID lessonId = UUID.fromString(request.getId());
+    public GenericModelResponse updatelesson(String lessonId, UpdatelessonModelRequest request) {
+        UUID lessonIdParsed = UUID.fromString(lessonId);
         var lesson = mapper.map(request, Lesson.class);
-        lessonRepository.findById(lessonId)
+        lessonRepository.findById(lessonIdParsed)
                 .orElseThrow(() -> new NotFoundException("lesson não encontrado"));
         mentorRepository.findById(request.getMentorId())
                 .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
@@ -67,7 +67,7 @@ public class LessonService implements LessonUseCase {
     }
 
     @Override
-    public List<LessonModelResponse> listlessonByMentorId(UUID request) {
+    public List<LessonModelResponse> listLeasonByMentorId(UUID request) {
         var lessons = lessonRepository.findByMentorId(request);
         return lessons.stream()
                 .map(lesson -> mapper.map(lesson, LessonModelResponse.class))

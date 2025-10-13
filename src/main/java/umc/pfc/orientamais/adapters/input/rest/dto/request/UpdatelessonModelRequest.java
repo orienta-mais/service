@@ -9,7 +9,6 @@ import java.util.UUID;
 @Getter
 @Setter
 public class UpdatelessonModelRequest {
-    private String id;
     private String title;
     private String description;
     private String link;

@@ -48,10 +48,10 @@ public class Lesson {
         }
     }
 
-    @PutMapping("/update-lesson")
-    public ResponseEntity<GenericModelResponse> updatelesson(@Valid @RequestBody UpdatelessonModelRequest request) {
+    @PutMapping("/update-lesson/{lessonId}")
+    public ResponseEntity<GenericModelResponse> updatelesson(@PathVariable String lessonId, @Valid @RequestBody UpdatelessonModelRequest request) {
         try {
-            GenericModelResponse reponse = lessonUseCase.updatelesson(request);
+            GenericModelResponse reponse = lessonUseCase.updatelesson(lessonId, request);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(reponse);

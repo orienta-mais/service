@@ -39,10 +39,10 @@ public class Mentor {
                 new GenericModelResponse("USER_CREATED", "User registered successfully"));
     }
 
-    @GetMapping("/lesson/find-all/{mentorId}")
+    @GetMapping("/leason/find-all/{mentorId}")
     public ResponseEntity<?> listlessonById(@Valid @PathVariable UUID mentorId) {
         try {
-            var reponse = lessonUseCase.listlessonByMentorId(mentorId);
+            var reponse = lessonUseCase.listLeasonByMentorId(mentorId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(reponse);
