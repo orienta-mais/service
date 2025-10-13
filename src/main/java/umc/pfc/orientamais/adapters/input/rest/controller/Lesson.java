@@ -7,10 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreatelessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.DeletelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/lesson")
@@ -20,7 +21,7 @@ public class Lesson {
     private final ModelMapper mapper;
     private final LessonUseCase lessonUseCase;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<GenericModelResponse> createlesson(@Valid @RequestBody CreatelessonModelRequest request) {
         try {
             GenericModelResponse reponse = lessonUseCase.createlesson(request);
@@ -62,7 +63,7 @@ public class Lesson {
         }
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{request}")
     public ResponseEntity<GenericModelResponse> deletelesson(@Valid @PathVariable String request) {
         try {
             GenericModelResponse reponse = lessonUseCase.deletelesson(request);
@@ -73,6 +74,20 @@ public class Lesson {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(new GenericModelResponse("ERROR", "Error deleting lesson: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/mentor/{mentorId}/lessons")
+    public ResponseEntity<?> listlessonById(@Valid @PathVariable UUID mentorId) {
+        try {
+            var reponse = lessonUseCase.listLeasonByMentorId(mentorId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(reponse);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new GenericModelResponse("ERROR", "Error listing lesson: " + e.getMessage()));
         }
     }
 }

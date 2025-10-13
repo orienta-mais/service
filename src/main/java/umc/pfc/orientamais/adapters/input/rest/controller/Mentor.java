@@ -38,18 +38,4 @@ public class Mentor {
         return ResponseEntity.ok(
                 new GenericModelResponse("USER_CREATED", "User registered successfully"));
     }
-
-    @GetMapping("/leason/find-all/{mentorId}")
-    public ResponseEntity<?> listlessonById(@Valid @PathVariable UUID mentorId) {
-        try {
-            var reponse = lessonUseCase.listLeasonByMentorId(mentorId);
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(reponse);
-        } catch (RuntimeException e) {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body(new GenericModelResponse("ERROR", "Error listing lesson: " + e.getMessage()));
-        }
-    }
 }
