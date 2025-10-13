@@ -46,8 +46,8 @@ public class LessonService implements LessonUseCase {
     }
 
     @Override
-    public LessonModelResponse listlessonById(ListlessonByIdModelRequest request) {
-        UUID lessonId = UUID.fromString(request.getLessonId());
+    public LessonModelResponse listlessonById(String request) {
+        UUID lessonId = UUID.fromString(request);
         var lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new NotFoundException("lesson não encontrado"));
         return mapper.map(lesson, LessonModelResponse.class);

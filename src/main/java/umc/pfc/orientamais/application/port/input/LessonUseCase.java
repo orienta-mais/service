@@ -13,7 +13,7 @@ public interface LessonUseCase {
 
     GenericModelResponse deletelesson(@Valid DeletelessonModelRequest request);
 
-    LessonModelResponse listlessonById(@Valid ListlessonByIdModelRequest request);
+    LessonModelResponse listlessonById(@Valid String request);
 
     GenericModelResponse updatelesson(@Valid UpdatelessonModelRequest request);
 

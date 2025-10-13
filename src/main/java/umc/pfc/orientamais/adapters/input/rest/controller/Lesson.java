@@ -8,13 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.DeletelessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.ListlessonByIdModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
 
 @RestController
-@RequestMapping("/api/mentor/lesson")
+@RequestMapping("/lesson")
 @RequiredArgsConstructor
 public class Lesson {
 
@@ -36,9 +35,9 @@ public class Lesson {
     }
 
     @GetMapping("/list-lesson-by-id")
-    public ResponseEntity<?> listlessonById(@Valid @RequestBody ListlessonByIdModelRequest request) {
+    public ResponseEntity<?> listlessonById(@Valid @RequestParam String lessonId) {
         try {
-            var reponse = lessonUseCase.listlessonById(request);
+            var reponse = lessonUseCase.listlessonById(lessonId);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(reponse);
