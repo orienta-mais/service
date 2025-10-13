@@ -34,8 +34,8 @@ public class Lesson {
         }
     }
 
-    @GetMapping("/list-lesson-by-id")
-    public ResponseEntity<?> listlessonById(@Valid @RequestParam String lessonId) {
+    @GetMapping("/list-lesson-by-id/{lessonId}")
+    public ResponseEntity<?> listlessonById(@Valid @PathVariable String lessonId) {
         try {
             var reponse = lessonUseCase.listlessonById(lessonId);
             return ResponseEntity
