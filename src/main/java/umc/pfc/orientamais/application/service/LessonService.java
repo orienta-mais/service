@@ -36,8 +36,8 @@ public class LessonService implements LessonUseCase {
     }
 
     @Override
-    public GenericModelResponse deletelesson(DeletelessonModelRequest request) {
-        UUID lessonId = UUID.fromString(request.getLessonId());
+    public GenericModelResponse deletelesson(String request) {
+        UUID lessonId = UUID.fromString(request);
         lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new NotFoundException("lesson não encontrado"));
         lessonRepository.deleteById(lessonId);

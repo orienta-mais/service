@@ -11,7 +11,7 @@ import java.util.UUID;
 public interface LessonUseCase {
     GenericModelResponse createlesson(CreatelessonModelRequest request);
 
-    GenericModelResponse deletelesson(@Valid DeletelessonModelRequest request);
+    GenericModelResponse deletelesson(@Valid String request);
 
     LessonModelResponse listlessonById(@Valid String request);
 

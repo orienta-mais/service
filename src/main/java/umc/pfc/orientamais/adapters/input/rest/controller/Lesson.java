@@ -20,7 +20,7 @@ public class Lesson {
     private final ModelMapper mapper;
     private final LessonUseCase lessonUseCase;
 
-    @PostMapping("/create-lesson")
+    @PostMapping("")
     public ResponseEntity<GenericModelResponse> createlesson(@Valid @RequestBody CreatelessonModelRequest request) {
         try {
             GenericModelResponse reponse = lessonUseCase.createlesson(request);
@@ -34,7 +34,7 @@ public class Lesson {
         }
     }
 
-    @GetMapping("/list-lesson-by-id/{lessonId}")
+    @GetMapping("/{lessonId}")
     public ResponseEntity<?> listlessonById(@Valid @PathVariable String lessonId) {
         try {
             var reponse = lessonUseCase.listlessonById(lessonId);
@@ -48,7 +48,7 @@ public class Lesson {
         }
     }
 
-    @PutMapping("/update-lesson/{lessonId}")
+    @PutMapping("/{lessonId}")
     public ResponseEntity<GenericModelResponse> updatelesson(@PathVariable String lessonId, @Valid @RequestBody UpdatelessonModelRequest request) {
         try {
             GenericModelResponse reponse = lessonUseCase.updatelesson(lessonId, request);
@@ -62,8 +62,8 @@ public class Lesson {
         }
     }
 
-    @DeleteMapping("/delete-lesson")
-    public ResponseEntity<GenericModelResponse> deletelesson(@Valid @RequestBody DeletelessonModelRequest request) {
+    @DeleteMapping
+    public ResponseEntity<GenericModelResponse> deletelesson(@Valid @PathVariable String request) {
         try {
             GenericModelResponse reponse = lessonUseCase.deletelesson(request);
             return ResponseEntity
