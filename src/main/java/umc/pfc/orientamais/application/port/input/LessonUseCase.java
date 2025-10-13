@@ -17,5 +17,5 @@ public interface LessonUseCase {
 
     GenericModelResponse updatelesson(@Valid UpdatelessonModelRequest request);
 
-    List<LessonModelResponse> listLeasonByMentorId(UUID request);
+    List<LessonModelResponse> listlessonByMentorId(UUID request);
 }
