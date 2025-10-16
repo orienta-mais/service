@@ -14,7 +14,7 @@ import umc.pfc.orientamais.application.port.input.LessonUseCase;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/lesson")
+@RequestMapping("/api/lesson")
 @RequiredArgsConstructor
 public class Lesson {
 
