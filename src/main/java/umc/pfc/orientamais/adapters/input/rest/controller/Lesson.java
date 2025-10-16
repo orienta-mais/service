@@ -63,7 +63,7 @@ public class Lesson {
         }
     }
 
-    @DeleteMapping("/{request}")
+    @DeleteMapping("/{lessonId}")
     public ResponseEntity<GenericModelResponse> deletelesson(@Valid @PathVariable String request) {
         try {
             GenericModelResponse reponse = lessonUseCase.deletelesson(request);
