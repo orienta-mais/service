@@ -11,7 +11,6 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.LessonReposito
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
-import umc.pfc.orientamais.domain.model.Lesson;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,10 +23,11 @@ public class LessonService implements LessonUseCase {
     private final LessonRepository lessonRepository;
     private final MentorRepository mentorRepository;
     private final ModelMapper mapper;
+    private final LessonMapper lessonMapper;
 
     @Override
     public GenericModelResponse createlesson(CreatelessonModelRequest request) {
-        var lesson = mapper.map(request, Lesson.class);
+        var lesson = lessonMapper.requestToEntity(request);
         mentorRepository.findById(request.getMentorId())
                 .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
         lessonRepository.save(lesson);
@@ -50,13 +50,13 @@ public class LessonService implements LessonUseCase {
         UUID lessonId = UUID.fromString(request);
         var lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new NotFoundException("lesson não encontrado"));
-        return mapper.map(lesson, LessonModelResponse.class);
+        return lessonMapper.entityToResponse(lesson);
     }
 
     @Override
     public GenericModelResponse updatelesson(String lessonId, UpdatelessonModelRequest request) {
         UUID lessonIdParsed = UUID.fromString(lessonId);
-        var lesson = mapper.map(request, Lesson.class);
+        var lesson = lessonMapper.requestToEntity(request, lessonIdParsed);
         lessonRepository.findById(lessonIdParsed)
                 .orElseThrow(() -> new NotFoundException("lesson não encontrado"));
         mentorRepository.findById(request.getMentorId())
@@ -69,8 +69,6 @@ public class LessonService implements LessonUseCase {
     @Override
     public List<LessonModelResponse> listLeasonByMentorId(UUID request) {
         var lessons = lessonRepository.findByMentorId(request);
-        return lessons.stream()
-                .map(lesson -> mapper.map(lesson, LessonModelResponse.class))
-                .toList();
+        return lessonMapper.entityToResponse(lessons);
     }
 }

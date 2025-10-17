@@ -6,7 +6,9 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Getter
@@ -25,10 +27,14 @@ public class CreatelessonModelRequest {
 
     private Integer maxGuest;
 
-    @NotNull(message = "O horário de início é obrigatório.")
-    private LocalDateTime startTime;
+    @NotNull(message = "A data da mentoria é obrigatória.")
+    private LocalDate date;
 
-    private LocalDateTime endTime;
+    @NotNull(message = "O horário de início é obrigatório.")
+    private LocalTime startTime;
+
+    @NotNull(message = "O horário de finalização é obrigatório.")
+    private LocalTime endTime;
 
     @NotNull(message = "O mentor é obrigatório.")
     private UUID mentorId;
