@@ -3,6 +3,7 @@ package umc.pfc.orientamais.application.service;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
@@ -11,7 +12,9 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.LessonReposito
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
+import umc.pfc.orientamais.domain.model.Lesson;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -69,6 +72,26 @@ public class LessonService implements LessonUseCase {
     @Override
     public List<LessonModelResponse> listLeasonByMentorId(UUID request) {
         var lessons = lessonRepository.findByMentorId(request);
+        return lessonMapper.entityToResponse(lessons);
+    }
+
+    @Override
+    public List<LessonModelResponse> listLesson(String title, LocalDate date) {
+        Specification<Lesson> spec = (root, query, cb) -> cb.conjunction();
+
+        if (title != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%")
+            );
+        }
+
+        if (date != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(cb.function("DATE", LocalDate.class, root.get("startTime")), date)
+            );
+        }
+
+        var lessons = lessonRepository.findAll(spec);
         return lessonMapper.entityToResponse(lessons);
     }
 }

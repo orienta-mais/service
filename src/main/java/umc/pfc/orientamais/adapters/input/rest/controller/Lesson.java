@@ -11,6 +11,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -81,6 +82,20 @@ public class Lesson {
     public ResponseEntity<?> listlessonById(@Valid @PathVariable UUID mentorId) {
         try {
             var reponse = lessonUseCase.listLeasonByMentorId(mentorId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(reponse);
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new GenericModelResponse("ERROR", "Error listing lesson: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/list-all-lessons")
+    public ResponseEntity<?> listlesson(@RequestParam(required = false) String title, @RequestParam(required = false) LocalDate date) {
+        try {
+            var reponse = lessonUseCase.listLesson(title, date);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(reponse);

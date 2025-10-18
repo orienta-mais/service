@@ -5,6 +5,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,4 +19,6 @@ public interface LessonUseCase {
     GenericModelResponse updatelesson(String lessonId, @Valid UpdatelessonModelRequest request);
 
     List<LessonModelResponse> listLeasonByMentorId(UUID request);
+
+    List<LessonModelResponse> listLesson(String title, LocalDate date);
 }
