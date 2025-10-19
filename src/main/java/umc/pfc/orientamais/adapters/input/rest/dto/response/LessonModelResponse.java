@@ -19,5 +19,5 @@ public class LessonModelResponse {
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
-    private String presentCode;
+    private String mentorName;
 }
