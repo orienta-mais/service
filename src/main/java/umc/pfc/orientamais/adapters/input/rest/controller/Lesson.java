@@ -93,9 +93,11 @@ public class Lesson {
     }
 
     @GetMapping("/list-all-lessons")
-    public ResponseEntity<?> listlesson(@RequestParam(required = false) String title, @RequestParam(required = false) LocalDate date) {
+    public ResponseEntity<?> listlesson(@RequestParam(required = false) String title,
+                                        @RequestParam(required = false) LocalDate date,
+                                        @RequestParam(required = false) String order) {
         try {
-            var reponse = lessonUseCase.listLesson(title, date);
+            var reponse = lessonUseCase.listLesson(title, date, order);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(reponse);

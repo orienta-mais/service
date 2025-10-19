@@ -76,7 +76,7 @@ public class LessonService implements LessonUseCase {
     }
 
     @Override
-    public List<LessonModelResponse> listLesson(String title, LocalDate date) {
+    public List<LessonModelResponse> listLesson(String title, LocalDate date, String order) {
         Specification<Lesson> spec = (root, query, cb) -> cb.conjunction();
 
         if (title != null) {
@@ -90,6 +90,16 @@ public class LessonService implements LessonUseCase {
                     cb.equal(cb.function("DATE", LocalDate.class, root.get("startTime")), date)
             );
         }
+        Specification<Lesson> orderBySpec = (root, query, cb) -> {
+            if ("desc".equalsIgnoreCase(order)) {
+                query.orderBy(cb.desc(root.get("startTime")));
+            } else {
+                query.orderBy(cb.asc(root.get("startTime")));
+            }
+            return null;
+        };
+
+        spec = spec.and(orderBySpec);
 
         var lessons = lessonRepository.findAll(spec);
         return lessonMapper.entityToResponse(lessons);
