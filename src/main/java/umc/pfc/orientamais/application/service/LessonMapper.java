@@ -66,7 +66,7 @@ public class LessonMapper {
         var endTime = lesson.getEndTime().toLocalTime();
         response.setStartTime(startTime);
         response.setEndTime(endTime);
-        response.setPresentCode(lesson.getPresentCode());
+        response.setMentorName(lesson.getMentor().getName());
         return response;
     }
 }
