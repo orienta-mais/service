@@ -1,7 +1,7 @@
 package umc.pfc.orientamais.application.service;
 
 import org.springframework.stereotype.Component;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.CreatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.domain.model.Lesson;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Component
 public class LessonMapper {
-    public Lesson requestToEntity(CreatelessonModelRequest request) {
+    public Lesson requestToEntity(CreateLessonModelRequest request) {
         var lesson = new Lesson();
         lesson.setTitle(request.getTitle());
         lesson.setDescription(request.getDescription());

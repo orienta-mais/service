@@ -1,24 +1,30 @@
 package umc.pfc.orientamais.adapters.input.rest.controller;
 
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.domain.exceptions.EmailAlreadyExistsException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class GlobalExceptionHandlerTest {
 
     private GlobalExceptionHandler handler;
@@ -37,19 +43,19 @@ class GlobalExceptionHandlerTest {
         );
 
         when(bindingResult.getFieldErrors()).thenReturn(fieldErrors);
+        MethodArgumentNotValidException exception = new MethodArgumentNotValidException(null, bindingResult);
 
-        MethodArgumentNotValidException exception =
-                new MethodArgumentNotValidException(null, bindingResult);
-
-        ResponseEntity<Map<String, Object>> response = handler.handleValidationExceptions(exception);
+        ResponseEntity<GenericModelResponse> response = handler.handleValidationExceptions(exception);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(response.getBody().containsKey("timestamp"));
-        assertEquals(400, response.getBody().get("status"));
-        assertInstanceOf(Map.class, response.getBody().get("errors"));
 
-        Map<String, String> errors = (Map<String, String>) response.getBody().get("errors");
+        GenericModelResponse body = response.getBody();
+        assertEquals("VALIDATION_ERROR", body.getCode());
+        assertEquals("Erro de validação nos campos", body.getMessage());
+        assertNotNull(body.getTimestamp());
+
+        Map<String, String> errors = (Map<String, String>) body.getData();
         assertEquals("Email inválido", errors.get("email"));
         assertEquals("Senha obrigatória", errors.get("password"));
     }
@@ -60,96 +66,119 @@ class GlobalExceptionHandlerTest {
         when(bindingResult.getFieldErrors()).thenReturn(List.of());
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(null, bindingResult);
 
-        ResponseEntity<Map<String, Object>> response = handler.handleValidationExceptions(exception);
+        ResponseEntity<GenericModelResponse> response = handler.handleValidationExceptions(exception);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Map<String, Object> body = response.getBody();
+        GenericModelResponse body = response.getBody();
         assertNotNull(body);
-        assertEquals(400, body.get("status"));
-        assertTrue(((Map<?, ?>) body.get("errors")).isEmpty());
+        assertEquals("VALIDATION_ERROR", body.getCode());
+        assertTrue(((Map<?, ?>) body.getData()).isEmpty());
+    }
+
+    @Test
+    void shouldHandleConstraintViolationException() {
+        ConstraintViolationException ex = new ConstraintViolationException("Campo inválido", Set.of());
+
+        ResponseEntity<GenericModelResponse> response = handler.handleConstraintViolation(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        GenericModelResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("CONSTRAINT_VIOLATION", body.getCode());
+        assertEquals("Campo inválido", body.getMessage());
+    }
+
+    @Test
+    void shouldHandleRuntimeException() {
+        RuntimeException ex = new RuntimeException("Erro inesperado");
+
+        ResponseEntity<GenericModelResponse> response = handler.handleRuntimeException(ex);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        GenericModelResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("RUNTIME_ERROR", body.getCode());
+        assertEquals("Erro inesperado", body.getMessage());
+        assertNotNull(body.getTimestamp());
+    }
+
+    @Test
+    void shouldHandleRuntimeExceptionWithNullMessage() {
+        RuntimeException ex = new RuntimeException((String) null);
+
+        ResponseEntity<GenericModelResponse> response = handler.handleRuntimeException(ex);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        GenericModelResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("RUNTIME_ERROR", body.getCode());
+        assertEquals("Ocorreu um erro inesperado", body.getMessage());
     }
 
     @Test
     void shouldHandleInvalidOrExpiredTokenException() {
         InvalidOrExpiredTokenException ex = new InvalidOrExpiredTokenException();
-        ResponseEntity<Map<String, Object>> response = handler.handleBusinessExceptions(ex);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().containsKey("timestamp"));
-        assertEquals(400, response.getBody().get("status"));
-        assertTrue(response.getBody().get("error").toString().contains("token"));
+        ResponseEntity<GenericModelResponse> response = handler.handleInvalidOrExpiredToken(ex);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        GenericModelResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("INVALID_TOKEN", body.getCode());
+        assertEquals("O token fornecido é inválido ou expirou!", body.getMessage());
     }
 
     @Test
     void shouldHandleEmailAlreadyExistsException() {
         EmailAlreadyExistsException ex = new EmailAlreadyExistsException("Email já cadastrado");
-        ResponseEntity<Map<String, Object>> response = handler.handleBusinessExceptions(ex);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(400, response.getBody().get("status"));
-        assertEquals("Email já cadastrado", response.getBody().get("error"));
+        ResponseEntity<GenericModelResponse> response = handler.handleEmailAlreadyExists(ex);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        GenericModelResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("EMAIL_EXISTS", body.getCode());
+        assertEquals("Email já cadastrado", body.getMessage());
     }
 
     @Test
     void shouldHandleNotFoundException() {
         NotFoundException ex = new NotFoundException("Recurso não encontrado");
-        ResponseEntity<Map<String, Object>> response = handler.handleBusinessExceptions(ex);
 
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Recurso não encontrado", response.getBody().get("error"));
-    }
+        ResponseEntity<GenericModelResponse> response = handler.handleNotFound(ex);
 
-    @Test
-    void shouldHandleBusinessExceptionWithNullMessage() {
-        EmailAlreadyExistsException ex = new EmailAlreadyExistsException(null);
-        ResponseEntity<Map<String, Object>> response = handler.handleBusinessExceptions(ex);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertNull(response.getBody().get("error"));
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        GenericModelResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("NOT_FOUND", body.getCode());
+        assertEquals("Recurso não encontrado", body.getMessage());
     }
 
     @Test
     void shouldHandleGenericException() {
         Exception ex = new Exception("Erro inesperado no servidor");
 
-        ResponseEntity<Map<String, Object>> response = handler.handleGenericException(ex);
+        ResponseEntity<GenericModelResponse> response = handler.handleGenericException(ex);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(500, response.getBody().get("status"));
-        assertEquals("Ocorreu um erro inesperado", response.getBody().get("error"));
-    }
-
-    @Test
-    void shouldHandleGenericExceptionWithNullMessage() {
-        Exception ex = new Exception((String) null);
-
-        ResponseEntity<Map<String, Object>> response = handler.handleGenericException(ex);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals("Ocorreu um erro inesperado", response.getBody().get("error"));
-        assertTrue(response.getBody().containsKey("timestamp"));
+        GenericModelResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("INTERNAL_ERROR", body.getCode());
+        assertEquals("Ocorreu um erro inesperado no servidor", body.getMessage());
+        assertNotNull(body.getTimestamp());
     }
 
     @Test
     void shouldContainCurrentTimestampInEveryResponse() {
-        LocalDateTime before = LocalDateTime.now();
-        Exception ex = new Exception("Test");
+        Instant before = Instant.now();
+        Exception ex = new Exception("Teste de timestamp");
 
-        ResponseEntity<Map<String, Object>> response = handler.handleGenericException(ex);
-        LocalDateTime after = LocalDateTime.now();
+        ResponseEntity<GenericModelResponse> response = handler.handleGenericException(ex);
 
         assertNotNull(response.getBody());
-        Object timestamp = response.getBody().get("timestamp");
-        assertNotNull(timestamp);
-        assertInstanceOf(LocalDateTime.class, timestamp);
-        LocalDateTime ts = (LocalDateTime) timestamp;
-        assertFalse(ts.isBefore(before.minusSeconds(1)));
-        assertFalse(ts.isAfter(after.plusSeconds(1)));
+        Instant ts = response.getBody().getTimestamp();
+        assertNotNull(ts);
+        assertFalse(ts.isBefore(before));
+        assertFalse(ts.isAfter(Instant.now().plusSeconds(1)));
     }
 }

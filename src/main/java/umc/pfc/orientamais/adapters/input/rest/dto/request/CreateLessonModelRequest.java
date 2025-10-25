@@ -7,13 +7,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
 @Getter
 @Setter
-public class CreatelessonModelRequest {
+public class CreateLessonModelRequest {
 
     @NotBlank(message = "O título da aula é obrigatório.")
     @Size(max = 200, message = "O título da aula deve ter no máximo 200 caracteres.")

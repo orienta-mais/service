@@ -32,7 +32,7 @@ public class JwtProvider {
     private long accessTokenValidity;
     @Value("${jwt.refresh-expiration-ms}")
     private long refreshTokenValidity;
-    private final String issuer = "orienta-mais";
+    private static final String issuer = "orienta-mais";
 
     public String generateAccessToken(AuthUser userAuth) {
         try {
