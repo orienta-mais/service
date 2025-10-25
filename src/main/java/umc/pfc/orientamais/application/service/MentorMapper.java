@@ -33,10 +33,6 @@ public class MentorMapper {
     }
 
     public void updateEntityFromRequest(Mentor mentor, MentorUpdateModelRequest request, BCryptPasswordEncoder encoder) {
-        if (request.email() != null)
-            mentor.getUser().setEmail(request.email());
-        if (request.password() != null)
-            mentor.getUser().setPassword(encoder.encode(request.password()));
         if (request.name() != null)
             mentor.setName(request.name());
         if (request.lastName() != null)
