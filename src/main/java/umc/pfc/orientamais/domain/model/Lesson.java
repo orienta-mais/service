@@ -3,6 +3,7 @@ package umc.pfc.orientamais.domain.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
 import java.time.LocalDateTime;
@@ -12,10 +13,11 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "class")
-public class Leason {
+public class Lesson {
 
     @Id
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    @UuidGenerator
     private UUID id;
 
     @Column(length = 200, nullable = false)

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class ListLeasonByIdModelRequest {
+public class ListlessonByIdModelRequest {
     @NotNull(message = "O ID da aula é obrigatório.")
-    private String leasonId;
+    private String lessonId;
 }

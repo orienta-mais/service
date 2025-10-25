@@ -2,17 +2,19 @@ package umc.pfc.orientamais.adapters.input.rest.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.ListlessonByMentorIdModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
+import umc.pfc.orientamais.application.port.input.LessonUseCase;
 import umc.pfc.orientamais.application.port.input.RegisterUseCase;
 import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
 import umc.pfc.orientamais.domain.model.AuthUserRole;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/mentor")
@@ -21,6 +23,7 @@ public class Mentor {
 
     private final ValidateEmailUseCase validateEmailUseCase;
     private final RegisterUseCase registerUseCase;
+    private final LessonUseCase lessonUseCase;
 
     @PostMapping("/validate-email")
     public ResponseEntity<GenericModelResponse> validateEmail(@Valid @RequestBody EmailModelRequest request) {
