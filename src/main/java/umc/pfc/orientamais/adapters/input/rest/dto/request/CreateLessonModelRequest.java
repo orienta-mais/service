@@ -7,20 +7,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-<<<<<<<< HEAD:src/main/java/umc/pfc/orientamais/adapters/input/rest/dto/request/CreatelessonModelRequest.java
-import java.time.LocalDateTime;
-========
->>>>>>>> develop:src/main/java/umc/pfc/orientamais/adapters/input/rest/dto/request/CreateLessonModelRequest.java
 import java.time.LocalTime;
 import java.util.UUID;
 
 @Getter
 @Setter
-<<<<<<<< HEAD:src/main/java/umc/pfc/orientamais/adapters/input/rest/dto/request/CreatelessonModelRequest.java
-public class CreatelessonModelRequest {
-========
 public class CreateLessonModelRequest {
->>>>>>>> develop:src/main/java/umc/pfc/orientamais/adapters/input/rest/dto/request/CreateLessonModelRequest.java
 
     @NotBlank(message = "O título da aula é obrigatório.")
     @Size(max = 200, message = "O título da aula deve ter no máximo 200 caracteres.")
