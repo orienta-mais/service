@@ -3,6 +3,8 @@ package umc.pfc.orientamais.domain.model.mentor;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorUpdateModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 import umc.pfc.orientamais.domain.model.AuthUser;
 import umc.pfc.orientamais.domain.model.Profile;
@@ -61,5 +63,17 @@ public class Mentor implements Profile {
         this.description = request.description();
         this.state = request.state();
         this.nationality = request.nationality();
+    }
+
+    public void updateFromRequest(MentorUpdateModelRequest request, BCryptPasswordEncoder passwordEncoder) {
+        this.user.updatePassword(request.password(), passwordEncoder);
+        this.user.setEmail(request.email());
+        this.setName(request.name());
+        this.setLastName(request.lastName());
+        this.setBirthDate(request.birthDate());
+        this.setSocialMedias(request.socialMedias());
+        this.setDescription(request.description());
+        this.setState(request.state());
+        this.setNationality(request.nationality());
     }
 }

@@ -48,7 +48,7 @@ public class RegisterService implements RegisterUseCase {
     @Override
     public void register(UserRegisterModelRequest request, AuthUserRole role) {
         RegistrationToken token = validateToken(request.token());
-        AuthUser user = createAuthUser(request);
+        AuthUser user = createAuthUser(request, role);
         authUserRepository.save(user);
 
         createProfile(user, role, request);
@@ -67,9 +67,9 @@ public class RegisterService implements RegisterUseCase {
         return token;
     }
 
-    private AuthUser createAuthUser(UserRegisterModelRequest request) {
+    private AuthUser createAuthUser(UserRegisterModelRequest request, AuthUserRole role) {
         String encryptedPassword = passwordEncoder.encode(request.password());
-        return new AuthUser(request.email(), encryptedPassword, request.role());
+        return new AuthUser(request.email(), encryptedPassword, role);
     }
 
     private <T extends Profile> void createProfile(AuthUser user, AuthUserRole role, UserRegisterModelRequest request) {

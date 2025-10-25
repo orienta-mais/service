@@ -5,13 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.UUID;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "auth_user")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthUser {
@@ -35,5 +36,9 @@ public class AuthUser {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public void updatePassword(String newPassword, BCryptPasswordEncoder passwordEncoder) {
+        this.password = passwordEncoder.encode(newPassword);
     }
 }
