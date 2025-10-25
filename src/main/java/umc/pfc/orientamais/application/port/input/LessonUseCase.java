@@ -10,15 +10,15 @@ import java.util.List;
 import java.util.UUID;
 
 public interface LessonUseCase {
-    GenericModelResponse createlesson(CreatelessonModelRequest request);
+    GenericModelResponse createLesson(CreateLessonModelRequest request);
 
-    GenericModelResponse deletelesson(@Valid String request);
+    GenericModelResponse deleteLesson(@Valid String request);
 
-    LessonModelResponse listlessonById(@Valid String request);
+    LessonModelResponse listLessonById(@Valid String request);
 
-    GenericModelResponse updatelesson(String lessonId, @Valid UpdatelessonModelRequest request);
+    GenericModelResponse updateLesson(String lessonId, @Valid UpdatelessonModelRequest request);
 
-    List<LessonModelResponse> listLeasonByMentorId(UUID request);
+    List<LessonModelResponse> listLessonByMentorId(UUID request);
 
     List<LessonModelResponse> listLesson(String title, LocalDate date, String order);
 }
