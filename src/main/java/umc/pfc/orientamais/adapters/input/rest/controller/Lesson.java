@@ -64,6 +64,14 @@ public class Lesson {
                 .body(response);
     }
 
+    @GetMapping("/mentored/{mentoredId}/lessons")
+    public ResponseEntity<List<LessonModelResponse>> listLessonByMentoredId(@Valid @PathVariable UUID mentoredId) {
+        List<LessonModelResponse> response = lessonUseCase.listLessonByMentoredId(mentoredId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
     @PostMapping("/{lessonId}/register-mentored")
     public ResponseEntity<GenericModelResponse> registerMentored(@PathVariable String lessonId) {
         GenericModelResponse response = lessonUseCase.registerMentored(lessonId);
