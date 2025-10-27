@@ -6,7 +6,7 @@ import lombok.Setter;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 import umc.pfc.orientamais.domain.model.AuthUser;
 import umc.pfc.orientamais.domain.model.Profile;
-import umc.pfc.orientamais.domain.model.clazz.ClassMentored;
+import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -49,7 +49,7 @@ public class Mentored implements Profile {
     private List<MentoredInterest> interests;
 
     @OneToMany(mappedBy = "mentored")
-    private List<ClassMentored> classes;
+    private List<LessonMentored> classes;
 
     @Override
     public void fillFromRequest(AuthUser user, UserRegisterModelRequest request) {

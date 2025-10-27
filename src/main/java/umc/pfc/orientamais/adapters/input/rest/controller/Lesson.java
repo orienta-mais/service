@@ -64,6 +64,12 @@ public class Lesson {
                 .body(response);
     }
 
+    @PostMapping("/{lessonId}/register-mentored")
+    public ResponseEntity<GenericModelResponse> registerMentored(@PathVariable String lessonId) {
+        GenericModelResponse response = lessonUseCase.registerMentored(lessonId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @GetMapping("/list-all-lessons")
     public ResponseEntity<List<LessonModelResponse>> listLesson(@RequestParam(required = false) String title,
                                                                 @RequestParam(required = false) LocalDate date,

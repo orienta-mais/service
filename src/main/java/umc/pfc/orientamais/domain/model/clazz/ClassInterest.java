@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import umc.pfc.orientamais.domain.model.Interest;
+import umc.pfc.orientamais.domain.model.Lesson;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ public class ClassInterest {
     @ManyToOne
     @MapsId("classId")
     @JoinColumn(name = "class_id")
-    private Class clazz;
+    private Lesson clazz;
 
     @ManyToOne
     @MapsId("interestId")

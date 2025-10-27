@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 import umc.pfc.orientamais.domain.model.AuthUser;
+import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.Profile;
-import umc.pfc.orientamais.domain.model.clazz.Class;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -46,7 +46,7 @@ public class Mentor implements Profile {
     private String nationality;
 
     @OneToMany(mappedBy = "mentor")
-    private List<Class> classes;
+    private List<Lesson> classes;
 
     @OneToMany(mappedBy = "mentor")
     private List<MentorInterest> interests;

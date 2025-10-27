@@ -3,21 +3,22 @@ package umc.pfc.orientamais.domain.model.clazz;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "class_mentored")
-public class ClassMentored {
+public class LessonMentored {
 
     @EmbeddedId
-    private ClassMentoredId id;
+    private LessonMentoredId id;
 
     @ManyToOne
-    @MapsId("classId")
+    @MapsId("lessonId")
     @JoinColumn(name = "class_id")
-    private Class clazz;
+    private Lesson lesson;
 
     @ManyToOne
     @MapsId("mentoredId")
