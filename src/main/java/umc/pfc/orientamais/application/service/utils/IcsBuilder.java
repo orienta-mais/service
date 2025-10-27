@@ -5,6 +5,7 @@ import umc.pfc.orientamais.domain.model.Lesson;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -18,9 +19,12 @@ public class IcsBuilder {
 
         var startUtc = lesson.getStartTime().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC"));
         var endUtc = lesson.getEndTime().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC"));
-
-        String meetLink = generateMeetLink();
-        lesson.setLink(meetLink);
+        String meetLink = Optional.ofNullable(lesson.getLink())
+                .orElseGet(() -> {
+                    String newLink = generateMeetLink();
+                    lesson.setLink(newLink);
+                    return newLink;
+                });
 
         StringBuilder sb = new StringBuilder();
         sb.append("BEGIN:VCALENDAR\r\n");
@@ -67,6 +71,6 @@ public class IcsBuilder {
         sb.append('-');
         for (int i = 0; i < 3; i++) sb.append(LETTERS.charAt(RANDOM.nextInt(LETTERS.length())));
 
-        return "https://meet.google.com/" + sb.toString();
+        return "https://meet.google.com/" + sb;
     }
 }

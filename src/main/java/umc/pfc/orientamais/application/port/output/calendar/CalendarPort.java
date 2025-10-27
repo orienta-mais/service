@@ -5,5 +5,6 @@ import umc.pfc.orientamais.domain.model.Lesson;
 import java.util.List;
 
 public interface CalendarPort {
-    String createEvent(Lesson lesson, List<String> attendees) throws CalendarException;
+    String createEvent(Lesson lesson, List<String> attendees);
+    void sendInviteToMentored(Lesson lesson, String mentoredEmail);
 }

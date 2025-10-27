@@ -107,12 +107,10 @@ public class LessonService implements LessonUseCase {
     @Transactional
     public GenericModelResponse registerMentored(String lessonId) {
         UUID lessonUUID = UUID.fromString(lessonId);
-
         Lesson lesson = lessonRepository.findById(lessonUUID)
                 .orElseThrow(() -> new NotFoundException("Aula não encontrada"));
 
         UUID mentoredAuthUserUUID = SecurityUtils.getCurrentProfileId();
-
         Mentored mentored = mentoredRepository.findByUserId(mentoredAuthUserUUID)
                 .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
 
@@ -130,15 +128,20 @@ public class LessonService implements LessonUseCase {
         LessonMentoredId id = new LessonMentoredId();
         id.setLessonId(lessonUUID);
         id.setMentoredId(mentored.getId());
-
         relation.setId(id);
         relation.setLesson(lesson);
         relation.setMentored(mentored);
-
         lessonMentoredRepository.save(relation);
 
-        return new GenericModelResponse("MENTORED_REGISTERED", "Inscrição realizada com sucesso!");
+        try {
+            calendarPort.sendInviteToMentored(lesson, mentored.getUser().getEmail());
+        } catch (Exception ex) {
+            System.err.println("Erro ao enviar convite para o mentorado: " + ex.getMessage());
+        }
+
+        return new GenericModelResponse("MENTORED_REGISTERED", "Inscrição realizada e convite enviado com sucesso!");
     }
+
 
     @Override
     public List<LessonModelResponse> listLesson(String title, LocalDate date, String order) {

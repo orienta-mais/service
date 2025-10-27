@@ -68,6 +68,48 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
         }
     }
 
+    @Override
+    public void sendInviteToMentored(Lesson lesson, String mentoredEmail) {
+        try {
+            String uid = IcsBuilder.generateUid(lesson);
+            String ics = IcsBuilder.buildIcsEvent(lesson, List.of(mentoredEmail), senderAddress, uid);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(mentoredEmail);
+            helper.setSubject("Convite para aula: " + lesson.getTitle());
+            helper.setText(buildHtmlBody(lesson), true);
+            helper.setFrom(senderAddress, "Orientamais");
+
+            helper.addAttachment("invite.ics", new DataSource() {
+                @Override
+                public InputStream getInputStream() {
+                    return new ByteArrayInputStream(ics.getBytes(StandardCharsets.UTF_8));
+                }
+
+                @Override
+                public OutputStream getOutputStream() {
+                    throw new UnsupportedOperationException("Read-only");
+                }
+
+                @Override
+                public String getContentType() {
+                    return "text/calendar; method=REQUEST; charset=UTF-8";
+                }
+
+                @Override
+                public String getName() {
+                    return "invite.ics";
+                }
+            });
+
+            mailSender.send(message);
+        } catch (Exception ex) {
+            throw new RuntimeException("Falha ao enviar convite por e-mail para o mentorado", ex);
+        }
+    }
+
+
     private String buildHtmlBody(Lesson lesson) {
         return "<p>Olá,</p>" +
                 "<p>Você foi convidado para a aula: <strong>" + lesson.getTitle() + "</strong></p>" +
