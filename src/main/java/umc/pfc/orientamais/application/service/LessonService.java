@@ -107,10 +107,12 @@ public class LessonService implements LessonUseCase {
     @Transactional
     public GenericModelResponse registerMentored(String lessonId) {
         UUID lessonUUID = UUID.fromString(lessonId);
+
         Lesson lesson = lessonRepository.findById(lessonUUID)
                 .orElseThrow(() -> new NotFoundException("Aula não encontrada"));
 
         UUID mentoredAuthUserUUID = SecurityUtils.getCurrentProfileId();
+
         Mentored mentored = mentoredRepository.findByUserId(mentoredAuthUserUUID)
                 .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
 
