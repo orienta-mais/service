@@ -12,6 +12,7 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.LessonMentored
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
+import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
@@ -35,6 +36,7 @@ class LessonServiceTest {
     private LessonService lessonService;
     private MentoredRepository mentoredRepository;
     private LessonMentoredRepository lessonMentoredRepository;
+    private CalendarPort calendarPort;
 
     @BeforeEach
     void setUp() {
@@ -48,7 +50,8 @@ class LessonServiceTest {
                 mentoredRepository,
                 lessonMentoredRepository,
                 mapper,
-                lessonMapper
+                lessonMapper,
+                calendarPort
         );
     }
 

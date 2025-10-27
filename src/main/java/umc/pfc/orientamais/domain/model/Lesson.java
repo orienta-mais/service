@@ -39,7 +39,7 @@ public class Lesson {
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
-    @Column(name = "end_time")
+    @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -48,4 +48,18 @@ public class Lesson {
 
     @Column(name = "present_code", length = 100)
     private String presentCode;
+
+    @Column(name = "external_event_id", length = 255)
+    private String externalEventId;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
