@@ -4,9 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
+import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
+import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter

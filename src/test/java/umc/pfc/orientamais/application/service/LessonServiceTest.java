@@ -8,8 +8,10 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+import umc.pfc.orientamais.adapters.output.persistence.repository.LessonMentoredRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
+import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
@@ -20,7 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class LessonServiceTest {
@@ -30,6 +33,8 @@ class LessonServiceTest {
     private ModelMapper mapper;
     private LessonMapper lessonMapper;
     private LessonService lessonService;
+    private MentoredRepository mentoredRepository;
+    private LessonMentoredRepository lessonMentoredRepository;
 
     @BeforeEach
     void setUp() {
@@ -37,7 +42,14 @@ class LessonServiceTest {
         mentorRepository = mock(MentorRepository.class);
         mapper = mock(ModelMapper.class);
         lessonMapper = mock(LessonMapper.class);
-        lessonService = new LessonService(lessonRepository, mentorRepository, mapper, lessonMapper);
+        lessonService = new LessonService(
+                lessonRepository,
+                mentorRepository,
+                mentoredRepository,
+                lessonMentoredRepository,
+                mapper,
+                lessonMapper
+        );
     }
 
     @Test

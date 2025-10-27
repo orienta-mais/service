@@ -3,7 +3,6 @@ package umc.pfc.orientamais.domain.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import umc.pfc.orientamais.domain.model.clazz.Class;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 import java.util.UUID;
@@ -25,5 +24,5 @@ public class Certificate {
 
     @ManyToOne
     @JoinColumn(name = "class_id", nullable = false)
-    private Class clazz;
+    private Lesson clazz;
 }

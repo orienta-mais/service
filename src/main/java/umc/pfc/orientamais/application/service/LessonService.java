@@ -9,11 +9,18 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+import umc.pfc.orientamais.adapters.output.persistence.repository.LessonMentoredRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
+import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
+import umc.pfc.orientamais.application.service.utils.SecurityUtils;
+import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.Lesson;
+import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
+import umc.pfc.orientamais.domain.model.clazz.LessonMentoredId;
+import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,12 +31,13 @@ import java.util.UUID;
 @AllArgsConstructor
 public class LessonService implements LessonUseCase {
 
+    private static final String lessonNotFoundMessage = "Lesson não encontrado";
     private final LessonRepository lessonRepository;
     private final MentorRepository mentorRepository;
+    private final MentoredRepository mentoredRepository;
+    private final LessonMentoredRepository lessonMentoredRepository;
     private final ModelMapper mapper;
     private final LessonMapper lessonMapper;
-
-    private static final String lessonNotFoundMessage = "Lesson não encontrado";
 
     @Override
     public GenericModelResponse createLesson(CreateLessonModelRequest request) {
@@ -76,6 +84,43 @@ public class LessonService implements LessonUseCase {
     public List<LessonModelResponse> listLessonByMentorId(UUID request) {
         var lessons = lessonRepository.findByMentorId(request);
         return lessonMapper.entityToResponse(lessons);
+    }
+
+    @Override
+    @Transactional
+    public GenericModelResponse registerMentored(String lessonId) {
+        UUID lessonUUID = UUID.fromString(lessonId);
+
+        Lesson lesson = lessonRepository.findById(lessonUUID)
+                .orElseThrow(() -> new NotFoundException("Aula não encontrada"));
+
+        UUID mentoredAuthUserUUID = SecurityUtils.getCurrentProfileId();
+
+        Mentored mentored = mentoredRepository.findByUserId(mentoredAuthUserUUID)
+                .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
+
+        boolean alreadyRegistered = lessonMentoredRepository.existsByLessonIdAndMentoredId(lessonUUID, mentored.getId());
+        if (alreadyRegistered) {
+            throw new BadRequestException("Você já está inscrito nesta aula");
+        }
+
+        long totalRegistered = lessonMentoredRepository.countByLessonId(lessonUUID);
+        if (lesson.getMaxGuest() != null && totalRegistered >= lesson.getMaxGuest()) {
+            throw new BadRequestException("A aula já atingiu o número máximo de participantes");
+        }
+
+        LessonMentored relation = new LessonMentored();
+        LessonMentoredId id = new LessonMentoredId();
+        id.setLessonId(lessonUUID);
+        id.setMentoredId(mentored.getId());
+
+        relation.setId(id);
+        relation.setLesson(lesson);
+        relation.setMentored(mentored);
+
+        lessonMentoredRepository.save(relation);
+
+        return new GenericModelResponse("MENTORED_REGISTERED", "Inscrição realizada com sucesso!");
     }
 
     @Override

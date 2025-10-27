@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Embeddable
-public class ClassMentoredId implements Serializable {
-    private UUID classId;
+public class LessonMentoredId implements Serializable {
+    private UUID lessonId;
     private UUID mentoredId;
 }
