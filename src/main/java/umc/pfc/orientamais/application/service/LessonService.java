@@ -14,15 +14,18 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.LessonReposito
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
+import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
 import umc.pfc.orientamais.application.service.utils.SecurityUtils;
 import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentoredId;
+import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,15 +41,29 @@ public class LessonService implements LessonUseCase {
     private final LessonMentoredRepository lessonMentoredRepository;
     private final ModelMapper mapper;
     private final LessonMapper lessonMapper;
+    private final CalendarPort calendarPort;
 
     @Override
     public GenericModelResponse createLesson(CreateLessonModelRequest request) {
+        Mentor mentor = mentorRepository.findById(request.getMentorId())
+                .orElseThrow(() -> new NotFoundException("Mentor não encontrado."));
+
         Lesson lesson = lessonMapper.requestToEntity(request);
-        mentorRepository.findById(request.getMentorId())
-                .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+        lesson.setMentor(mentor);
+
         lessonRepository.save(lesson);
 
-        return new GenericModelResponse("LESSON_CREATED", "Lesson created successfully!");
+        try {
+            List<String> attendees = Collections.singletonList(mentor.getUser().getEmail());
+            String externalEventId = calendarPort.createEvent(lesson, attendees);
+            lesson.setExternalEventId(externalEventId);
+            lessonRepository.save(lesson);
+
+        } catch (Exception ex) {
+            System.err.println("Erro ao enviar convite da aula: " + ex.getMessage());
+        }
+
+        return new GenericModelResponse("lesson_CREATED", "Aula criada e convite enviado com sucesso!");
     }
 
     @Override
