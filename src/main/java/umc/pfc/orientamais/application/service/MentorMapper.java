@@ -1,6 +1,5 @@
 package umc.pfc.orientamais.application.service;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorUpdateModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorModelResponse;
@@ -32,11 +31,7 @@ public class MentorMapper {
         return mentors.stream().map(this::entityToResponse).collect(Collectors.toList());
     }
 
-    public void updateEntityFromRequest(Mentor mentor, MentorUpdateModelRequest request, BCryptPasswordEncoder encoder) {
-        if (request.email() != null)
-            mentor.getUser().setEmail(request.email());
-        if (request.password() != null)
-            mentor.getUser().setPassword(encoder.encode(request.password()));
+    public void updateEntityFromRequest(Mentor mentor, MentorUpdateModelRequest request) {
         if (request.name() != null)
             mentor.setName(request.name());
         if (request.lastName() != null)

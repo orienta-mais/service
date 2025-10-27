@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
-public record MentorUpdateModelRequest(
+public record MentoredUpdateModelRequest(
         @NotBlank(message = "Este campo é obrigatório!")
         String name,
 

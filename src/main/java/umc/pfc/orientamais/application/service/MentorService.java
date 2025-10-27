@@ -3,11 +3,11 @@ package umc.pfc.orientamais.application.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorUpdateModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorModelResponse;
+import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
 import umc.pfc.orientamais.application.port.input.MentorUseCase;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
@@ -22,8 +22,8 @@ import java.util.UUID;
 public class MentorService implements MentorUseCase {
 
     private final MentorRepository mentorRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
     private final MentorMapper mentorMapper;
+    private final AuthUserRepository authUserRepository;
 
     @Override
     public List<MentorModelResponse> getAllMentors() {
@@ -43,7 +43,7 @@ public class MentorService implements MentorUseCase {
         Mentor mentor = mentorRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
         checkPermission(mentor);
-        mentorMapper.updateEntityFromRequest(mentor, request, passwordEncoder);
+        mentorMapper.updateEntityFromRequest(mentor, request);
         return mentorMapper.entityToResponse(mentorRepository.save(mentor));
     }
 
@@ -53,7 +53,9 @@ public class MentorService implements MentorUseCase {
         Mentor mentor = mentorRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
         checkPermission(mentor);
+        AuthUser authUser = mentor.getUser();
         mentorRepository.delete(mentor);
+        authUserRepository.delete(authUser);
     }
 
     private void checkPermission(Mentor mentor) {
