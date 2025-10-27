@@ -21,6 +21,8 @@ public interface LessonUseCase {
 
     List<LessonModelResponse> listLessonByMentorId(UUID request);
 
+    List<LessonModelResponse> listLessonByMentoredId(UUID request);
+
     GenericModelResponse registerMentored(String lessonId);
 
     List<LessonModelResponse> listLesson(String title, LocalDate date, String order);

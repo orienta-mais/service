@@ -25,6 +25,7 @@ import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -100,6 +101,16 @@ public class LessonService implements LessonUseCase {
     @Override
     public List<LessonModelResponse> listLessonByMentorId(UUID request) {
         var lessons = lessonRepository.findByMentorId(request);
+        return lessonMapper.entityToResponse(lessons);
+    }
+
+    @Override
+    public List<LessonModelResponse> listLessonByMentoredId(UUID request) {
+        List<Lesson> lessons = new ArrayList<>();
+        List<LessonMentored> lessonsMentored = lessonMentoredRepository.findByMentoredId(request);
+        lessonsMentored.forEach(lessonMentored -> {
+            lessons.add(lessonMentored.getLesson());
+        });
         return lessonMapper.entityToResponse(lessons);
     }
 
