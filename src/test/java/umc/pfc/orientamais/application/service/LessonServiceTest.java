@@ -3,6 +3,10 @@ package umc.pfc.orientamais.application.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
@@ -13,6 +17,7 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.LessonReposito
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
 import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
+import umc.pfc.orientamais.application.port.output.zoom.CreateMeetingPort;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
@@ -27,33 +32,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class LessonServiceTest {
 
+    @Mock
+    private CreateMeetingPort createMeetingPort;
+    @Mock
     private LessonRepository lessonRepository;
+    @Mock
     private MentorRepository mentorRepository;
+    @Mock
     private ModelMapper mapper;
+    @Mock
     private LessonMapper lessonMapper;
+    @InjectMocks
     private LessonService lessonService;
+    @Mock
     private MentoredRepository mentoredRepository;
+    @Mock
     private LessonMentoredRepository lessonMentoredRepository;
+    @Mock
     private CalendarPort calendarPort;
-
-    @BeforeEach
-    void setUp() {
-        lessonRepository = mock(LessonRepository.class);
-        mentorRepository = mock(MentorRepository.class);
-        mapper = mock(ModelMapper.class);
-        lessonMapper = mock(LessonMapper.class);
-        lessonService = new LessonService(
-                lessonRepository,
-                mentorRepository,
-                mentoredRepository,
-                lessonMentoredRepository,
-                mapper,
-                lessonMapper,
-                calendarPort
-        );
-    }
 
     @Test
     void shouldCreateLessonSuccessfully() {
@@ -61,7 +60,6 @@ class LessonServiceTest {
         var request = new CreateLessonModelRequest();
         request.setTitle("Aula 1");
         request.setDescription("Descrição");
-        request.setLink("link.com");
         request.setMaxGuest(10);
         request.setDate(LocalDate.now());
         request.setStartTime(LocalTime.of(10, 0));
@@ -74,8 +72,8 @@ class LessonServiceTest {
 
         GenericModelResponse response = lessonService.createLesson(request);
 
-        assertEquals("LESSON_CREATED", response.getCode());
-        assertEquals("Lesson created successfully!", response.getMessage());
+        assertEquals("lesson_CREATED", response.getCode());
+        assertEquals("Aula criada e convite enviado com sucesso!", response.getMessage());
         verify(lessonRepository).save(lesson);
     }
 
@@ -83,7 +81,6 @@ class LessonServiceTest {
     void shouldThrowWhenMentorNotFoundOnCreate() {
         var request = new CreateLessonModelRequest();
         request.setMentorId(UUID.randomUUID());
-        when(lessonMapper.requestToEntity(request)).thenReturn(new Lesson());
         when(mentorRepository.findById(request.getMentorId())).thenReturn(Optional.empty());
 
         assertThrows(NotFoundException.class, () -> lessonService.createLesson(request));

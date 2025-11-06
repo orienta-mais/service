@@ -47,7 +47,6 @@ class LessonTest {
         createRequest = new CreateLessonModelRequest();
         createRequest.setTitle("Intro to Java");
         createRequest.setDescription("Basic syntax and core concepts");
-        createRequest.setLink("https://example.com/java-intro");
         createRequest.setMaxGuest(10);
         createRequest.setDate(LocalDate.of(2025, 10, 20));
         createRequest.setStartTime(LocalTime.of(14, 0));
@@ -58,7 +57,6 @@ class LessonTest {
         updateRequest = new UpdatelessonModelRequest();
         updateRequest.setTitle("Advanced Java");
         updateRequest.setDescription("Deep dive into Streams and Lambdas");
-        updateRequest.setLink("https://example.com/java-advanced");
         updateRequest.setMaxGuest(20);
         updateRequest.setDate(LocalDate.of(2025, 10, 21));
         updateRequest.setStartTime(LocalTime.of(15, 0));

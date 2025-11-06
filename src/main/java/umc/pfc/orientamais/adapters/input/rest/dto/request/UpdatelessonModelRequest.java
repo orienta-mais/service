@@ -19,8 +19,6 @@ public class UpdatelessonModelRequest {
     private String title;
     @Size(max = 1000, message = "A descrição da aula deve ter no máximo 1000 caracteres.")
     private String description;
-    @Size(max = 255, message = "O link deve ter no máximo 255 caracteres.")
-    private String link;
     private Integer maxGuest;
     @NotNull(message = "A data da mentoria é obrigatória.")
     private LocalDate date;

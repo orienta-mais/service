@@ -1,10 +1,14 @@
 package umc.pfc.orientamais.adapters.output.zoom;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.application.port.output.zoom.CreateMeetingPort;
 
 import java.time.LocalDate;
 
+@Component
+@RequiredArgsConstructor
 public class CreateMeetingAdapter implements CreateMeetingPort {
 
     @Value("${zoom.account.id}")
