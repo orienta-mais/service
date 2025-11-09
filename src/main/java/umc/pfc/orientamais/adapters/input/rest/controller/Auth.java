@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.ChangePasswordModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.ResetPasswordModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
@@ -56,6 +57,12 @@ public class Auth {
     @PostMapping("/reset-password")
     public ResponseEntity<GenericModelResponse> resetPassword(@RequestBody @Valid ResetPasswordModelRequest request) {
         passwordResetUseCase.resetPassword(request);
-        return ResponseEntity.ok(new GenericModelResponse("PASSWORD_RESET_SUCCESS", "Password reset link sent to email"));
+        return ResponseEntity.ok(new GenericModelResponse("PASSWORD_RESET_SUCCESS", "Password has been reset successfully"));
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<GenericModelResponse> changePassword(@RequestBody @Valid ChangePasswordModelRequest request) {
+        passwordResetUseCase.changePassword(request);
+        return ResponseEntity.ok(new GenericModelResponse("PASSWORD_CHANGE_SUCCESS", "Password changed successfully"));
     }
 }

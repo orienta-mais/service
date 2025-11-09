@@ -3,9 +3,9 @@ package umc.pfc.orientamais.application.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.ChangePasswordModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.ResetPasswordModelRequest;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
@@ -48,10 +48,6 @@ public class PasswordResetService implements PasswordResetUseCase {
 
         try {
             tokenRepository.deleteByEmail(request.email());
-        } catch (Exception ignored) {
-        }
-
-        try {
             tokenRepository.save(token);
         } catch (Exception e) {
             throw new InternalErrorException("Erro ao gerar token de recuperação");
@@ -90,9 +86,34 @@ public class PasswordResetService implements PasswordResetUseCase {
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
 
         user.updatePassword(request.newPassword(), passwordEncoder);
+
         try {
             authUserRepository.save(user);
             tokenRepository.delete(token);
+        } catch (Exception e) {
+            throw new InternalErrorException("Erro ao atualizar senha");
+        }
+
+        String html = templateBuilder.buildPasswordChangedEmail();
+        try {
+            emailSender.sendEmail(user.getEmail(), "Senha alterada com sucesso - Orienta+", html);
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
+    public void changePassword(ChangePasswordModelRequest request) {
+        AuthUser user = authUserRepository.findByEmail(request.email())
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new InternalErrorException("Erro ao atualizar senha");
+        }
+
+        user.updatePassword(request.newPassword(), passwordEncoder);
+
+        try {
+            authUserRepository.save(user);
         } catch (Exception e) {
             throw new InternalErrorException("Erro ao atualizar senha");
         }
