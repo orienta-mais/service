@@ -12,19 +12,12 @@ import java.util.UUID;
 public class IcsBuilder {
 
     private static final DateTimeFormatter ICS_DT_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'");
-    private static final String LETTERS = "abcdefghijklmnopqrstuvwxyz";
-    private static final Random RANDOM = new Random();
 
     public static String buildIcsEvent(Lesson lesson, List<String> attendeesEmails, String organizerEmail, String uid) {
 
         var startUtc = lesson.getStartTime().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC"));
         var endUtc = lesson.getEndTime().atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneId.of("UTC"));
-        String meetLink = Optional.ofNullable(lesson.getLink())
-                .orElseGet(() -> {
-                    String newLink = generateMeetLink();
-                    lesson.setLink(newLink);
-                    return newLink;
-                });
+        String meetLink = lesson.getLink();
 
         StringBuilder sb = new StringBuilder();
         sb.append("BEGIN:VCALENDAR\r\n");
@@ -60,17 +53,5 @@ public class IcsBuilder {
     private static String escape(String s) {
         if (s == null) return "";
         return s.replace("\n", "\\n").replace(",", "\\,");
-    }
-
-    private static String generateMeetLink() {
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < 3; i++) sb.append(LETTERS.charAt(RANDOM.nextInt(LETTERS.length())));
-        sb.append('-');
-        for (int i = 0; i < 4; i++) sb.append(LETTERS.charAt(RANDOM.nextInt(LETTERS.length())));
-        sb.append('-');
-        for (int i = 0; i < 3; i++) sb.append(LETTERS.charAt(RANDOM.nextInt(LETTERS.length())));
-
-        return "https://meet.google.com/" + sb;
     }
 }

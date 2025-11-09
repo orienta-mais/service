@@ -15,6 +15,7 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.MentorReposito
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
 import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
+import umc.pfc.orientamais.application.port.output.zoom.CreateMeetingPort;
 import umc.pfc.orientamais.application.service.utils.SecurityUtils;
 import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
@@ -43,13 +44,17 @@ public class LessonService implements LessonUseCase {
     private final ModelMapper mapper;
     private final LessonMapper lessonMapper;
     private final CalendarPort calendarPort;
+    private final CreateMeetingPort createMeetingPort;
 
     @Override
     public GenericModelResponse createLesson(CreateLessonModelRequest request) {
         Mentor mentor = mentorRepository.findById(request.getMentorId())
                 .orElseThrow(() -> new NotFoundException("Mentor não encontrado."));
 
+        var meetingUrl = createMeetingPort.returnMeetingUrl();
+
         Lesson lesson = lessonMapper.requestToEntity(request);
+        lesson.setLink(meetingUrl);
         lesson.setMentor(mentor);
 
         lessonRepository.save(lesson);

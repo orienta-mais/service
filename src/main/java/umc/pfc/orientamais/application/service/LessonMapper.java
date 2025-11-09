@@ -1,9 +1,14 @@
 package umc.pfc.orientamais.application.service;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+import umc.pfc.orientamais.adapters.output.zoom.CreateMeetingAdapter;
 import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
@@ -13,12 +18,17 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
+@RequiredArgsConstructor
 public class LessonMapper {
+
+    @Autowired
+    private final CreateMeetingAdapter createMeetingAdapter;
+
     public Lesson requestToEntity(CreateLessonModelRequest request) {
         var lesson = new Lesson();
         lesson.setTitle(request.getTitle());
         lesson.setDescription(request.getDescription());
-        lesson.setLink(request.getLink());
+        lesson.setLink(createMeetingAdapter.returnMeetingUrl());
         lesson.setMaxGuest(request.getMaxGuest());
         lesson.setStartTime(request.getDate().atTime(request.getStartTime()));
         lesson.setEndTime(request.getDate().atTime(request.getEndTime()));
@@ -34,7 +44,7 @@ public class LessonMapper {
         lesson.setId(id);
         lesson.setTitle(request.getTitle());
         lesson.setDescription(request.getDescription());
-        lesson.setLink(request.getLink());
+        lesson.setLink(createMeetingAdapter.returnMeetingUrl());
         lesson.setMaxGuest(request.getMaxGuest());
         lesson.setStartTime(request.getDate().atTime(request.getStartTime()));
         lesson.setEndTime(request.getDate().atTime(request.getEndTime()));

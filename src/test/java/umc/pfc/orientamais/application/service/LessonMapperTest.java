@@ -3,10 +3,13 @@ package umc.pfc.orientamais.application.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+import umc.pfc.orientamais.adapters.output.zoom.CreateMeetingAdapter;
 import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
@@ -21,7 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(MockitoExtension.class)
 class LessonMapperTest {
 
+    @InjectMocks
     private LessonMapper lessonMapper;
+    @Mock
+    private CreateMeetingAdapter createMeetingAdapter;
 
     private CreateLessonModelRequest createRequest;
     private UpdatelessonModelRequest updateRequest;
@@ -29,8 +35,6 @@ class LessonMapperTest {
 
     @BeforeEach
     void setUp() {
-        lessonMapper = new LessonMapper();
-
         Mentor mentor = new Mentor();
         mentor.setId(UUID.randomUUID());
         mentor.setName("John Mentor");
@@ -38,7 +42,6 @@ class LessonMapperTest {
         createRequest = new CreateLessonModelRequest();
         createRequest.setTitle("Intro to Java");
         createRequest.setDescription("Basic syntax and core concepts");
-        createRequest.setLink("https://example.com/java-intro");
         createRequest.setMaxGuest(10);
         createRequest.setDate(LocalDate.of(2025, 10, 20));
         createRequest.setStartTime(LocalTime.of(14, 0));
@@ -49,7 +52,6 @@ class LessonMapperTest {
         updateRequest = new UpdatelessonModelRequest();
         updateRequest.setTitle("Advanced Java");
         updateRequest.setDescription("Streams and Lambdas");
-        updateRequest.setLink("https://example.com/java-advanced");
         updateRequest.setMaxGuest(15);
         updateRequest.setDate(LocalDate.of(2025, 10, 22));
         updateRequest.setStartTime(LocalTime.of(15, 0));
@@ -75,7 +77,6 @@ class LessonMapperTest {
 
         assertEquals(createRequest.getTitle(), lesson.getTitle());
         assertEquals(createRequest.getDescription(), lesson.getDescription());
-        assertEquals(createRequest.getLink(), lesson.getLink());
         assertEquals(createRequest.getMaxGuest(), lesson.getMaxGuest());
         assertEquals(createRequest.getPresentCode(), lesson.getPresentCode());
         assertEquals(createRequest.getMentorId(), lesson.getMentor().getId());
@@ -92,7 +93,6 @@ class LessonMapperTest {
         assertEquals(lessonId, lesson.getId());
         assertEquals(updateRequest.getTitle(), lesson.getTitle());
         assertEquals(updateRequest.getDescription(), lesson.getDescription());
-        assertEquals(updateRequest.getLink(), lesson.getLink());
         assertEquals(updateRequest.getMaxGuest(), lesson.getMaxGuest());
         assertEquals(updateRequest.getPresentCode(), lesson.getPresentCode());
         assertEquals(updateRequest.getMentorId(), lesson.getMentor().getId());
