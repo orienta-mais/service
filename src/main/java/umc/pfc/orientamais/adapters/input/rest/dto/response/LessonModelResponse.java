@@ -16,6 +16,7 @@ public class LessonModelResponse {
     private String description;
     private String link;
     private Integer maxGuest;
+    private String presentCode;
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;

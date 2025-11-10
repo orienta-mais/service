@@ -19,6 +19,7 @@ import umc.pfc.orientamais.application.port.output.zoom.CreateMeetingPort;
 import umc.pfc.orientamais.application.service.utils.SecurityUtils;
 import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
+import umc.pfc.orientamais.domain.model.AuthUserRole;
 import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentoredId;
@@ -87,7 +88,12 @@ public class LessonService implements LessonUseCase {
         UUID lessonId = UUID.fromString(request);
         var lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
-        return lessonMapper.entityToResponse(lesson);
+        LessonModelResponse response = lessonMapper.entityToResponse(lesson);
+        AuthUserRole userRole = SecurityUtils.getCurrentUserRole();
+        if (userRole == AuthUserRole.MENTORED) {
+            response.setPresentCode(null);
+        }
+        return response;
     }
 
     @Override

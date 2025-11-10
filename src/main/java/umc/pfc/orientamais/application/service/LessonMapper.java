@@ -71,6 +71,7 @@ public class LessonMapper {
         response.setDescription(lesson.getDescription());
         response.setLink(lesson.getLink());
         response.setMaxGuest(lesson.getMaxGuest());
+        response.setPresentCode(lesson.getPresentCode());
         response.setDate(LocalDate.from(lesson.getEndTime()));
         var startTime = lesson.getStartTime().toLocalTime();
         var endTime = lesson.getEndTime().toLocalTime();
