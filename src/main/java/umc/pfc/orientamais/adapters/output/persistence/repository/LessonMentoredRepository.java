@@ -2,7 +2,6 @@ package umc.pfc.orientamais.adapters.output.persistence.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentoredId;
 
