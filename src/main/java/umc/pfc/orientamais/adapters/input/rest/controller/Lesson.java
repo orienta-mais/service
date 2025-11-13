@@ -11,6 +11,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.PresenceCodeModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
 import umc.pfc.orientamais.application.port.input.CertificateUseCase;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
 
@@ -82,13 +83,15 @@ public class Lesson {
     }
 
     @GetMapping("/list-all-lessons")
-    public ResponseEntity<List<LessonModelResponse>> listLesson(@RequestParam(required = false) String title,
-                                                                @RequestParam(required = false) LocalDate date,
-                                                                @RequestParam(required = false) String order) {
-        List<LessonModelResponse> response = lessonUseCase.listLesson(title, date, order);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+    public ResponseEntity<PagedModelResponse<LessonModelResponse>> listLessons(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) LocalDate date,
+            @RequestParam(defaultValue = "asc") String order,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PagedModelResponse<LessonModelResponse> response = lessonUseCase.listLesson(title, date, order, page, size);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{lessonId}/certificate/validate")

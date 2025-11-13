@@ -13,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
-import umc.pfc.orientamais.application.service.JwtProvider;
+import umc.pfc.orientamais.application.service.utils.JwtProvider;
 import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
 import umc.pfc.orientamais.domain.model.AuthUser;

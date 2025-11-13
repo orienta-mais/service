@@ -1,7 +1,5 @@
-package umc.pfc.orientamais.application.service;
+package umc.pfc.orientamais.application.mapper;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

@@ -1,18 +1,24 @@
 package umc.pfc.orientamais.application.service;
 
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonMentoredRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
+import umc.pfc.orientamais.application.mapper.LessonMapper;
+import umc.pfc.orientamais.application.mapper.LessonPaginationMapper;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
 import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
 import umc.pfc.orientamais.application.port.output.zoom.CreateMeetingPort;
@@ -46,6 +52,7 @@ public class LessonService implements LessonUseCase {
     private final LessonMapper lessonMapper;
     private final CalendarPort calendarPort;
     private final CreateMeetingPort createMeetingPort;
+    private final LessonPaginationMapper paginationMapper;
 
     @Override
     public GenericModelResponse createLesson(CreateLessonModelRequest request) {
@@ -168,32 +175,73 @@ public class LessonService implements LessonUseCase {
 
 
     @Override
-    public List<LessonModelResponse> listLesson(String title, LocalDate date, String order) {
+    public PagedModelResponse<LessonModelResponse> listLesson(String title, LocalDate date, String order, int page, int size) {
+        AuthUserRole userRole = SecurityUtils.getCurrentUserRole();
+        UUID profileId = SecurityUtils.getCurrentProfileId();
+
+        Pageable pageable = PageRequest.of(page, size, getSort(order));
         Specification<Lesson> spec = (root, query, cb) -> cb.conjunction();
 
-        if (title != null) {
+        if (title != null && !title.isBlank()) {
             spec = spec.and((root, query, cb) ->
-                    cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%")
-            );
+                    cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
         }
 
         if (date != null) {
             spec = spec.and((root, query, cb) ->
-                    cb.equal(cb.function("DATE", LocalDate.class, root.get("startTime")), date)
-            );
+                    cb.equal(cb.function("DATE", LocalDate.class, root.get("startTime")), date));
         }
-        Specification<Lesson> orderBySpec = (root, query, cb) -> {
-            if ("desc".equalsIgnoreCase(order)) {
-                query.orderBy(cb.desc(root.get("startTime")));
-            } else {
-                query.orderBy(cb.asc(root.get("startTime")));
-            }
-            return null;
+
+        if (userRole == AuthUserRole.MENTORED) {
+            spec = spec.and(hasAvailableSpots());
+        }
+
+        Page<Lesson> lessons = lessonRepository.findAll(spec, pageable);
+
+        List<LessonModelResponse> responseList = lessons.getContent().stream()
+                .map(lesson -> buildLessonResponseForUser(lesson, userRole, profileId))
+                .toList();
+
+        Page<LessonModelResponse> mappedPage = new PageImpl<>(responseList, pageable, lessons.getTotalElements());
+
+        return paginationMapper.toPagedModel(mappedPage);
+    }
+
+
+    private Sort getSort(String order) {
+        return "desc".equalsIgnoreCase(order)
+                ? Sort.by(Sort.Direction.DESC, "startTime")
+                : Sort.by(Sort.Direction.ASC, "startTime");
+    }
+
+    private Specification<Lesson> hasAvailableSpots() {
+        return (root, query, cb) -> {
+            Subquery<Long> countSubquery = query.subquery(Long.class);
+            Root<LessonMentored> subRoot = countSubquery.from(LessonMentored.class);
+            countSubquery.select(cb.count(subRoot))
+                    .where(cb.equal(subRoot.get("lesson"), root));
+            return cb.greaterThan(root.get("maxGuest"), countSubquery);
         };
+    }
 
-        spec = spec.and(orderBySpec);
+    private LessonModelResponse buildLessonResponseForUser(Lesson lesson, AuthUserRole role, UUID profileId) {
+        LessonModelResponse response = lessonMapper.entityToResponse(lesson);
 
-        var lessons = lessonRepository.findAll(spec);
-        return lessonMapper.entityToResponse(lessons);
+        boolean isMentor = role == AuthUserRole.MENTOR && lesson.getMentor().getUser().getId().equals(profileId);
+        boolean isRegisteredMentored = role == AuthUserRole.MENTORED &&
+                lessonMentoredRepository.existsByLessonIdAndMentoredId(lesson.getId(),
+                        mentoredRepository.findByUserId(profileId)
+                                .map(Mentored::getId)
+                                .orElse(UUID.randomUUID()));
+
+        if (!(isMentor || isRegisteredMentored)) {
+            response.setLink(null);
+        }
+
+        if (role == AuthUserRole.MENTORED) {
+            response.setPresentCode(null);
+        }
+
+        return response;
     }
 }

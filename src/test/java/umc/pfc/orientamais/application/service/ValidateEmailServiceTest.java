@@ -7,6 +7,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.RegistrationTokenRepository;
 import umc.pfc.orientamais.application.service.email.EmailSenderService;
+import umc.pfc.orientamais.application.service.email.ValidateEmailService;
 import umc.pfc.orientamais.application.service.utils.EmailTemplateBuilder;
 import umc.pfc.orientamais.application.service.utils.RegistrationTokenFactory;
 import umc.pfc.orientamais.domain.exceptions.EmailAlreadyExistsException;

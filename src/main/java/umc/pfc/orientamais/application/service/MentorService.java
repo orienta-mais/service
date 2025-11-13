@@ -9,6 +9,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorUpdateModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorModelResponse;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
+import umc.pfc.orientamais.application.mapper.MentorMapper;
 import umc.pfc.orientamais.application.port.input.MentorUseCase;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.AuthUser;
