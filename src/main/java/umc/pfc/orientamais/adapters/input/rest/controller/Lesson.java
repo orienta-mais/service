@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorReviewRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.PresenceCodeModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
@@ -14,6 +15,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
 import umc.pfc.orientamais.application.port.input.CertificateUseCase;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
+import umc.pfc.orientamais.application.port.input.MentorReviewUseCase;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,6 +29,7 @@ public class Lesson {
     private final ModelMapper mapper;
     private final LessonUseCase lessonUseCase;
     private final CertificateUseCase certificateUseCase;
+    private final MentorReviewUseCase mentorReviewUseCase;
 
     @PostMapping
     public ResponseEntity<GenericModelResponse> createLesson(@Valid @RequestBody CreateLessonModelRequest request) {
@@ -106,5 +109,12 @@ public class Lesson {
     public ResponseEntity<GenericModelResponse> regenerateCertificate(@PathVariable UUID lessonId) {
         GenericModelResponse response = certificateUseCase.regenerateCertificate(lessonId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping("/{lessonId}/mentor-review")
+    public ResponseEntity<GenericModelResponse> addMentorReview(
+            @PathVariable UUID lessonId,
+            @Valid @RequestBody MentorReviewRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(mentorReviewUseCase.addMentorReview(lessonId, request));
     }
 }

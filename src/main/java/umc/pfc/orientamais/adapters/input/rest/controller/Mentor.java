@@ -9,10 +9,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorUpdateModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorModelResponse;
-import umc.pfc.orientamais.application.port.input.LessonUseCase;
-import umc.pfc.orientamais.application.port.input.MentorUseCase;
-import umc.pfc.orientamais.application.port.input.RegisterUseCase;
-import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
+import umc.pfc.orientamais.application.port.input.*;
 import umc.pfc.orientamais.domain.model.AuthUserRole;
 
 import java.util.List;
@@ -27,6 +24,7 @@ public class Mentor {
     private final RegisterUseCase registerUseCase;
     private final MentorUseCase mentorUseCase;
     private final LessonUseCase lessonUseCase;
+    private final MentorReviewUseCase mentorReviewUseCase;
 
     @PostMapping("/validate-email")
     public ResponseEntity<GenericModelResponse> validateEmail(@Valid @RequestBody EmailModelRequest request) {
@@ -59,5 +57,10 @@ public class Mentor {
     public ResponseEntity<Void> deleteMentor(@PathVariable UUID id) {
         mentorUseCase.deleteMentor(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<List<umc.pfc.orientamais.adapters.input.rest.dto.response.MentorReviewResponse>> listReviews(@PathVariable UUID id) {
+        return ResponseEntity.ok(mentorReviewUseCase.listMentorReviews(id));
     }
 }
