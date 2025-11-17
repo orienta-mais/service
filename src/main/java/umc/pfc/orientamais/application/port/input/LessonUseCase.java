@@ -5,6 +5,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,5 +26,5 @@ public interface LessonUseCase {
 
     GenericModelResponse registerMentored(String lessonId);
 
-    List<LessonModelResponse> listLesson(String title, LocalDate date, String order);
+    PagedModelResponse<LessonModelResponse> listLesson(String title, LocalDate date, String order, int page, int size);
 }

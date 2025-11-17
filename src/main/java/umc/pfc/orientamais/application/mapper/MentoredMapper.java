@@ -1,4 +1,4 @@
-package umc.pfc.orientamais.application.service;
+package umc.pfc.orientamais.application.mapper;
 
 import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentoredUpdateModelRequest;

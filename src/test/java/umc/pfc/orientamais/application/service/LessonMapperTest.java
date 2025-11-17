@@ -10,6 +10,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.output.zoom.CreateMeetingAdapter;
+import umc.pfc.orientamais.application.mapper.LessonMapper;
 import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 

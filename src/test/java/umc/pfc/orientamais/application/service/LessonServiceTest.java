@@ -1,7 +1,6 @@
 package umc.pfc.orientamais.application.service;
 
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,6 +15,7 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.LessonMentored
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
+import umc.pfc.orientamais.application.mapper.LessonMapper;
 import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
 import umc.pfc.orientamais.application.port.output.zoom.CreateMeetingPort;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;

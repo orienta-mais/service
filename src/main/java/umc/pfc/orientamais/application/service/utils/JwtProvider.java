@@ -1,4 +1,4 @@
-package umc.pfc.orientamais.application.service;
+package umc.pfc.orientamais.application.service.utils;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;

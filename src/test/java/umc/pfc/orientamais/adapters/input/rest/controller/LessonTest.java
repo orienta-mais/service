@@ -13,6 +13,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
 
 import java.time.LocalDate;
@@ -152,25 +153,41 @@ class LessonTest {
 
     @Test
     void shouldListAllLessonsSuccessfully() {
-        when(lessonUseCase.listLesson("Java", LocalDate.now(), "asc"))
-                .thenReturn(List.of(lessonModelResponse));
+        PagedModelResponse<LessonModelResponse> pagedResponse = new PagedModelResponse<>();
+        pagedResponse.setContent(List.of(lessonModelResponse));
+        pagedResponse.setSize(10);
+        pagedResponse.setTotal(1);
+        pagedResponse.setTotalPages(1);
+        pagedResponse.setCurrentPage(0);
 
-        ResponseEntity<?> response = lessonController.listLesson("Java", LocalDate.now(), "asc");
+        when(lessonUseCase.listLesson("Java", LocalDate.now(), "asc", 0, 10))
+                .thenReturn(pagedResponse);
+
+        ResponseEntity<PagedModelResponse<LessonModelResponse>> response =
+                lessonController.listLessons("Java", LocalDate.now(), "asc", 0, 10);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(List.of(lessonModelResponse), response.getBody());
-        verify(lessonUseCase).listLesson("Java", LocalDate.now(), "asc");
+        assertEquals(pagedResponse, response.getBody());
+        verify(lessonUseCase).listLesson("Java", LocalDate.now(), "asc", 0, 10);
     }
 
     @Test
-    void shouldReturnEmptyListWhenNoLessonsFound() {
-        when(lessonUseCase.listLesson("Kotlin", LocalDate.now(), "asc"))
-                .thenReturn(Collections.emptyList());
+    void shouldReturnEmptyPagedResponseWhenNoLessonsFound() {
+        PagedModelResponse<LessonModelResponse> emptyPagedResponse = new PagedModelResponse<>();
+        emptyPagedResponse.setContent(Collections.emptyList());
+        emptyPagedResponse.setSize(10);
+        emptyPagedResponse.setTotal(0);
+        emptyPagedResponse.setTotalPages(0);
+        emptyPagedResponse.setCurrentPage(0);
 
-        ResponseEntity<?> response = lessonController.listLesson("Kotlin", LocalDate.now(), "asc");
+        when(lessonUseCase.listLesson("Kotlin", LocalDate.now(), "asc", 0, 10))
+                .thenReturn(emptyPagedResponse);
+
+        ResponseEntity<PagedModelResponse<LessonModelResponse>> response =
+                lessonController.listLessons("Kotlin", LocalDate.now(), "asc", 0, 10);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(((List<?>) response.getBody()).isEmpty());
+        assertTrue(response.getBody().getContent().isEmpty());
     }
 }

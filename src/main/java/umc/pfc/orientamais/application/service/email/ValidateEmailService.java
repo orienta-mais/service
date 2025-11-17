@@ -1,4 +1,4 @@
-package umc.pfc.orientamais.application.service;
+package umc.pfc.orientamais.application.service.email;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,7 +8,6 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.RegistrationTokenRepository;
 import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
-import umc.pfc.orientamais.application.service.email.EmailSenderService;
 import umc.pfc.orientamais.application.service.utils.EmailTemplateBuilder;
 import umc.pfc.orientamais.application.service.utils.RegistrationTokenFactory;
 import umc.pfc.orientamais.domain.exceptions.EmailAlreadyExistsException;

@@ -14,6 +14,7 @@ import umc.pfc.orientamais.application.port.input.PasswordResetUseCase;
 import umc.pfc.orientamais.application.service.email.EmailSenderService;
 import umc.pfc.orientamais.application.service.utils.EmailTemplateBuilder;
 import umc.pfc.orientamais.application.service.utils.PasswordResetTokenFactory;
+import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
@@ -41,7 +42,7 @@ public class PasswordResetService implements PasswordResetUseCase {
     public void requestPasswordReset(EmailModelRequest request) {
         boolean exists = authUserRepository.existsByEmail(request.email());
         if (!exists) {
-            throw new NotFoundException("Email não encontrado");
+            throw new BadRequestException("Email ou senha inválidos!");
         }
 
         PasswordResetToken token = tokenFactory.create(request.email(), tokenTtlSeconds);
@@ -83,7 +84,7 @@ public class PasswordResetService implements PasswordResetUseCase {
         }
 
         AuthUser user = authUserRepository.findByEmail(request.email())
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+                .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
 
         user.updatePassword(request.newPassword(), passwordEncoder);
 
@@ -104,10 +105,10 @@ public class PasswordResetService implements PasswordResetUseCase {
     @Override
     public void changePassword(ChangePasswordModelRequest request) {
         AuthUser user = authUserRepository.findByEmail(request.email())
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+                .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
 
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
-            throw new InternalErrorException("Erro ao atualizar senha");
+            throw new BadRequestException("Email ou senha inválidos!");
         }
 
         user.updatePassword(request.newPassword(), passwordEncoder);

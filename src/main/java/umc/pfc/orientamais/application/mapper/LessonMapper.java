@@ -1,7 +1,5 @@
-package umc.pfc.orientamais.application.service;
+package umc.pfc.orientamais.application.mapper;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -71,6 +69,7 @@ public class LessonMapper {
         response.setDescription(lesson.getDescription());
         response.setLink(lesson.getLink());
         response.setMaxGuest(lesson.getMaxGuest());
+        response.setPresentCode(lesson.getPresentCode());
         response.setDate(LocalDate.from(lesson.getEndTime()));
         var startTime = lesson.getStartTime().toLocalTime();
         var endTime = lesson.getEndTime().toLocalTime();

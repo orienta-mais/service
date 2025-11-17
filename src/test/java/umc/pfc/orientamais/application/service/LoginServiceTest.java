@@ -6,6 +6,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LoginResponse;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.RefreshTokenRepository;
+import umc.pfc.orientamais.application.service.utils.JwtProvider;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.AuthUser;
 import umc.pfc.orientamais.domain.model.RefreshToken;

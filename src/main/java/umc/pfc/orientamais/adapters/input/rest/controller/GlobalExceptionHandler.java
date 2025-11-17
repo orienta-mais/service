@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
+import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.EmailAlreadyExistsException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
@@ -66,8 +67,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidOrExpiredTokenException.class)
     public ResponseEntity<GenericModelResponse> handleInvalidOrExpiredToken(InvalidOrExpiredTokenException ex) {
         log.warn("Token inválido ou expirado: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(GenericModelResponse.builder()
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericModelResponse.builder()
                 .code("INVALID_TOKEN")
+                .message(ex.getMessage())
+                .timestamp(Instant.now())
+                .build());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<GenericModelResponse> handleInvalidOrExpiredToken(BadRequestException ex) {
+        log.warn("Bad request: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GenericModelResponse.builder()
+                .code("BAD_REQUEST")
                 .message(ex.getMessage())
                 .timestamp(Instant.now())
                 .build());
