@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorReviewRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.PresenceCodeModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
@@ -48,7 +48,7 @@ public class Lesson {
     }
 
     @PutMapping("/{lessonId}")
-    public ResponseEntity<GenericModelResponse> updateLesson(@PathVariable String lessonId, @Valid @RequestBody UpdatelessonModelRequest request) {
+    public ResponseEntity<GenericModelResponse> updateLesson(@PathVariable String lessonId, @Valid @RequestBody UpdateLessonModelRequest request) {
         GenericModelResponse response = lessonUseCase.updateLesson(lessonId, request);
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -9,7 +9,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
@@ -104,7 +104,7 @@ public class LessonService implements LessonUseCase {
     }
 
     @Override
-    public GenericModelResponse updateLesson(String lessonId, UpdatelessonModelRequest request) {
+    public GenericModelResponse updateLesson(String lessonId, UpdateLessonModelRequest request) {
         UUID lessonIdParsed = UUID.fromString(lessonId);
         var lesson = lessonMapper.requestToEntity(request, lessonIdParsed);
         lessonRepository.findById(lessonIdParsed)

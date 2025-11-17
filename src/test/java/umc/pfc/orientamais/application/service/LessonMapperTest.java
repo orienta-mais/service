@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.output.zoom.CreateMeetingAdapter;
 import umc.pfc.orientamais.application.mapper.LessonMapper;
@@ -31,7 +31,7 @@ class LessonMapperTest {
     private CreateMeetingAdapter createMeetingAdapter;
 
     private CreateLessonModelRequest createRequest;
-    private UpdatelessonModelRequest updateRequest;
+    private UpdateLessonModelRequest updateRequest;
     private Lesson lessonEntity;
 
     @BeforeEach
@@ -50,7 +50,7 @@ class LessonMapperTest {
         createRequest.setMentorId(mentor.getId());
         createRequest.setPresentCode("JAVA101");
 
-        updateRequest = new UpdatelessonModelRequest();
+        updateRequest = new UpdateLessonModelRequest();
         updateRequest.setTitle("Advanced Java");
         updateRequest.setDescription("Streams and Lambdas");
         updateRequest.setMaxGuest(15);

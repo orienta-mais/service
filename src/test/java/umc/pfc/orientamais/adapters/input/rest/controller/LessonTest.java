@@ -10,7 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
@@ -39,7 +39,7 @@ class LessonTest {
     private ModelMapper mapper;
 
     private CreateLessonModelRequest createRequest;
-    private UpdatelessonModelRequest updateRequest;
+    private UpdateLessonModelRequest updateRequest;
     private GenericModelResponse successResponse;
     private LessonModelResponse lessonModelResponse;
 
@@ -55,7 +55,7 @@ class LessonTest {
         createRequest.setMentorId(UUID.randomUUID());
         createRequest.setPresentCode("JAVA101");
 
-        updateRequest = new UpdatelessonModelRequest();
+        updateRequest = new UpdateLessonModelRequest();
         updateRequest.setTitle("Advanced Java");
         updateRequest.setDescription("Deep dive into Streams and Lambdas");
         updateRequest.setMaxGuest(20);

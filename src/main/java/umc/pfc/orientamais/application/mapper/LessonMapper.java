@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.output.zoom.CreateMeetingAdapter;
 import umc.pfc.orientamais.domain.model.Lesson;
@@ -12,6 +12,7 @@ import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,13 +32,14 @@ public class LessonMapper {
         lesson.setStartTime(request.getDate().atTime(request.getStartTime()));
         lesson.setEndTime(request.getDate().atTime(request.getEndTime()));
         lesson.setPresentCode(request.getPresentCode());
+        lesson.setAdditionalLinks(request.getAdditionalLinks() == null ? new ArrayList<>() : request.getAdditionalLinks());
         var mentor = new Mentor();
         mentor.setId(request.getMentorId());
         lesson.setMentor(mentor);
         return lesson;
     }
 
-    public Lesson requestToEntity(UpdatelessonModelRequest request, UUID id) {
+    public Lesson requestToEntity(UpdateLessonModelRequest request, UUID id) {
         var lesson = new Lesson();
         lesson.setId(id);
         lesson.setTitle(request.getTitle());
@@ -50,6 +52,7 @@ public class LessonMapper {
         var mentor = new Mentor();
         mentor.setId(request.getMentorId());
         lesson.setMentor(mentor);
+        lesson.setAdditionalLinks(request.getAdditionalLinks() == null ? Collections.emptyList() : request.getAdditionalLinks());
         return lesson;
     }
 
@@ -76,6 +79,7 @@ public class LessonMapper {
         response.setStartTime(startTime);
         response.setEndTime(endTime);
         response.setMentorName(lesson.getMentor().getName());
+        response.setAdditionalLinks(lesson.getAdditionalLinks() == null ? Collections.emptyList() : lesson.getAdditionalLinks());
         return response;
     }
 }

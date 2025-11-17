@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -21,4 +21,5 @@ public class LessonModelResponse {
     private LocalTime startTime;
     private LocalTime endTime;
     private String mentorName;
+    private List<String> additionalLinks;
 }

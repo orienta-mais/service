@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonMentoredRepository;
@@ -132,7 +132,7 @@ class LessonServiceTest {
     @Test
     void shouldUpdateLessonSuccessfully() {
         var id = UUID.randomUUID();
-        var request = new UpdatelessonModelRequest();
+        var request = new UpdateLessonModelRequest();
         request.setMentorId(UUID.randomUUID());
         var lesson = new Lesson();
         when(lessonMapper.requestToEntity(request, id)).thenReturn(lesson);
@@ -149,7 +149,7 @@ class LessonServiceTest {
     @Test
     void shouldThrowWhenLessonNotFoundOnUpdate() {
         var id = UUID.randomUUID();
-        var request = new UpdatelessonModelRequest();
+        var request = new UpdateLessonModelRequest();
         request.setMentorId(UUID.randomUUID());
         when(lessonRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -159,7 +159,7 @@ class LessonServiceTest {
     @Test
     void shouldThrowWhenMentorNotFoundOnUpdate() {
         var id = UUID.randomUUID();
-        var request = new UpdatelessonModelRequest();
+        var request = new UpdateLessonModelRequest();
         request.setMentorId(UUID.randomUUID());
         when(lessonRepository.findById(id)).thenReturn(Optional.of(new Lesson()));
         when(mentorRepository.findById(request.getMentorId())).thenReturn(Optional.empty());
