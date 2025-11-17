@@ -6,6 +6,7 @@ import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentoredId;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -15,4 +16,6 @@ public interface LessonMentoredRepository extends JpaRepository<LessonMentored, 
     List<LessonMentored> findByMentoredId(UUID mentoredId);
 
     long countByLessonId(UUID lessonId);
+
+    Optional<LessonMentored> findByLessonIdAndMentoredId(UUID lessonId, UUID mentoredId);
 }

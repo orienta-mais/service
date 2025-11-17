@@ -6,6 +6,8 @@ import lombok.Setter;
 import umc.pfc.orientamais.domain.model.Lesson;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -24,4 +26,10 @@ public class LessonMentored {
     @MapsId("mentoredId")
     @JoinColumn(name = "mentored_id")
     private Mentored mentored;
+
+    @Column(name = "certificate_generated", nullable = false)
+    private boolean certificateGenerated;
+
+    @Column(name = "certificate_generated_at")
+    private LocalDateTime certificateGeneratedAt;
 }
