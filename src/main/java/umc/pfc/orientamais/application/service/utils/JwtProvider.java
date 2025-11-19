@@ -102,4 +102,6 @@ public class JwtProvider {
             default -> throw new InternalErrorException("Tipo de usuário inválido");
         };
     }
+
+
 }

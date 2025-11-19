@@ -14,4 +14,6 @@ public interface MentorUseCase {
     MentorModelResponse updateMentor(UUID id, MentorUpdateModelRequest request);
 
     void deleteMentor(UUID id);
+
+    Integer countMentors();
 }

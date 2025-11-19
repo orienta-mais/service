@@ -10,6 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountLessonsResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
@@ -243,5 +244,21 @@ public class LessonService implements LessonUseCase {
         }
 
         return response;
+    }
+
+    @Override
+    public CountLessonsResponse countUpcomingAndUnavailabLessons() {
+        CountLessonsResponse response = new CountLessonsResponse();
+        response.setCountUpcomingLessons(countUpcomingLessons());
+        response.setCountUnavailableLessons(countUnavailableLessons());
+        return response;
+    }
+
+    private Integer countUpcomingLessons() {
+        return lessonRepository.countUpcomingLessons();
+    }
+
+    private Integer countUnavailableLessons() {
+        return lessonRepository.countUnavailableLessons();
     }
 }

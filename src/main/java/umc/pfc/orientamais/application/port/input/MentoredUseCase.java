@@ -1,6 +1,8 @@
 package umc.pfc.orientamais.application.port.input;
 
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentoredUpdateModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountByStateResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountMentorAndMentoredByStateResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentoredModelResponse;
 
 import java.util.List;
@@ -14,4 +16,8 @@ public interface MentoredUseCase {
     MentoredModelResponse updateMentored(UUID id, MentoredUpdateModelRequest request);
 
     void deleteMentored(UUID id);
+
+    Integer countMentoreds();
+
+    CountByStateResponse countMentoredsByState();
 }
