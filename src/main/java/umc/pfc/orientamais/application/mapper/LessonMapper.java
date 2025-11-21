@@ -76,6 +76,7 @@ public class LessonMapper {
         response.setStartTime(startTime);
         response.setEndTime(endTime);
         response.setMentorName(lesson.getMentor().getName());
+        response.setPresentCodeFilled(lesson.getPresentCodeFilled());
         return response;
     }
 }
