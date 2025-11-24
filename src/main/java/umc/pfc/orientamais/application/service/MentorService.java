@@ -72,4 +72,9 @@ public class MentorService implements MentorUseCase {
             throw new AccessDeniedException("Você não tem permissão para executar esta ação.");
         }
     }
+
+    @Override
+    public Integer countMentors() {
+        return mentorRepository.countMentors();
+    }
 }

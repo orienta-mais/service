@@ -58,6 +58,9 @@ public class Lesson {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "present_code_filled")
+    private Boolean presentCodeFilled;
+
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();

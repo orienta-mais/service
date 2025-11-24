@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.PresenceCodeModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountLessonsResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
@@ -105,6 +106,12 @@ public class Lesson {
     @PostMapping("/{lessonId}/certificate/regenerate")
     public ResponseEntity<GenericModelResponse> regenerateCertificate(@PathVariable UUID lessonId) {
         GenericModelResponse response = certificateUseCase.regenerateCertificate(lessonId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("/stats/count-lessons")
+    public ResponseEntity<CountLessonsResponse> countUpcomingLessons() {
+        CountLessonsResponse response = lessonUseCase.countUpcomingAndUnavailabLessons();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -23,6 +23,7 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class JwtProvider {
 
+    private static final String issuer = "orienta-mais";
     private final RefreshTokenRepository refreshTokenRepository;
     private final MentorRepository mentorRepository;
     private final MentoredRepository mentoredRepository;
@@ -32,7 +33,6 @@ public class JwtProvider {
     private long accessTokenValidity;
     @Value("${jwt.refresh-expiration-ms}")
     private long refreshTokenValidity;
-    private static final String issuer = "orienta-mais";
 
     public String generateAccessToken(AuthUser userAuth) {
         try {
@@ -99,7 +99,7 @@ public class JwtProvider {
                     .orElseThrow(() -> new InternalErrorException("Perfil de mentor não encontrado"));
             case MENTORED -> mentoredRepository.findByUserId(userAuth.getId())
                     .orElseThrow(() -> new InternalErrorException("Perfil de mentorado não encontrado"));
-            default -> throw new InternalErrorException("Tipo de usuário inválido");
+            case ADMIN -> userAuth;
         };
     }
 }

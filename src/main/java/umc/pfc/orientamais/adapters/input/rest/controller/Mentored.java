@@ -2,13 +2,13 @@ package umc.pfc.orientamais.adapters.input.rest.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentoredUpdateModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.MentoredModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.*;
 import umc.pfc.orientamais.application.port.input.MentoredUseCase;
 import umc.pfc.orientamais.application.port.input.RegisterUseCase;
 import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
@@ -59,5 +59,18 @@ public class Mentored {
     public ResponseEntity<Void> deleteMentored(@PathVariable UUID id) {
         mentoredUseCase.deleteMentored(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/stats/count-mentoreds")
+    public ResponseEntity<CountMentoredsResponse> countMentors() {
+        var mentorsResponse = new CountMentoredsResponse();
+        mentorsResponse.setMentoreds(mentoredUseCase.countMentoreds());
+        return ResponseEntity.status(HttpStatus.OK).body(mentorsResponse);
+    }
+
+    @GetMapping("/stats/count-by-state")
+    public ResponseEntity<CountByStateResponse> countByState() {
+        var response =mentoredUseCase.countMentoredsByState();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

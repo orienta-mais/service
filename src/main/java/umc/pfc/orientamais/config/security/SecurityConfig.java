@@ -45,6 +45,8 @@ public class SecurityConfig {
                                 "/api/mentored/register"
                         ).permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/stats/**").hasRole("ADMIN")
+
                         // GET /api/mentor/** - ADMIN, MENTOR, MENTORED
                         .requestMatchers(HttpMethod.GET, "/api/mentor/**").hasAnyRole("ADMIN", "MENTOR", "MENTORED")
 

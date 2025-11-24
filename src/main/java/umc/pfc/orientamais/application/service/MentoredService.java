@@ -6,6 +6,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentoredUpdateModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountByStateResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountMentorAndMentoredByStateResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentoredModelResponse;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
@@ -71,5 +73,16 @@ public class MentoredService implements MentoredUseCase {
         if (!isAdmin && !isOwner) {
             throw new AccessDeniedException("Você não tem permissão para executar esta ação.");
         }
+    }
+
+    @Override
+    public Integer countMentoreds() {
+        return mentoredRepository.countMentoreds();
+    }
+
+    @Override
+    public CountByStateResponse countMentoredsByState() {
+        var repositoryResponse = mentoredRepository.countByState();
+        return mentoredMapper.toCountByStateResponse(repositoryResponse);
     }
 }

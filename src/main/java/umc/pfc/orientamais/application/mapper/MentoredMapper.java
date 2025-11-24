@@ -2,6 +2,8 @@ package umc.pfc.orientamais.application.mapper;
 
 import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentoredUpdateModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountByStateResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountMentorAndMentoredByStateResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentoredModelResponse;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
@@ -42,5 +44,26 @@ public class MentoredMapper {
         mentored.setDescription(request.description());
         mentored.setState(request.state());
         mentored.setNationality(request.nationality());
+    }
+
+    public CountByStateResponse toCountByStateResponse(List<Object[]> data) {
+        List<CountMentorAndMentoredByStateResponse> list =
+                data
+                        .stream()
+                        .map(row -> {
+                            CountMentorAndMentoredByStateResponse dto =
+                                    new CountMentorAndMentoredByStateResponse();
+
+                            dto.setState((String) row[0]);
+                            dto.setTotalRegistered(((Number) row[1]).intValue());
+
+                            return dto;
+                        })
+                        .toList();
+
+        CountByStateResponse response = new CountByStateResponse();
+        response.setTotal(list);
+
+        return response;
     }
 }

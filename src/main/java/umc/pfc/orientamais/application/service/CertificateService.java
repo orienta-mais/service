@@ -47,6 +47,8 @@ public class CertificateService implements CertificateUseCase {
             throw new BadRequestException("Código de presença incorreto");
         }
 
+        lesson.setPresentCodeFilled(true);
+        lessonRepository.save(lesson);
         byte[] pdf = pdfGenerator.generateCertificate(mentored, lesson);
         String subject = "Certificado de participação - " + lesson.getTitle();
         String content = "<p>Olá, " + mentored.getName() + "!</p>"
