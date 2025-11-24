@@ -24,4 +24,26 @@ public interface LessonRepository extends JpaRepository<Lesson, UUID>, JpaSpecif
             @Param("title") String title,
             @Param("startDate") LocalDate startDate
     );
+
+    @Query(value = """
+            select count(*) from "class" c
+            where c.start_time > NOW();
+            """, nativeQuery = true)
+    Integer countUpcomingLessons();
+
+    @Query(value = """
+            SELECT COUNT(*) AS total_classes_disponiveis
+            FROM (
+                SELECT
+                    c.id,
+                    c.max_guest,
+                    COUNT(cm.*) AS total_mentored
+                FROM "class" c
+                LEFT JOIN class_mentored cm ON cm.class_id = c.id
+                WHERE c.end_time < NOW()
+                GROUP BY c.id, c.max_guest
+                HAVING COUNT(cm.*) <= c.max_guest
+            ) AS sub;
+            """, nativeQuery = true)
+    Integer countUnavailableLessons();
 }

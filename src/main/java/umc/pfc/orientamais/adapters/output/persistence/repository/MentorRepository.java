@@ -1,6 +1,7 @@
 package umc.pfc.orientamais.adapters.output.persistence.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
 import java.util.Optional;
@@ -8,4 +9,9 @@ import java.util.UUID;
 
 public interface MentorRepository extends JpaRepository<Mentor, UUID> {
     Optional<Mentor> findByUserId(UUID id);
+
+    @Query(value = """
+            select count(*) from mentor m;
+            """, nativeQuery = true)
+    Integer countMentors();
 }

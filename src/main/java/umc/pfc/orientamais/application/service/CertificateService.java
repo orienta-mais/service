@@ -53,6 +53,8 @@ public class CertificateService implements CertificateUseCase {
             throw new BadRequestException("O certificado já foi gerado anteriormente");
         }
 
+        lesson.setPresentCodeFilled(true);
+        lessonRepository.save(lesson);
         byte[] pdf = pdfGenerator.generateCertificate(mentored, lesson);
 
         lessonMentored.setCertificateGenerated(true);

@@ -80,6 +80,7 @@ public class LessonMapper {
         response.setEndTime(endTime);
         response.setMentorName(lesson.getMentor().getName());
         response.setAdditionalLinks(lesson.getAdditionalLinks() == null ? Collections.emptyList() : lesson.getAdditionalLinks());
+        response.setPresentCodeFilled(lesson.getPresentCodeFilled());
         return response;
     }
 }

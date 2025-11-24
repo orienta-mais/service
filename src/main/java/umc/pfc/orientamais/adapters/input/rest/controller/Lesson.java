@@ -10,6 +10,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorReviewRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.PresenceCodeModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountLessonsResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
@@ -116,5 +117,10 @@ public class Lesson {
             @PathVariable UUID lessonId,
             @Valid @RequestBody MentorReviewRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(mentorReviewUseCase.addMentorReview(lessonId, request));
+
+    @GetMapping("/stats/count-lessons")
+    public ResponseEntity<CountLessonsResponse> countUpcomingLessons() {
+        CountLessonsResponse response = lessonUseCase.countUpcomingAndUnavailabLessons();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

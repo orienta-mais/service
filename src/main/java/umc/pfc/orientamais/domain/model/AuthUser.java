@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthUser {
+public class AuthUser implements Profile {
 
     @Id
     @GeneratedValue
@@ -40,5 +41,14 @@ public class AuthUser {
 
     public void updatePassword(String newPassword, BCryptPasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(newPassword);
+    }
+
+    @Override
+    public String getName() {
+        return "";
+    }
+
+    @Override
+    public void fillFromRequest(AuthUser user, UserRegisterModelRequest request) {
     }
 }

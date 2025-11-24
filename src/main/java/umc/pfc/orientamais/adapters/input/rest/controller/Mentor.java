@@ -2,11 +2,13 @@ package umc.pfc.orientamais.adapters.input.rest.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorUpdateModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountMentorsResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorModelResponse;
 import umc.pfc.orientamais.application.port.input.*;
@@ -62,5 +64,11 @@ public class Mentor {
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<umc.pfc.orientamais.adapters.input.rest.dto.response.MentorReviewResponse>> listReviews(@PathVariable UUID id) {
         return ResponseEntity.ok(mentorReviewUseCase.listMentorReviews(id));
+
+    @GetMapping("/stats/count-mentors")
+    public ResponseEntity<CountMentorsResponse> countMentors() {
+        var mentorsResponse = new CountMentorsResponse();
+        mentorsResponse.setMentors(mentorUseCase.countMentors());
+        return ResponseEntity.status(HttpStatus.OK).body(mentorsResponse);
     }
 }

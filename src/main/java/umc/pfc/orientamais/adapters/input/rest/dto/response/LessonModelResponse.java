@@ -22,4 +22,5 @@ public class LessonModelResponse {
     private LocalTime endTime;
     private String mentorName;
     private List<String> additionalLinks;
+    private Boolean presentCodeFilled;
 }
