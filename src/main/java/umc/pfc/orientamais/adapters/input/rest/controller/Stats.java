@@ -1,23 +1,18 @@
 package umc.pfc.orientamais.adapters.input.rest.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.PresenceCodeModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.*;
-import umc.pfc.orientamais.application.port.input.CertificateUseCase;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountByStateResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountLessonsResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountMentoredsResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.CountMentorsResponse;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
 import umc.pfc.orientamais.application.port.input.MentorUseCase;
 import umc.pfc.orientamais.application.port.input.MentoredUseCase;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/stats")
@@ -37,7 +32,7 @@ public class Stats {
 
     @GetMapping("/count-by-state")
     public ResponseEntity<CountByStateResponse> countByState() {
-        var response =mentoredUseCase.countMentoredsByState();
+        var response = mentoredUseCase.countMentoredsByState();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

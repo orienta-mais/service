@@ -45,10 +45,7 @@ public class SecurityConfig {
                                 "/api/mentored/register"
                         ).permitAll()
 
-                        .requestMatchers(HttpMethod.DELETE, "/api/stats/count-lessons").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/stats/count-mentors").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/stats/count-mentoreds").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/stats/count-by-state").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/stats/**").hasRole("ADMIN")
 
                         // GET /api/mentor/** - ADMIN, MENTOR, MENTORED
                         .requestMatchers(HttpMethod.GET, "/api/mentor/**").hasAnyRole("ADMIN", "MENTOR", "MENTORED")
