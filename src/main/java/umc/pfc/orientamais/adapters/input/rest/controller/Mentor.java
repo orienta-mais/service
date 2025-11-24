@@ -64,6 +64,7 @@ public class Mentor {
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<umc.pfc.orientamais.adapters.input.rest.dto.response.MentorReviewResponse>> listReviews(@PathVariable UUID id) {
         return ResponseEntity.ok(mentorReviewUseCase.listMentorReviews(id));
+    }
 
     @GetMapping("/stats/count-mentors")
     public ResponseEntity<CountMentorsResponse> countMentors() {

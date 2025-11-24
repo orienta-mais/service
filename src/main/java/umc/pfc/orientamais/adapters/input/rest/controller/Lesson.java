@@ -117,6 +117,7 @@ public class Lesson {
             @PathVariable UUID lessonId,
             @Valid @RequestBody MentorReviewRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(mentorReviewUseCase.addMentorReview(lessonId, request));
+    }
 
     @GetMapping("/stats/count-lessons")
     public ResponseEntity<CountLessonsResponse> countUpcomingLessons() {

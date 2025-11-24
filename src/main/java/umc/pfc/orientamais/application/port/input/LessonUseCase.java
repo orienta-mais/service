@@ -2,7 +2,7 @@ package umc.pfc.orientamais.application.port.input;
 
 import jakarta.validation.Valid;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.CountLessonsResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
