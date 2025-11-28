@@ -79,6 +79,7 @@ public class LessonMapper {
         response.setStartTime(startTime);
         response.setEndTime(endTime);
         response.setMentorName(lesson.getMentor().getName());
+        response.setMentorId(lesson.getMentor().getId());
         response.setAdditionalLinks(lesson.getAdditionalLinks() == null ? Collections.emptyList() : lesson.getAdditionalLinks());
         response.setPresentCodeFilled(lesson.getPresentCodeFilled());
         return response;

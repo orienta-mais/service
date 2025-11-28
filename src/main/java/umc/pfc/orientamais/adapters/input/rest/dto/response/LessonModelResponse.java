@@ -23,4 +23,5 @@ public class LessonModelResponse {
     private String mentorName;
     private List<String> additionalLinks;
     private Boolean presentCodeFilled;
+    private UUID mentorId;
 }
