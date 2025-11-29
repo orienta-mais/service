@@ -8,10 +8,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonDetailsModelResponse;
 import umc.pfc.orientamais.adapters.output.zoom.CreateMeetingAdapter;
 import umc.pfc.orientamais.application.mapper.LessonMapper;
-import umc.pfc.orientamais.domain.model.Lesson;
+import umc.pfc.orientamais.domain.model.clazz.Lesson;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
 import java.time.LocalDate;
@@ -103,7 +103,7 @@ class LessonMapperTest {
 
     @Test
     void shouldMapEntityToResponseSuccessfully() {
-        LessonModelResponse response = lessonMapper.entityToResponse(lessonEntity);
+        LessonDetailsModelResponse response = lessonMapper.entityToDetailsResponse(lessonEntity);
 
         assertEquals(lessonEntity.getId(), response.getId());
         assertEquals(lessonEntity.getTitle(), response.getTitle());
@@ -119,10 +119,10 @@ class LessonMapperTest {
     @Test
     void shouldMapEntityListToResponseListSuccessfully() {
         List<Lesson> lessons = List.of(lessonEntity);
-        List<LessonModelResponse> responses = lessonMapper.entityToResponse(lessons);
+        List<LessonDetailsModelResponse> responses = lessonMapper.entityToDetailsResponse(lessons);
 
         assertEquals(1, responses.size());
-        LessonModelResponse response = responses.getFirst();
+        LessonDetailsModelResponse response = responses.getFirst();
         assertEquals(lessonEntity.getTitle(), response.getTitle());
         assertEquals(lessonEntity.getMentor().getName(), response.getMentorName());
     }

@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import umc.pfc.orientamais.domain.model.Interest;
-import umc.pfc.orientamais.domain.model.Lesson;
 
 @Getter
 @Setter

@@ -24,6 +24,9 @@ public class MentorMapper {
         response.setDescription(mentor.getDescription());
         response.setState(mentor.getState());
         response.setNationality(mentor.getNationality());
+        response.setTotalClasses(
+                mentor.getClasses() == null ? 0 : mentor.getClasses().size()
+        );
         return response;
     }
 

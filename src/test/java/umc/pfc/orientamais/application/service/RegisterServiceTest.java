@@ -10,9 +10,9 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.MentorReposito
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.RegistrationTokenRepository;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
-import umc.pfc.orientamais.domain.model.AuthUser;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
-import umc.pfc.orientamais.domain.model.RegistrationToken;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.RegistrationToken;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 

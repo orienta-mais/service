@@ -13,9 +13,9 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredReposi
 import umc.pfc.orientamais.adapters.output.persistence.repository.RefreshTokenRepository;
 import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
-import umc.pfc.orientamais.domain.model.AuthUser;
-import umc.pfc.orientamais.domain.model.Profile;
-import umc.pfc.orientamais.domain.model.RefreshToken;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
+import umc.pfc.orientamais.domain.model.auth.Profile;
+import umc.pfc.orientamais.domain.model.auth.RefreshToken;
 
 import java.time.Instant;
 

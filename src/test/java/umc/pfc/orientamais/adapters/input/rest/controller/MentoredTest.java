@@ -17,7 +17,7 @@ import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
 import umc.pfc.orientamais.domain.exceptions.EmailAlreadyExistsException;
 import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 
 import java.time.LocalDate;
 

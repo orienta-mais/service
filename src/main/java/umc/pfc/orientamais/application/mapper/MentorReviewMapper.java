@@ -3,7 +3,7 @@ package umc.pfc.orientamais.application.mapper;
 import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorReviewRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorReviewResponse;
-import umc.pfc.orientamais.domain.model.MentorReview;
+import umc.pfc.orientamais.domain.model.mentor.MentorReview;
 
 import java.util.UUID;
 

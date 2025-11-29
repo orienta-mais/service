@@ -10,10 +10,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequ
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorReviewRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.PresenceCodeModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.CountLessonsResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.*;
 import umc.pfc.orientamais.application.port.input.CertificateUseCase;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
 import umc.pfc.orientamais.application.port.input.MentorReviewUseCase;
@@ -41,8 +38,8 @@ public class Lesson {
     }
 
     @GetMapping("/{lessonId}")
-    public ResponseEntity<LessonModelResponse> listLessonById(@Valid @PathVariable String lessonId) {
-        LessonModelResponse response = lessonUseCase.listLessonById(lessonId);
+    public ResponseEntity<LessonDetailsModelResponse> listLessonById(@Valid @PathVariable String lessonId) {
+        LessonDetailsModelResponse response = lessonUseCase.listLessonById(lessonId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
@@ -65,16 +62,16 @@ public class Lesson {
     }
 
     @GetMapping("/mentor/{mentorId}/lessons")
-    public ResponseEntity<List<LessonModelResponse>> listLessonById(@Valid @PathVariable UUID mentorId) {
-        List<LessonModelResponse> response = lessonUseCase.listLessonByMentorId(mentorId);
+    public ResponseEntity<List<LessonDetailsModelResponse>> listLessonById(@Valid @PathVariable UUID mentorId) {
+        List<LessonDetailsModelResponse> response = lessonUseCase.listLessonByMentorId(mentorId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
     }
 
     @GetMapping("/mentored/{mentoredId}/lessons")
-    public ResponseEntity<List<LessonModelResponse>> listLessonByMentoredId(@Valid @PathVariable UUID mentoredId) {
-        List<LessonModelResponse> response = lessonUseCase.listLessonByMentoredId(mentoredId);
+    public ResponseEntity<List<LessonDetailsModelResponse>> listLessonByMentoredId(@Valid @PathVariable UUID mentoredId) {
+        List<LessonDetailsModelResponse> response = lessonUseCase.listLessonByMentoredId(mentoredId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
@@ -110,13 +107,6 @@ public class Lesson {
     public ResponseEntity<GenericModelResponse> regenerateCertificate(@PathVariable UUID lessonId) {
         GenericModelResponse response = certificateUseCase.regenerateCertificate(lessonId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @PostMapping("/{lessonId}/mentor-review")
-    public ResponseEntity<GenericModelResponse> addMentorReview(
-            @PathVariable UUID lessonId,
-            @Valid @RequestBody MentorReviewRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(mentorReviewUseCase.addMentorReview(lessonId, request));
     }
 
     @GetMapping("/stats/count-lessons")

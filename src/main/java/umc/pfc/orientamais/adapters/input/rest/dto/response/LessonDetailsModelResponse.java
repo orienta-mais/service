@@ -10,13 +10,17 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class LessonModelResponse {
+public class LessonDetailsModelResponse {
     private UUID id;
     private String title;
     private String description;
+    private String link;
     private Integer maxGuest;
+    private String presentCode;
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
     private String mentorName;
+    private List<String> additionalLinks;
+    private Boolean presentCodeFilled;
 }

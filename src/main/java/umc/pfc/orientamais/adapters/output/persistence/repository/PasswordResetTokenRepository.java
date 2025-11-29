@@ -1,6 +1,6 @@
 package umc.pfc.orientamais.adapters.output.persistence.repository;
 
-import umc.pfc.orientamais.domain.model.PasswordResetToken;
+import umc.pfc.orientamais.domain.model.auth.PasswordResetToken;
 
 import java.util.Optional;
 

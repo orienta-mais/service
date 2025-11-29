@@ -1,4 +1,4 @@
-package umc.pfc.orientamais.domain.model;
+package umc.pfc.orientamais.domain.model.mentor;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,9 +24,6 @@ public class MentorReview {
 
     @Column(name = "mentored_id", nullable = false)
     private UUID mentoredId;
-
-    @Column(name = "lesson_id", nullable = false)
-    private UUID lessonId;
 
     @Column(nullable = false)
     private Integer didactics;

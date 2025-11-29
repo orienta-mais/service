@@ -12,7 +12,7 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.MentorReposito
 import umc.pfc.orientamais.application.mapper.MentorMapper;
 import umc.pfc.orientamais.application.port.input.MentorUseCase;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
-import umc.pfc.orientamais.domain.model.AuthUser;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
 import java.util.List;

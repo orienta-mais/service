@@ -4,8 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import umc.pfc.orientamais.adapters.output.persistence.repository.RegistrationTokenRepository;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
-import umc.pfc.orientamais.domain.model.RegistrationToken;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.RegistrationToken;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

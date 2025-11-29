@@ -3,7 +3,7 @@ package umc.pfc.orientamais.adapters.output.persistence.repository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.adapters.output.persistence.entity.PasswordResetTokenEntity;
-import umc.pfc.orientamais.domain.model.PasswordResetToken;
+import umc.pfc.orientamais.domain.model.auth.PasswordResetToken;
 
 import java.util.Optional;
 

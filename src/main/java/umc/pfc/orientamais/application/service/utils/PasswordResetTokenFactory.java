@@ -1,7 +1,7 @@
 package umc.pfc.orientamais.application.service.utils;
 
 import org.springframework.stereotype.Component;
-import umc.pfc.orientamais.domain.model.PasswordResetToken;
+import umc.pfc.orientamais.domain.model.auth.PasswordResetToken;
 
 import java.time.Instant;
 

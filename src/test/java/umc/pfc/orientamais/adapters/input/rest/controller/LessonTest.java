@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonDetailsModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
@@ -41,6 +42,7 @@ class LessonTest {
     private CreateLessonModelRequest createRequest;
     private UpdateLessonModelRequest updateRequest;
     private GenericModelResponse successResponse;
+    private LessonDetailsModelResponse lessonDetailsModelResponse;
     private LessonModelResponse lessonModelResponse;
 
     @BeforeEach
@@ -67,16 +69,16 @@ class LessonTest {
 
         successResponse = new GenericModelResponse("SUCCESS", "Operation completed successfully");
 
-        lessonModelResponse = new LessonModelResponse();
-        lessonModelResponse.setId(UUID.randomUUID());
-        lessonModelResponse.setTitle("Intro to Java");
-        lessonModelResponse.setDescription("Basic syntax and core concepts");
-        lessonModelResponse.setLink("https://example.com/java-intro");
-        lessonModelResponse.setMaxGuest(10);
-        lessonModelResponse.setDate(LocalDate.of(2025, 10, 20));
-        lessonModelResponse.setStartTime(LocalTime.of(14, 0));
-        lessonModelResponse.setEndTime(LocalTime.of(16, 0));
-        lessonModelResponse.setMentorName("John Mentor");
+        lessonDetailsModelResponse = new LessonDetailsModelResponse();
+        lessonDetailsModelResponse.setId(UUID.randomUUID());
+        lessonDetailsModelResponse.setTitle("Intro to Java");
+        lessonDetailsModelResponse.setDescription("Basic syntax and core concepts");
+        lessonDetailsModelResponse.setLink("https://example.com/java-intro");
+        lessonDetailsModelResponse.setMaxGuest(10);
+        lessonDetailsModelResponse.setDate(LocalDate.of(2025, 10, 20));
+        lessonDetailsModelResponse.setStartTime(LocalTime.of(14, 0));
+        lessonDetailsModelResponse.setEndTime(LocalTime.of(16, 0));
+        lessonDetailsModelResponse.setMentorName("John Mentor");
     }
 
     @Test
@@ -94,12 +96,12 @@ class LessonTest {
 
     @Test
     void shouldListLessonByIdSuccessfully() {
-        when(lessonUseCase.listLessonById("1")).thenReturn(lessonModelResponse);
+        when(lessonUseCase.listLessonById("1")).thenReturn(lessonDetailsModelResponse);
 
         ResponseEntity<?> response = lessonController.listLessonById("1");
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(lessonModelResponse, response.getBody());
+        assertEquals(lessonDetailsModelResponse, response.getBody());
         verify(lessonUseCase).listLessonById("1");
     }
 
@@ -130,12 +132,12 @@ class LessonTest {
     @Test
     void shouldListLessonsByMentorSuccessfully() {
         UUID mentorId = UUID.randomUUID();
-        when(lessonUseCase.listLessonByMentorId(mentorId)).thenReturn(List.of(lessonModelResponse));
+        when(lessonUseCase.listLessonByMentorId(mentorId)).thenReturn(List.of(lessonDetailsModelResponse));
 
         ResponseEntity<?> response = lessonController.listLessonById(mentorId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(List.of(lessonModelResponse), response.getBody());
+        assertEquals(List.of(lessonDetailsModelResponse), response.getBody());
         verify(lessonUseCase).listLessonByMentorId(mentorId);
     }
 

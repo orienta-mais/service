@@ -10,10 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.CountLessonsResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.*;
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonMentoredRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
@@ -26,8 +23,8 @@ import umc.pfc.orientamais.application.port.output.zoom.CreateMeetingPort;
 import umc.pfc.orientamais.application.service.utils.SecurityUtils;
 import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
-import umc.pfc.orientamais.domain.model.Lesson;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
+import umc.pfc.orientamais.domain.model.clazz.Lesson;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentoredId;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
@@ -92,16 +89,14 @@ public class LessonService implements LessonUseCase {
     }
 
     @Override
-    public LessonModelResponse listLessonById(String request) {
-        UUID lessonId = UUID.fromString(request);
-        var lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
-        LessonModelResponse response = lessonMapper.entityToResponse(lesson);
+    public LessonDetailsModelResponse listLessonById(String request) {
         AuthUserRole userRole = SecurityUtils.getCurrentUserRole();
-        if (userRole == AuthUserRole.MENTORED) {
-            response.setPresentCode(null);
-        }
-        return response;
+        UUID profileId = SecurityUtils.getCurrentProfileId();
+        UUID lessonId = UUID.fromString(request);
+
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
+        return buildLessonResponseForUser(lesson, userRole, profileId);
     }
 
     @Override
@@ -118,19 +113,19 @@ public class LessonService implements LessonUseCase {
     }
 
     @Override
-    public List<LessonModelResponse> listLessonByMentorId(UUID request) {
+    public List<LessonDetailsModelResponse> listLessonByMentorId(UUID request) {
         var lessons = lessonRepository.findByMentorId(request);
-        return lessonMapper.entityToResponse(lessons);
+        return lessonMapper.entityToDetailsResponse(lessons);
     }
 
     @Override
-    public List<LessonModelResponse> listLessonByMentoredId(UUID request) {
+    public List<LessonDetailsModelResponse> listLessonByMentoredId(UUID request) {
         List<Lesson> lessons = new ArrayList<>();
         List<LessonMentored> lessonsMentored = lessonMentoredRepository.findByMentoredId(request);
         lessonsMentored.forEach(lessonMentored -> {
             lessons.add(lessonMentored.getLesson());
         });
-        return lessonMapper.entityToResponse(lessons);
+        return lessonMapper.entityToDetailsResponse(lessons);
     }
 
     @Override
@@ -174,7 +169,6 @@ public class LessonService implements LessonUseCase {
         return new GenericModelResponse("MENTORED_REGISTERED", "Inscrição realizada e convite enviado com sucesso!");
     }
 
-
     @Override
     public PagedModelResponse<LessonModelResponse> listLesson(String title, LocalDate date, String order, int page, int size) {
         AuthUserRole userRole = SecurityUtils.getCurrentUserRole();
@@ -200,14 +194,13 @@ public class LessonService implements LessonUseCase {
         Page<Lesson> lessons = lessonRepository.findAll(spec, pageable);
 
         List<LessonModelResponse> responseList = lessons.getContent().stream()
-                .map(lesson -> buildLessonResponseForUser(lesson, userRole, profileId))
+                .map(lessonMapper::entityToResponse)
                 .toList();
 
         Page<LessonModelResponse> mappedPage = new PageImpl<>(responseList, pageable, lessons.getTotalElements());
 
         return paginationMapper.toPagedModel(mappedPage);
     }
-
 
     private Sort getSort(String order) {
         return "desc".equalsIgnoreCase(order)
@@ -225,8 +218,8 @@ public class LessonService implements LessonUseCase {
         };
     }
 
-    private LessonModelResponse buildLessonResponseForUser(Lesson lesson, AuthUserRole role, UUID profileId) {
-        LessonModelResponse response = lessonMapper.entityToResponse(lesson);
+    private LessonDetailsModelResponse buildLessonResponseForUser(Lesson lesson, AuthUserRole role, UUID profileId) {
+        LessonDetailsModelResponse response = lessonMapper.entityToDetailsResponse(lesson);
 
         boolean isMentor = role == AuthUserRole.MENTOR && lesson.getMentor().getUser().getId().equals(profileId);
         boolean isRegisteredMentored = role == AuthUserRole.MENTORED &&

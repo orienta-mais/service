@@ -11,8 +11,8 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredReposi
 import umc.pfc.orientamais.adapters.output.persistence.repository.RefreshTokenRepository;
 import umc.pfc.orientamais.application.service.utils.JwtProvider;
 import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
-import umc.pfc.orientamais.domain.model.AuthUser;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 

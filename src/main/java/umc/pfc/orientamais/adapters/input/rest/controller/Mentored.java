@@ -12,7 +12,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.response.*;
 import umc.pfc.orientamais.application.port.input.MentoredUseCase;
 import umc.pfc.orientamais.application.port.input.RegisterUseCase;
 import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 
 import java.util.List;
 import java.util.UUID;

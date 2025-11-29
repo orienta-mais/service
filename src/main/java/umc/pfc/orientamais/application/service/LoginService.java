@@ -9,8 +9,8 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.RefreshTokenRe
 import umc.pfc.orientamais.application.port.input.LoginUseCase;
 import umc.pfc.orientamais.application.service.utils.JwtProvider;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
-import umc.pfc.orientamais.domain.model.AuthUser;
-import umc.pfc.orientamais.domain.model.RefreshToken;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
+import umc.pfc.orientamais.domain.model.auth.RefreshToken;
 
 @Service
 @RequiredArgsConstructor
