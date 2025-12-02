@@ -8,6 +8,4 @@ import java.util.UUID;
 
 public interface MentorReviewRepository extends JpaRepository<MentorReview, UUID> {
     List<MentorReview> findByMentorId(UUID mentorId);
-
-    boolean existsByMentoredIdAndLessonId(UUID mentoredId, UUID lessonId);
 }

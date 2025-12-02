@@ -15,7 +15,6 @@ public class MentorReviewMapper {
         entity.setId(UUID.randomUUID());
         entity.setMentorId(mentorId);
         entity.setMentoredId(mentoredId);
-        entity.setLessonId(lessonId);
         entity.setDidactics(request.didactics());
         entity.setSubjectMastery(request.subjectMastery());
         entity.setPunctuality(request.punctuality());
@@ -30,7 +29,6 @@ public class MentorReviewMapper {
                 entity.getId(),
                 entity.getMentorId(),
                 entity.getMentoredId(),
-                entity.getLessonId(),
                 entity.getDidactics(),
                 entity.getSubjectMastery(),
                 entity.getPunctuality(),

@@ -48,10 +48,6 @@ public class MentorReviewService implements MentorReviewUseCase {
             throw new BadRequestException("Você não está inscrito nesta aula");
         }
 
-        if (mentorReviewRepository.existsByMentoredIdAndLessonId(mentoredId, lessonId)) {
-            throw new BadRequestException("Você já avaliou o mentor desta aula");
-        }
-
         Mentor mentor = lesson.getMentor();
 
         if (mentor == null) {
