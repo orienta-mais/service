@@ -10,7 +10,7 @@ import java.util.UUID;
 @Component
 public class MentorReviewMapper {
 
-    public MentorReview toEntity(MentorReviewRequest request, UUID mentorId, UUID mentoredId, UUID lessonId) {
+    public MentorReview toEntity(MentorReviewRequest request, UUID mentorId, UUID mentoredId) {
         MentorReview entity = new MentorReview();
         entity.setId(UUID.randomUUID());
         entity.setMentorId(mentorId);
@@ -29,6 +29,22 @@ public class MentorReviewMapper {
                 entity.getId(),
                 entity.getMentorId(),
                 entity.getMentoredId(),
+                null,
+                entity.getDidactics(),
+                entity.getSubjectMastery(),
+                entity.getPunctuality(),
+                entity.getCommunication(),
+                entity.getEngagement(),
+                entity.getFeedback()
+        );
+    }
+
+    public MentorReviewResponse toResponse(MentorReview entity, String mentoredName) {
+        return new MentorReviewResponse(
+                entity.getId(),
+                entity.getMentorId(),
+                entity.getMentoredId(),
+                mentoredName,
                 entity.getDidactics(),
                 entity.getSubjectMastery(),
                 entity.getPunctuality(),

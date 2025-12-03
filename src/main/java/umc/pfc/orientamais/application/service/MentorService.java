@@ -6,14 +6,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorUpdateModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorInfoModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorModelResponse;
-import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
-import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorReviewResponse;
+import umc.pfc.orientamais.adapters.output.persistence.repository.*;
 import umc.pfc.orientamais.application.mapper.MentorMapper;
+import umc.pfc.orientamais.application.mapper.MentorReviewMapper;
 import umc.pfc.orientamais.application.port.input.MentorUseCase;
+import umc.pfc.orientamais.application.service.utils.MentorReviewUtils;
+import umc.pfc.orientamais.application.service.utils.SecurityUtils;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.auth.AuthUser;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
+import umc.pfc.orientamais.domain.model.mentor.MentorReview;
+import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +30,12 @@ public class MentorService implements MentorUseCase {
 
     private final MentorRepository mentorRepository;
     private final MentorMapper mentorMapper;
+    private final MentorReviewMapper mentorReviewMapper;
     private final AuthUserRepository authUserRepository;
+    private final MentoredRepository mentoredRepository;
+    private final MentorReviewRepository mentorReviewRepository;
+    private final MentorReviewUtils mentorReviewUtils;
+    private final LessonRepository lessonRepository;
 
     @Override
     public List<MentorModelResponse> getAllMentors() {
@@ -36,6 +47,35 @@ public class MentorService implements MentorUseCase {
         Mentor mentor = mentorRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
         return mentorMapper.entityToResponse(mentor);
+    }
+
+    @Override
+    public MentorInfoModelResponse getMentorInfosById(UUID mentorId) {
+        UUID mentoredAuthUserUUID = SecurityUtils.getCurrentProfileId();
+        Mentored mentored = mentoredRepository.findByUserId(mentoredAuthUserUUID)
+                .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
+
+        Mentor mentor = mentorRepository.findById(mentorId)
+                .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+        List<MentorReview> reviews = mentorReviewRepository.findByMentorId(mentorId);
+
+        boolean hasReviewed = reviews.stream()
+                .anyMatch(review -> review.getMentoredId().equals(mentored.getId()));
+
+        // Convert reviews to DTOs with mentored names
+        List<MentorReviewResponse> reviewResponses = reviews.stream()
+                .map(review -> {
+                    Mentored reviewMentored = mentoredRepository.findById(review.getMentoredId())
+                            .orElse(null);
+                    String mentoredName = reviewMentored != null ?
+                            reviewMentored.getName() + " " + reviewMentored.getLastName() :
+                            "Usuário não encontrado";
+                    return mentorReviewMapper.toResponse(review, mentoredName);
+                })
+                .toList();
+
+        int totalClasses = lessonRepository.findByMentorId(mentorId).size();
+        return mentorMapper.entityToInfoResponse(mentor, totalClasses, !hasReviewed, reviewResponses);
     }
 
     @Override

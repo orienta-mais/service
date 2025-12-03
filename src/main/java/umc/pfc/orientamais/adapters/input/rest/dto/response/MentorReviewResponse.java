@@ -6,6 +6,7 @@ public record MentorReviewResponse(
         UUID id,
         UUID mentorId,
         UUID mentoredId,
+        String mentoredName,
         Integer didactics,
         Integer subjectMastery,
         Integer punctuality,

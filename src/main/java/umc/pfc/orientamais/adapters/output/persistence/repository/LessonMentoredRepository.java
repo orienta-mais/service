@@ -15,6 +15,8 @@ public interface LessonMentoredRepository extends JpaRepository<LessonMentored, 
 
     List<LessonMentored> findByMentoredId(UUID mentoredId);
 
+    Optional<LessonMentored> findByLessonId(UUID lessonId);
+
     long countByLessonId(UUID lessonId);
 
     Optional<LessonMentored> findByLessonIdAndMentoredId(UUID lessonId, UUID mentoredId);

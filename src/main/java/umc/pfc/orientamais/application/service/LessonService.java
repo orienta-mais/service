@@ -218,15 +218,33 @@ public class LessonService implements LessonUseCase {
         };
     }
 
-    private LessonDetailsModelResponse buildLessonResponseForUser(Lesson lesson, AuthUserRole role, UUID profileId) {
+    private LessonDetailsModelResponse buildLessonResponseForUser(
+            Lesson lesson,
+            AuthUserRole role,
+            UUID profileId
+    ) {
         LessonDetailsModelResponse response = lessonMapper.entityToDetailsResponse(lesson);
 
-        boolean isMentor = role == AuthUserRole.MENTOR && lesson.getMentor().getUser().getId().equals(profileId);
-        boolean isRegisteredMentored = role == AuthUserRole.MENTORED &&
-                lessonMentoredRepository.existsByLessonIdAndMentoredId(lesson.getId(),
-                        mentoredRepository.findByUserId(profileId)
-                                .map(Mentored::getId)
-                                .orElse(UUID.randomUUID()));
+        UUID lessonId = lesson.getId();
+
+        UUID mentoredId = (role == AuthUserRole.MENTORED)
+                ? mentoredRepository.findByUserId(profileId)
+                .map(Mentored::getId)
+                .orElse(null)
+                : null;
+
+        LessonMentored lessonMentored = (mentoredId != null)
+                ? lessonMentoredRepository.findByLessonIdAndMentoredId(lessonId, mentoredId).orElse(null)
+                : null;
+
+        boolean isMentor = role == AuthUserRole.MENTOR &&
+                lesson.getMentor().getUser().getId().equals(profileId);
+
+        boolean isRegisteredMentored = (lessonMentored != null);
+
+        response.setPresentCodeFilled(
+                lessonMentored != null && Boolean.TRUE.equals(lessonMentored.getPresentCodeFilled())
+        );
 
         if (!(isMentor || isRegisteredMentored)) {
             response.setLink(null);
@@ -238,6 +256,7 @@ public class LessonService implements LessonUseCase {
 
         return response;
     }
+
 
     @Override
     public CountLessonsResponse countUpcomingAndUnavailabLessons() {

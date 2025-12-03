@@ -64,9 +64,6 @@ public class Lesson {
     @Column(name = "link", length = 500)
     private List<String> additionalLinks = new ArrayList<>();
 
-    @Column(name = "present_code_filled")
-    private Boolean presentCodeFilled;
-
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();

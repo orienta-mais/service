@@ -9,10 +9,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorReviewRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorUpdateModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.CountMentorsResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorReviewResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.*;
 import umc.pfc.orientamais.application.port.input.*;
 import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 
@@ -27,7 +24,6 @@ public class Mentor {
     private final ValidateEmailUseCase validateEmailUseCase;
     private final RegisterUseCase registerUseCase;
     private final MentorUseCase mentorUseCase;
-    private final LessonUseCase lessonUseCase;
     private final MentorReviewUseCase mentorReviewUseCase;
 
     @PostMapping("/validate-email")
@@ -73,12 +69,5 @@ public class Mentor {
     @GetMapping("/{id}/reviews")
     public ResponseEntity<List<MentorReviewResponse>> listReviews(@PathVariable UUID id) {
         return ResponseEntity.ok(mentorReviewUseCase.listMentorReviews(id));
-    }
-
-    @GetMapping("/stats/count-mentors")
-    public ResponseEntity<CountMentorsResponse> countMentors() {
-        var mentorsResponse = new CountMentorsResponse();
-        mentorsResponse.setMentors(mentorUseCase.countMentors());
-        return ResponseEntity.status(HttpStatus.OK).body(mentorsResponse);
     }
 }

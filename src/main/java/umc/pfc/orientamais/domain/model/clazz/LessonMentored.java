@@ -26,6 +26,9 @@ public class LessonMentored {
     @JoinColumn(name = "mentored_id")
     private Mentored mentored;
 
+    @Column(name = "present_code_filled")
+    private Boolean presentCodeFilled;
+
     @Column(name = "certificate_generated", nullable = false)
     private boolean certificateGenerated;
 

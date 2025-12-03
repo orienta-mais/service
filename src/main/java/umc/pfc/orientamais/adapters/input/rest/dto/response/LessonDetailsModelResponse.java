@@ -20,6 +20,7 @@ public class LessonDetailsModelResponse {
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
+    private UUID mentorId;
     private String mentorName;
     private List<String> additionalLinks;
     private Boolean presentCodeFilled;

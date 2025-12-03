@@ -12,9 +12,8 @@ import umc.pfc.orientamais.application.port.input.MentorReviewUseCase;
 import umc.pfc.orientamais.application.service.utils.SecurityUtils;
 import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
-import umc.pfc.orientamais.domain.model.clazz.Lesson;
-import umc.pfc.orientamais.domain.model.mentor.MentorReview;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
+import umc.pfc.orientamais.domain.model.mentor.MentorReview;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 import java.util.List;
@@ -25,36 +24,29 @@ import java.util.UUID;
 @Transactional
 public class MentorReviewService implements MentorReviewUseCase {
 
-    private final LessonRepository lessonRepository;
     private final MentoredRepository mentoredRepository;
     private final MentorRepository mentorRepository;
     private final MentorReviewRepository mentorReviewRepository;
-    private final LessonMentoredRepository lessonMentoredRepository;
     private final MentorReviewMapper mapper;
 
     @Override
-    public GenericModelResponse addMentorReview(UUID lessonId, MentorReviewRequest request) {
+    public GenericModelResponse addMentorReview(UUID mentorId, MentorReviewRequest request) {
         UUID authProfileId = SecurityUtils.getCurrentProfileId();
 
         Mentored mentored = mentoredRepository.findByUserId(authProfileId)
                 .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
 
-        Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new NotFoundException("Aula não encontrada"));
+        Mentor mentor = mentorRepository.findById(mentorId)
+                .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
 
-        UUID mentoredId = mentored.getId();
+        mentorReviewRepository.findByMentoredId(mentored.getId()).stream()
+                .filter(review -> review.getMentorId().equals(mentorId))
+                .findFirst()
+                .ifPresent(review -> {
+                    throw new BadRequestException("Você já avaliou este mentor");
+                });
 
-        if (!lessonMentoredRepository.existsByLessonIdAndMentoredId(lessonId, mentoredId)) {
-            throw new BadRequestException("Você não está inscrito nesta aula");
-        }
-
-        Mentor mentor = lesson.getMentor();
-
-        if (mentor == null) {
-            throw new NotFoundException("Mentor não encontrado");
-        }
-
-        MentorReview entity = mapper.toEntity(request, mentor.getId(), mentoredId, lessonId);
+        MentorReview entity = mapper.toEntity(request, mentor.getId(), mentored.getId());
 
         mentorReviewRepository.save(entity);
 
