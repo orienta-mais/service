@@ -84,7 +84,6 @@ public class CertificatePdfGenerator {
             document.add(body);
 
             addFooter(document, lesson);
-            addQrCode(document, mentored, lesson);
 
             document.close();
             return applyDigitalSignature(output.toByteArray());
@@ -117,26 +116,38 @@ public class CertificatePdfGenerator {
     }
 
     private void addFooter(Document document, Lesson lesson) throws DocumentException {
-        PdfPTable footer = new PdfPTable(2);
+        PdfPTable footer = new PdfPTable(1); // uma coluna
         footer.setWidthPercentage(80);
-        footer.setWidths(new int[]{1, 1});
         footer.setSpacingBefore(40);
         footer.setHorizontalAlignment(Element.ALIGN_CENTER);
 
         Font footerFont = new Font(Font.FontFamily.HELVETICA, 11, Font.NORMAL, new BaseColor(90, 90, 90));
 
-        PdfPCell mentorCell = new PdfPCell(new Phrase("__________________________\n\n" + lesson.getMentor().getName() + "\nMentor(a)", footerFont));
-        mentorCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        mentorCell.setBorder(Rectangle.NO_BORDER);
+        try {
+            Image logo = Image.getInstance("src/main/resources/static/assinatura_orienta.png");
 
-        PdfPCell platformCell = new PdfPCell(new Phrase("__________________________\n\nOrienta+\nPlataforma de Mentorias", footerFont));
-        platformCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-        platformCell.setBorder(Rectangle.NO_BORDER);
+            logo.scaleAbsolute(120, 10);
+            logo.setAlignment(Element.ALIGN_CENTER);
 
-        footer.addCell(mentorCell);
-        footer.addCell(platformCell);
+            PdfPCell platformCell = new PdfPCell();
+            platformCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            platformCell.setBorder(Rectangle.NO_BORDER);
+
+            platformCell.addElement(logo);
+
+            Paragraph p = new Paragraph("\nOrienta+\nPlataforma de Mentorias", footerFont);
+            p.setAlignment(Element.ALIGN_CENTER);
+            platformCell.addElement(p);
+
+            footer.addCell(platformCell);
+
+        } catch (IOException e) {
+            throw new DocumentException(e);
+        }
+
         document.add(footer);
     }
+
 
     private void addQrCode(Document document, Mentored mentored, Lesson lesson) throws IOException, WriterException, DocumentException {
         String validationUrl = CERTIFICATE_VALIDATION_URL + mentored.getId() + "-" + lesson.getId();
