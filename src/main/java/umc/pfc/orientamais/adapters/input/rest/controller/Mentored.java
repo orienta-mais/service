@@ -58,7 +58,7 @@ public class Mentored {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMentored(@PathVariable UUID id) {
-        mentoredUseCase.deleteMentored(id);
+        mentoredUseCase.deleteMentoredCascade(id);
         return ResponseEntity.noContent().build();
     }
 

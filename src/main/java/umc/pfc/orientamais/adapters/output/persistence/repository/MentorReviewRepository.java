@@ -20,4 +20,11 @@ public interface MentorReviewRepository extends JpaRepository<MentorReview, UUID
                 delete from mentor_review where mentor_id = :id;
             """, nativeQuery = true)
     void deleteMentorReviews(UUID id);
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+            delete from mentor_review where mentored_id = :id;
+            """, nativeQuery = true)
+    void deleteReviewByMentoredId(UUID id);
 }
