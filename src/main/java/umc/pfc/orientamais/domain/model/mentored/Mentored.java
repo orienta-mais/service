@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
-import umc.pfc.orientamais.domain.model.AuthUser;
-import umc.pfc.orientamais.domain.model.Profile;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
+import umc.pfc.orientamais.domain.model.auth.Profile;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 
 import java.time.LocalDate;

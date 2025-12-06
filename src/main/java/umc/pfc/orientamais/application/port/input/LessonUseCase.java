@@ -2,11 +2,8 @@ package umc.pfc.orientamais.application.port.input;
 
 import jakarta.validation.Valid;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.CountLessonsResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -17,13 +14,13 @@ public interface LessonUseCase {
 
     GenericModelResponse deleteLesson(@Valid String request);
 
-    LessonModelResponse listLessonById(@Valid String request);
+    LessonDetailsModelResponse listLessonById(@Valid String request);
 
-    GenericModelResponse updateLesson(String lessonId, @Valid UpdatelessonModelRequest request);
+    GenericModelResponse updateLesson(String lessonId, @Valid UpdateLessonModelRequest request);
 
-    List<LessonModelResponse> listLessonByMentorId(UUID request);
+    List<LessonDetailsModelResponse> listLessonByMentorId(UUID request);
 
-    List<LessonModelResponse> listLessonByMentoredId(UUID request);
+    List<LessonDetailsModelResponse> listLessonByMentoredId(UUID request);
 
     GenericModelResponse registerMentored(String lessonId);
 

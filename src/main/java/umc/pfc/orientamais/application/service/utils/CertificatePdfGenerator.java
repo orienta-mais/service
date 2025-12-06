@@ -10,7 +10,7 @@ import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.security.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-import umc.pfc.orientamais.domain.model.Lesson;
+import umc.pfc.orientamais.domain.model.clazz.Lesson;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 import java.io.ByteArrayOutputStream;

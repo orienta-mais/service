@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 
 import java.time.LocalDate;
 

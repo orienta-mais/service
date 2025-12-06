@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -37,4 +38,6 @@ public class CreateLessonModelRequest {
 
     @Size(max = 100, message = "O código de presença deve ter no máximo 100 caracteres.")
     private String presentCode;
+
+    private List<String> additionalLinks;
 }

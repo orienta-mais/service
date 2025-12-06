@@ -16,7 +16,7 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserReposi
 import umc.pfc.orientamais.application.service.utils.JwtProvider;
 import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
-import umc.pfc.orientamais.domain.model.AuthUser;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
 
 import java.io.IOException;
 import java.util.List;

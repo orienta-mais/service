@@ -14,9 +14,11 @@ import umc.pfc.orientamais.application.service.utils.CertificatePdfGenerator;
 import umc.pfc.orientamais.application.service.utils.SecurityUtils;
 import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
-import umc.pfc.orientamais.domain.model.Lesson;
+import umc.pfc.orientamais.domain.model.clazz.Lesson;
+import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -39,24 +41,43 @@ public class CertificateService implements CertificateUseCase {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new NotFoundException("Aula não encontrada"));
 
-        if (!lessonMentoredRepository.existsByLessonIdAndMentoredId(lessonId, mentored.getId())) {
-            throw new BadRequestException("Você não está inscrito nesta aula");
-        }
+        LessonMentored lessonMentored = lessonMentoredRepository
+                .findByLessonIdAndMentoredId(lessonId, mentored.getId())
+                .orElseThrow(() -> new BadRequestException("Você não está inscrito nesta aula"));
 
         if (!lesson.getPresentCode().equals(request.code())) {
             throw new BadRequestException("Código de presença incorreto");
         }
 
-        lesson.setPresentCodeFilled(true);
+        if (lessonMentored.isCertificateGenerated()) {
+            throw new BadRequestException("O certificado já foi gerado anteriormente");
+        }
+
+        lessonMentored.setPresentCodeFilled(true);
         lessonRepository.save(lesson);
         byte[] pdf = pdfGenerator.generateCertificate(mentored, lesson);
+
+        lessonMentored.setCertificateGenerated(true);
+        lessonMentored.setCertificateGeneratedAt(LocalDateTime.now());
+        lessonMentoredRepository.save(lessonMentored);
+
         String subject = "Certificado de participação - " + lesson.getTitle();
         String content = "<p>Olá, " + mentored.getName() + "!</p>"
                 + "<p>Segue em anexo seu certificado de participação na aula <strong>" + lesson.getTitle() + "</strong>.</p>"
                 + "<p>Equipe Orienta+</p>";
 
-        emailSender.sendEmailWithAttachment(mentored.getUser().getEmail(), subject, content, "certificado.pdf", pdf);
-        return new GenericModelResponse("CERTIFICATE_GENERATED", "Certificado gerado e enviado com sucesso!");
+        emailSender.sendEmailWithAttachment(
+                mentored.getUser().getEmail(),
+                subject,
+                content,
+                "certificado.pdf",
+                pdf
+        );
+
+        return new GenericModelResponse(
+                "CERTIFICATE_GENERATED",
+                "Certificado gerado e enviado com sucesso!"
+        );
     }
 
     @Override
@@ -68,8 +89,12 @@ public class CertificateService implements CertificateUseCase {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new NotFoundException("Aula não encontrada"));
 
-        if (!lessonMentoredRepository.existsByLessonIdAndMentoredId(lessonId, mentored.getId())) {
-            throw new BadRequestException("Você não participou desta aula");
+        LessonMentored lessonMentored = lessonMentoredRepository
+                .findByLessonIdAndMentoredId(lessonId, mentored.getId())
+                .orElseThrow(() -> new BadRequestException("Você não participou desta aula"));
+
+        if (!lessonMentored.isCertificateGenerated()) {
+            throw new BadRequestException("O certificado ainda não foi gerado. Valide o código de presença primeiro");
         }
 
         byte[] pdf = pdfGenerator.generateCertificate(mentored, lesson);
@@ -78,7 +103,17 @@ public class CertificateService implements CertificateUseCase {
                 + "<p>Segue novamente seu certificado da aula <strong>" + lesson.getTitle() + "</strong>.</p>"
                 + "<p>Equipe Orienta+</p>";
 
-        emailSender.sendEmailWithAttachment(mentored.getUser().getEmail(), subject, content, "certificado.pdf", pdf);
-        return new GenericModelResponse("CERTIFICATE_REGENERATED", "Certificado reenviado com sucesso!");
+        emailSender.sendEmailWithAttachment(
+                mentored.getUser().getEmail(),
+                subject,
+                content,
+                "certificado.pdf",
+                pdf
+        );
+
+        return new GenericModelResponse(
+                "CERTIFICATE_REGENERATED",
+                "Certificado reenviado com sucesso!"
+        );
     }
 }

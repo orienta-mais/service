@@ -1,7 +1,7 @@
 package umc.pfc.orientamais.application.service.utils;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import umc.pfc.orientamais.domain.model.Profile;
+import umc.pfc.orientamais.domain.model.auth.Profile;
 
 import java.util.function.Supplier;
 

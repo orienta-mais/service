@@ -1,4 +1,4 @@
-package umc.pfc.orientamais.domain.model;
+package umc.pfc.orientamais.domain.model.auth;
 
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 

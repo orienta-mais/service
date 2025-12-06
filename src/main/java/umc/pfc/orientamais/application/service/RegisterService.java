@@ -11,10 +11,10 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.RegistrationTo
 import umc.pfc.orientamais.application.port.input.RegisterUseCase;
 import umc.pfc.orientamais.application.service.utils.ProfileMapping;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
-import umc.pfc.orientamais.domain.model.AuthUser;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
-import umc.pfc.orientamais.domain.model.Profile;
-import umc.pfc.orientamais.domain.model.RegistrationToken;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.Profile;
+import umc.pfc.orientamais.domain.model.auth.RegistrationToken;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 

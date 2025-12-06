@@ -12,8 +12,8 @@ import umc.pfc.orientamais.application.service.utils.EmailTemplateBuilder;
 import umc.pfc.orientamais.application.service.utils.RegistrationTokenFactory;
 import umc.pfc.orientamais.domain.exceptions.EmailAlreadyExistsException;
 import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
-import umc.pfc.orientamais.domain.model.RegistrationToken;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.RegistrationToken;
 
 @Service
 @RequiredArgsConstructor

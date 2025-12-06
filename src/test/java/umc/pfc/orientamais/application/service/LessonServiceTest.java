@@ -8,9 +8,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonDetailsModelResponse;
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonMentoredRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.LessonRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentorRepository;
@@ -19,7 +19,7 @@ import umc.pfc.orientamais.application.mapper.LessonMapper;
 import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
 import umc.pfc.orientamais.application.port.output.zoom.CreateMeetingPort;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
-import umc.pfc.orientamais.domain.model.Lesson;
+import umc.pfc.orientamais.domain.model.clazz.Lesson;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
 import java.time.LocalDate;
@@ -112,11 +112,11 @@ class LessonServiceTest {
     void shouldListLessonByIdSuccessfully() {
         var id = UUID.randomUUID();
         var lesson = new Lesson();
-        var expectedResponse = new LessonModelResponse();
+        var expectedResponse = new LessonDetailsModelResponse();
         when(lessonRepository.findById(id)).thenReturn(Optional.of(lesson));
-        when(lessonMapper.entityToResponse(lesson)).thenReturn(expectedResponse);
+        when(lessonMapper.entityToDetailsResponse(lesson)).thenReturn(expectedResponse);
 
-        LessonModelResponse response = lessonService.listLessonById(id.toString());
+        LessonDetailsModelResponse response = lessonService.listLessonById(id.toString());
 
         assertEquals(expectedResponse, response);
     }
@@ -132,7 +132,7 @@ class LessonServiceTest {
     @Test
     void shouldUpdateLessonSuccessfully() {
         var id = UUID.randomUUID();
-        var request = new UpdatelessonModelRequest();
+        var request = new UpdateLessonModelRequest();
         request.setMentorId(UUID.randomUUID());
         var lesson = new Lesson();
         when(lessonMapper.requestToEntity(request, id)).thenReturn(lesson);
@@ -149,7 +149,7 @@ class LessonServiceTest {
     @Test
     void shouldThrowWhenLessonNotFoundOnUpdate() {
         var id = UUID.randomUUID();
-        var request = new UpdatelessonModelRequest();
+        var request = new UpdateLessonModelRequest();
         request.setMentorId(UUID.randomUUID());
         when(lessonRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -159,7 +159,7 @@ class LessonServiceTest {
     @Test
     void shouldThrowWhenMentorNotFoundOnUpdate() {
         var id = UUID.randomUUID();
-        var request = new UpdatelessonModelRequest();
+        var request = new UpdateLessonModelRequest();
         request.setMentorId(UUID.randomUUID());
         when(lessonRepository.findById(id)).thenReturn(Optional.of(new Lesson()));
         when(mentorRepository.findById(request.getMentorId())).thenReturn(Optional.empty());
@@ -171,11 +171,11 @@ class LessonServiceTest {
     void shouldListLessonsByMentorIdSuccessfully() {
         var mentorId = UUID.randomUUID();
         var lessons = List.of(new Lesson());
-        var responses = List.of(new LessonModelResponse());
+        var responses = List.of(new LessonDetailsModelResponse());
         when(lessonRepository.findByMentorId(mentorId)).thenReturn(lessons);
-        when(lessonMapper.entityToResponse(lessons)).thenReturn(responses);
+        when(lessonMapper.entityToDetailsResponse(lessons)).thenReturn(responses);
 
-        List<LessonModelResponse> result = lessonService.listLessonByMentorId(mentorId);
+        List<LessonDetailsModelResponse> result = lessonService.listLessonByMentorId(mentorId);
 
         assertEquals(responses, result);
     }

@@ -1,16 +1,14 @@
-package umc.pfc.orientamais.domain.model;
+package umc.pfc.orientamais.domain.model.clazz;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
-import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
-import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -58,8 +56,13 @@ public class Lesson {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "present_code_filled")
-    private Boolean presentCodeFilled;
+    @ElementCollection
+    @CollectionTable(
+            name = "class_additional_links",
+            joinColumns = @JoinColumn(name = "class_id")
+    )
+    @Column(name = "link", length = 500)
+    private List<String> additionalLinks = new ArrayList<>();
 
     @PreUpdate
     public void preUpdate() {

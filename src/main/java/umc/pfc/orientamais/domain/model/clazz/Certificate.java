@@ -1,4 +1,4 @@
-package umc.pfc.orientamais.domain.model;
+package umc.pfc.orientamais.domain.model.clazz;
 
 import jakarta.persistence.*;
 import lombok.Getter;

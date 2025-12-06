@@ -2,8 +2,8 @@ package umc.pfc.orientamais.application.service.utils;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import umc.pfc.orientamais.domain.model.AuthUser;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 
 import java.util.UUID;
 

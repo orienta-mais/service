@@ -6,13 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorReviewRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentoredUpdateModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.*;
-import umc.pfc.orientamais.application.port.input.MentoredUseCase;
-import umc.pfc.orientamais.application.port.input.RegisterUseCase;
-import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
+import umc.pfc.orientamais.application.port.input.*;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +24,8 @@ public class Mentored {
     private final ValidateEmailUseCase validateEmailUseCase;
     private final RegisterUseCase registerUseCase;
     private final MentoredUseCase mentoredUseCase;
+    private final MentorUseCase mentorUseCase;
+    private final MentorReviewUseCase mentorReviewUseCase;
 
     @PostMapping("/validate-email")
     public ResponseEntity<GenericModelResponse> validateEmail(@Valid @RequestBody EmailModelRequest request) {
@@ -61,16 +62,15 @@ public class Mentored {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/stats/count-mentoreds")
-    public ResponseEntity<CountMentoredsResponse> countMentors() {
-        var mentorsResponse = new CountMentoredsResponse();
-        mentorsResponse.setMentoreds(mentoredUseCase.countMentoreds());
-        return ResponseEntity.status(HttpStatus.OK).body(mentorsResponse);
+    @GetMapping("/mentor-info/{id}")
+    public ResponseEntity<MentorInfoModelResponse> getMentorInfosById(@PathVariable UUID id) {
+        return ResponseEntity.ok(mentorUseCase.getMentorInfosById(id));
     }
 
-    @GetMapping("/stats/count-by-state")
-    public ResponseEntity<CountByStateResponse> countByState() {
-        var response =mentoredUseCase.countMentoredsByState();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    @PostMapping("/add-mentor-review/{mentorId}")
+    public ResponseEntity<GenericModelResponse> addMentorReview(
+            @PathVariable UUID mentorId,
+            @Valid @RequestBody MentorReviewRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(mentorReviewUseCase.addMentorReview(mentorId, request));
     }
 }

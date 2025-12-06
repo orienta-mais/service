@@ -2,42 +2,50 @@ package umc.pfc.orientamais.application.service.utils;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import umc.pfc.orientamais.adapters.output.persistence.repository.RegistrationTokenRepository;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
-import umc.pfc.orientamais.domain.model.RegistrationToken;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.RegistrationToken;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verifyNoInteractions;
 
+@ExtendWith(MockitoExtension.class)
 class RegistrationTokenFactoryTest {
 
+    @Mock
+    private RegistrationTokenRepository tokenRepository;
+
+    @InjectMocks
     private RegistrationTokenFactory factory;
 
     @BeforeEach
     void setUp() {
-        RegistrationTokenRepository tokenRepository = Mockito.mock(RegistrationTokenRepository.class);
-        factory = new RegistrationTokenFactory(tokenRepository);
+        // No-op, handled via annotations
     }
 
     @Test
-    void shouldCreateRegistrationTokenCorrectly() {
+    void createShouldReturnTokenWithRandomUuidAndExpiration() {
         String email = "teste@exemplo.com";
-        AuthUserRole role = AuthUserRole.MENTOR;
+        RegistrationToken token = factory.create(email, AuthUserRole.MENTOR);
 
-        RegistrationToken token = factory.create(email, role);
-
-        assertNotNull(token);
         assertEquals(email, token.getEmail());
-        assertEquals(role, token.getRole());
+        assertEquals(AuthUserRole.MENTOR, token.getRole());
         assertNotNull(token.getToken());
+        assertDoesNotThrow(() -> UUID.fromString(token.getToken()));
 
-        // Validar expiração com margem de tolerância de 1 minuto
         LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(now, token.getExpiration());
-        long diffMinutes = duration.toMinutes();
-        assertTrue(diffMinutes >= 23 * 60 && diffMinutes <= 24 * 60, "Token deve expirar entre 23h e 24h");
+        Duration diff = Duration.between(now, token.getExpiration());
+        assertTrue(diff.toHours() >= 23 && diff.toHours() <= 25);
+        verifyNoInteractions(tokenRepository);
     }
 }
+

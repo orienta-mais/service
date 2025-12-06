@@ -6,16 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorReviewRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorUpdateModelRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.CountMentorsResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorModelResponse;
-import umc.pfc.orientamais.application.port.input.LessonUseCase;
-import umc.pfc.orientamais.application.port.input.MentorUseCase;
-import umc.pfc.orientamais.application.port.input.RegisterUseCase;
-import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
-import umc.pfc.orientamais.domain.model.AuthUserRole;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.*;
+import umc.pfc.orientamais.application.port.input.*;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +24,7 @@ public class Mentor {
     private final ValidateEmailUseCase validateEmailUseCase;
     private final RegisterUseCase registerUseCase;
     private final MentorUseCase mentorUseCase;
-    private final LessonUseCase lessonUseCase;
+    private final MentorReviewUseCase mentorReviewUseCase;
 
     @PostMapping("/validate-email")
     public ResponseEntity<GenericModelResponse> validateEmail(@Valid @RequestBody EmailModelRequest request) {
@@ -63,10 +59,15 @@ public class Mentor {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/stats/count-mentors")
-    public ResponseEntity<CountMentorsResponse> countMentors() {
-        var mentorsResponse = new CountMentorsResponse();
-        mentorsResponse.setMentors(mentorUseCase.countMentors());
-        return ResponseEntity.status(HttpStatus.OK).body(mentorsResponse);
+    @PostMapping("/{id}/mentor-review")
+    public ResponseEntity<GenericModelResponse> addMentorReview(
+            @PathVariable UUID id,
+            @Valid @RequestBody MentorReviewRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(mentorReviewUseCase.addMentorReview(id, request));
+    }
+
+    @GetMapping("/{id}/reviews")
+    public ResponseEntity<List<MentorReviewResponse>> listReviews(@PathVariable UUID id) {
+        return ResponseEntity.ok(mentorReviewUseCase.listMentorReviews(id));
     }
 }

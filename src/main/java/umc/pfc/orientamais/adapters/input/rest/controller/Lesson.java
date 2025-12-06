@@ -7,14 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.CreateLessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorReviewRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.PresenceCodeModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdatelessonModelRequest;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.CountLessonsResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.LessonModelResponse;
-import umc.pfc.orientamais.adapters.input.rest.dto.response.PagedModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.UpdateLessonModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.*;
 import umc.pfc.orientamais.application.port.input.CertificateUseCase;
 import umc.pfc.orientamais.application.port.input.LessonUseCase;
+import umc.pfc.orientamais.application.port.input.MentorReviewUseCase;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,6 +27,7 @@ public class Lesson {
     private final ModelMapper mapper;
     private final LessonUseCase lessonUseCase;
     private final CertificateUseCase certificateUseCase;
+    private final MentorReviewUseCase mentorReviewUseCase;
 
     @PostMapping
     public ResponseEntity<GenericModelResponse> createLesson(@Valid @RequestBody CreateLessonModelRequest request) {
@@ -38,15 +38,15 @@ public class Lesson {
     }
 
     @GetMapping("/{lessonId}")
-    public ResponseEntity<LessonModelResponse> listLessonById(@Valid @PathVariable String lessonId) {
-        LessonModelResponse response = lessonUseCase.listLessonById(lessonId);
+    public ResponseEntity<LessonDetailsModelResponse> listLessonById(@Valid @PathVariable String lessonId) {
+        LessonDetailsModelResponse response = lessonUseCase.listLessonById(lessonId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
     }
 
     @PutMapping("/{lessonId}")
-    public ResponseEntity<GenericModelResponse> updateLesson(@PathVariable String lessonId, @Valid @RequestBody UpdatelessonModelRequest request) {
+    public ResponseEntity<GenericModelResponse> updateLesson(@PathVariable String lessonId, @Valid @RequestBody UpdateLessonModelRequest request) {
         GenericModelResponse response = lessonUseCase.updateLesson(lessonId, request);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -62,16 +62,16 @@ public class Lesson {
     }
 
     @GetMapping("/mentor/{mentorId}/lessons")
-    public ResponseEntity<List<LessonModelResponse>> listLessonById(@Valid @PathVariable UUID mentorId) {
-        List<LessonModelResponse> response = lessonUseCase.listLessonByMentorId(mentorId);
+    public ResponseEntity<List<LessonDetailsModelResponse>> listLessonById(@Valid @PathVariable UUID mentorId) {
+        List<LessonDetailsModelResponse> response = lessonUseCase.listLessonByMentorId(mentorId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
     }
 
     @GetMapping("/mentored/{mentoredId}/lessons")
-    public ResponseEntity<List<LessonModelResponse>> listLessonByMentoredId(@Valid @PathVariable UUID mentoredId) {
-        List<LessonModelResponse> response = lessonUseCase.listLessonByMentoredId(mentoredId);
+    public ResponseEntity<List<LessonDetailsModelResponse>> listLessonByMentoredId(@Valid @PathVariable UUID mentoredId) {
+        List<LessonDetailsModelResponse> response = lessonUseCase.listLessonByMentoredId(mentoredId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);

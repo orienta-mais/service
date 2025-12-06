@@ -1,14 +1,18 @@
 package umc.pfc.orientamais.application.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.MentorUpdateModelRequest;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorInfoModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorModelResponse;
+import umc.pfc.orientamais.adapters.input.rest.dto.response.MentorReviewResponse;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class MentorMapper {
 
     public MentorModelResponse entityToResponse(Mentor mentor) {
@@ -24,6 +28,9 @@ public class MentorMapper {
         response.setDescription(mentor.getDescription());
         response.setState(mentor.getState());
         response.setNationality(mentor.getNationality());
+        response.setTotalClasses(
+                mentor.getClasses() == null ? 0 : mentor.getClasses().size()
+        );
         return response;
     }
 
@@ -42,5 +49,24 @@ public class MentorMapper {
         mentor.setDescription(request.description());
         mentor.setState(request.state());
         mentor.setNationality(request.nationality());
+    }
+
+    public MentorInfoModelResponse entityToInfoResponse(
+            Mentor mentor,
+            int totalClasses,
+            boolean canAddReview,
+            List<MentorReviewResponse> reviews
+    ) {
+        var response = new MentorInfoModelResponse();
+        response.setId(mentor.getId());
+        response.setName(mentor.getName() + " " + mentor.getLastName());
+        response.setState(mentor.getState());
+        response.setNationality(mentor.getNationality());
+        response.setSocialMedias(mentor.getSocialMedias());
+        response.setDescription(mentor.getDescription());
+        response.setTotalClasses(totalClasses);
+        response.setCanAddReview(canAddReview);
+        response.setReviews(reviews);
+        return response;
     }
 }

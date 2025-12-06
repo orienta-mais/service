@@ -1,12 +1,10 @@
 package umc.pfc.orientamais.application.service.utils;
 
-import umc.pfc.orientamais.domain.model.Lesson;
+import umc.pfc.orientamais.domain.model.clazz.Lesson;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
 import java.util.UUID;
 
 public class IcsBuilder {

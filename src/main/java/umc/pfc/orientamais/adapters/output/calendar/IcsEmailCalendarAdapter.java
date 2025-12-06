@@ -9,7 +9,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
 import umc.pfc.orientamais.application.service.utils.IcsBuilder;
-import umc.pfc.orientamais.domain.model.Lesson;
+import umc.pfc.orientamais.domain.model.clazz.Lesson;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

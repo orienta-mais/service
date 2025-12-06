@@ -7,13 +7,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
-public class UpdatelessonModelRequest {
+public class UpdateLessonModelRequest {
     @NotBlank(message = "O título da aula é obrigatório.")
     @Size(max = 200, message = "O título da aula deve ter no máximo 200 caracteres.")
     private String title;
@@ -28,4 +28,5 @@ public class UpdatelessonModelRequest {
     private LocalTime endTime;
     private UUID mentorId;
     private String presentCode;
+    private List<String> additionalLinks;
 }

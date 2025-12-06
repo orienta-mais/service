@@ -2,7 +2,7 @@ package umc.pfc.orientamais.adapters.output.persistence.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import umc.pfc.orientamais.domain.model.AuthUser;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
 
 import java.util.Optional;
 import java.util.UUID;
