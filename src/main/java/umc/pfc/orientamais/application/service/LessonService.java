@@ -252,6 +252,8 @@ public class LessonService implements LessonUseCase {
 
         if (role == AuthUserRole.MENTORED) {
             response.setPresentCode(null);
+            if (!lesson.getMentor().getActive())
+                response.setMentorId(null);
         }
 
         return response;

@@ -45,6 +45,8 @@ public class Mentor implements Profile {
 
     private String nationality;
 
+    private Boolean active;
+
     @OneToMany(mappedBy = "mentor")
     private List<Lesson> classes;
 
