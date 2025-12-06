@@ -15,6 +15,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Component
@@ -111,9 +114,15 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
 
 
     private String buildHtmlBody(Lesson lesson) {
+        LocalDate date = lesson.getStartTime().toLocalDate();
+        LocalTime time = lesson.getStartTime().toLocalTime();
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
         return "<p>Olá,</p>" +
                 "<p>Você foi convidado para a aula: <strong>" + lesson.getTitle() + "</strong></p>" +
-                "<p>Data: " + lesson.getStartTime() + "</p>" +
+                "<p>Data: " + date.format(dateFormatter) + " - " + time.format(timeFormatter) + "</p>" +
                 "<p>Descrição: " + (lesson.getDescription() != null ? lesson.getDescription() : "") + "</p>" +
                 "<p><a href=\"" + lesson.getLink() + "\" target=\"_blank\" style=\"display:inline-block;padding:10px 20px;" +
                 "color:#ffffff;background-color:#1a73e8;text-decoration:none;border-radius:5px;\">Entrar na Reunião</a></p>" +
