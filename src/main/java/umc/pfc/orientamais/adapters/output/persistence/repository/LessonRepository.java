@@ -1,7 +1,9 @@
 package umc.pfc.orientamais.adapters.output.persistence.repository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -46,4 +48,13 @@ public interface LessonRepository extends JpaRepository<Lesson, UUID>, JpaSpecif
             ) AS sub;
             """, nativeQuery = true)
     Integer countUnavailableLessons();
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+            DELETE FROM class
+            WHERE mentor_id = :id
+                AND start_time > NOW();
+            """, nativeQuery = true)
+    void deleteFutureLessonByMentorId(UUID id);
 }

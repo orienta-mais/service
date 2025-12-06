@@ -125,5 +125,6 @@ public class MentorService implements MentorUseCase {
         mentorRepository.anonymizeMentorData(id);
         mentorReviewRepository.deleteMentorReviews(id);
         authUserRepository.anonymizeAuthUserData(mentor.getUser().getId());
+        lessonRepository.deleteFutureLessonByMentorId(id);
     }
 }
