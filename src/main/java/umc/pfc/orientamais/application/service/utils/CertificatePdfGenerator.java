@@ -68,13 +68,14 @@ public class CertificatePdfGenerator {
             document.add(name);
 
             String date = lesson.getStartTime().toLocalDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy", new Locale("pt", "BR")));
-            long duration = Duration.between(lesson.getStartTime(), lesson.getEndTime()).toHours();
+            long minutes = Duration.between(lesson.getStartTime(), lesson.getEndTime()).toMinutes();
+            long hoursRounded = (long) Math.ceil(minutes / 60.0);
 
             Font bodyFont = new Font(Font.FontFamily.HELVETICA, 15, Font.NORMAL, new BaseColor(70, 70, 70));
             Paragraph body = new Paragraph(
                     "Participou da aula \"" + lesson.getTitle() + "\", ministrada por "
                             + lesson.getMentor().getName() + ", realizada em "
-                            + date + ", com duração de " + duration + " hora(s).",
+                            + date + ", com duração de " + hoursRounded + " hora(s).",
                     bodyFont
             );
             body.setAlignment(Element.ALIGN_CENTER);
