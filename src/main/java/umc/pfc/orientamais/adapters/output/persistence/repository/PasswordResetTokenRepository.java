@@ -1,17 +1,16 @@
 package umc.pfc.orientamais.adapters.output.persistence.repository;
 
+import java.util.Optional;
 import umc.pfc.orientamais.domain.model.auth.PasswordResetToken;
 
-import java.util.Optional;
-
 public interface PasswordResetTokenRepository {
-    PasswordResetToken save(PasswordResetToken token);
+  PasswordResetToken save(PasswordResetToken token);
 
-    Optional<PasswordResetToken> findByToken(String token);
+  Optional<PasswordResetToken> findByToken(String token);
 
-    Optional<PasswordResetToken> findByEmail(String email);
+  Optional<PasswordResetToken> findByEmail(String email);
 
-    void delete(PasswordResetToken token);
+  void delete(PasswordResetToken token);
 
-    void deleteByEmail(String email);
+  void deleteByEmail(String email);
 }

@@ -3,6 +3,11 @@ package umc.pfc.orientamais.application.service;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
@@ -30,247 +35,256 @@ import umc.pfc.orientamais.domain.model.clazz.LessonMentoredId;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
 @Service
 @Transactional
 @AllArgsConstructor
 public class LessonService implements LessonUseCase {
 
-    private static final String lessonNotFoundMessage = "Lesson não encontrado";
-    private final LessonRepository lessonRepository;
-    private final MentorRepository mentorRepository;
-    private final MentoredRepository mentoredRepository;
-    private final LessonMentoredRepository lessonMentoredRepository;
-    private final ModelMapper mapper;
-    private final LessonMapper lessonMapper;
-    private final CalendarPort calendarPort;
-    private final CreateMeetingPort createMeetingPort;
-    private final LessonPaginationMapper paginationMapper;
+  private static final String lessonNotFoundMessage = "Lesson não encontrado";
+  private final LessonRepository lessonRepository;
+  private final MentorRepository mentorRepository;
+  private final MentoredRepository mentoredRepository;
+  private final LessonMentoredRepository lessonMentoredRepository;
+  private final ModelMapper mapper;
+  private final LessonMapper lessonMapper;
+  private final CalendarPort calendarPort;
+  private final CreateMeetingPort createMeetingPort;
+  private final LessonPaginationMapper paginationMapper;
 
-    @Override
-    public GenericModelResponse createLesson(CreateLessonModelRequest request) {
-        Mentor mentor = mentorRepository.findById(request.getMentorId())
-                .orElseThrow(() -> new NotFoundException("Mentor não encontrado."));
+  @Override
+  public GenericModelResponse createLesson(CreateLessonModelRequest request) {
+    Mentor mentor =
+        mentorRepository
+            .findById(request.getMentorId())
+            .orElseThrow(() -> new NotFoundException("Mentor não encontrado."));
 
-        var meetingUrl = createMeetingPort.returnMeetingUrl();
+    var meetingUrl = createMeetingPort.returnMeetingUrl();
 
-        Lesson lesson = lessonMapper.requestToEntity(request);
-        lesson.setLink(meetingUrl);
-        lesson.setMentor(mentor);
+    Lesson lesson = lessonMapper.requestToEntity(request);
+    lesson.setLink(meetingUrl);
+    lesson.setMentor(mentor);
 
-        lessonRepository.save(lesson);
+    lessonRepository.save(lesson);
 
-        try {
-            List<String> attendees = Collections.singletonList(mentor.getUser().getEmail());
-            String externalEventId = calendarPort.createEvent(lesson, attendees);
-            lesson.setExternalEventId(externalEventId);
-            lessonRepository.save(lesson);
+    try {
+      List<String> attendees = Collections.singletonList(mentor.getUser().getEmail());
+      String externalEventId = calendarPort.createEvent(lesson, attendees);
+      lesson.setExternalEventId(externalEventId);
+      lessonRepository.save(lesson);
 
-        } catch (Exception ex) {
-            System.err.println("Erro ao enviar convite da aula: " + ex.getMessage());
-        }
-
-        return new GenericModelResponse("lesson_CREATED", "Aula criada e convite enviado com sucesso!");
+    } catch (Exception ex) {
+      System.err.println("Erro ao enviar convite da aula: " + ex.getMessage());
     }
 
-    @Override
-    public GenericModelResponse deleteLesson(String request) {
-        UUID lessonId = UUID.fromString(request);
-        lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
-        lessonRepository.deleteById(lessonId);
+    return new GenericModelResponse("lesson_CREATED", "Aula criada e convite enviado com sucesso!");
+  }
 
-        return new GenericModelResponse("LESSON_DELETED", "Lesson deleted successfully!");
-    }
+  @Override
+  public GenericModelResponse deleteLesson(String request) {
+    UUID lessonId = UUID.fromString(request);
+    lessonRepository
+        .findById(lessonId)
+        .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
+    lessonRepository.deleteById(lessonId);
 
-    @Override
-    public LessonDetailsModelResponse listLessonById(String request) {
-        AuthUserRole userRole = SecurityUtils.getCurrentUserRole();
-        UUID profileId = SecurityUtils.getCurrentProfileId();
-        UUID lessonId = UUID.fromString(request);
+    return new GenericModelResponse("LESSON_DELETED", "Lesson deleted successfully!");
+  }
 
-        Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
-        return buildLessonResponseForUser(lesson, userRole, profileId);
-    }
+  @Override
+  public LessonDetailsModelResponse listLessonById(String request) {
+    AuthUserRole userRole = SecurityUtils.getCurrentUserRole();
+    UUID profileId = SecurityUtils.getCurrentProfileId();
+    UUID lessonId = UUID.fromString(request);
 
-    @Override
-    public GenericModelResponse updateLesson(String lessonId, UpdateLessonModelRequest request) {
-        UUID lessonIdParsed = UUID.fromString(lessonId);
-        var lesson = lessonMapper.requestToEntity(request, lessonIdParsed);
-        lessonRepository.findById(lessonIdParsed)
-                .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
-        mentorRepository.findById(request.getMentorId())
-                .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
-        lessonRepository.save(lesson);
+    Lesson lesson =
+        lessonRepository
+            .findById(lessonId)
+            .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
+    return buildLessonResponseForUser(lesson, userRole, profileId);
+  }
 
-        return new GenericModelResponse("LESSON_UPDATED", "Lesson updated successfully!");
-    }
+  @Override
+  public GenericModelResponse updateLesson(String lessonId, UpdateLessonModelRequest request) {
+    UUID lessonIdParsed = UUID.fromString(lessonId);
+    var lesson = lessonMapper.requestToEntity(request, lessonIdParsed);
+    lessonRepository
+        .findById(lessonIdParsed)
+        .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
+    mentorRepository
+        .findById(request.getMentorId())
+        .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+    lessonRepository.save(lesson);
 
-    @Override
-    public List<LessonDetailsModelResponse> listLessonByMentorId(UUID request) {
-        var lessons = lessonRepository.findByMentorId(request);
-        return lessonMapper.entityToDetailsResponse(lessons);
-    }
+    return new GenericModelResponse("LESSON_UPDATED", "Lesson updated successfully!");
+  }
 
-    @Override
-    public List<LessonDetailsModelResponse> listLessonByMentoredId(UUID request) {
-        List<Lesson> lessons = new ArrayList<>();
-        List<LessonMentored> lessonsMentored = lessonMentoredRepository.findByMentoredId(request);
-        lessonsMentored.forEach(lessonMentored -> {
-            lessons.add(lessonMentored.getLesson());
+  @Override
+  public List<LessonDetailsModelResponse> listLessonByMentorId(UUID request) {
+    var lessons = lessonRepository.findByMentorId(request);
+    return lessonMapper.entityToDetailsResponse(lessons);
+  }
+
+  @Override
+  public List<LessonDetailsModelResponse> listLessonByMentoredId(UUID request) {
+    List<Lesson> lessons = new ArrayList<>();
+    List<LessonMentored> lessonsMentored = lessonMentoredRepository.findByMentoredId(request);
+    lessonsMentored.forEach(
+        lessonMentored -> {
+          lessons.add(lessonMentored.getLesson());
         });
-        return lessonMapper.entityToDetailsResponse(lessons);
+    return lessonMapper.entityToDetailsResponse(lessons);
+  }
+
+  @Override
+  @Transactional
+  public GenericModelResponse registerMentored(String lessonId) {
+    UUID lessonUUID = UUID.fromString(lessonId);
+
+    Lesson lesson =
+        lessonRepository
+            .findById(lessonUUID)
+            .orElseThrow(() -> new NotFoundException("Aula não encontrada"));
+
+    UUID mentoredAuthUserUUID = SecurityUtils.getCurrentProfileId();
+
+    Mentored mentored =
+        mentoredRepository
+            .findByUserId(mentoredAuthUserUUID)
+            .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
+
+    boolean alreadyRegistered =
+        lessonMentoredRepository.existsByLessonIdAndMentoredId(lessonUUID, mentored.getId());
+    if (alreadyRegistered) {
+      throw new BadRequestException("Você já está inscrito nesta aula");
     }
 
-    @Override
-    @Transactional
-    public GenericModelResponse registerMentored(String lessonId) {
-        UUID lessonUUID = UUID.fromString(lessonId);
-
-        Lesson lesson = lessonRepository.findById(lessonUUID)
-                .orElseThrow(() -> new NotFoundException("Aula não encontrada"));
-
-        UUID mentoredAuthUserUUID = SecurityUtils.getCurrentProfileId();
-
-        Mentored mentored = mentoredRepository.findByUserId(mentoredAuthUserUUID)
-                .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
-
-        boolean alreadyRegistered = lessonMentoredRepository.existsByLessonIdAndMentoredId(lessonUUID, mentored.getId());
-        if (alreadyRegistered) {
-            throw new BadRequestException("Você já está inscrito nesta aula");
-        }
-
-        long totalRegistered = lessonMentoredRepository.countByLessonId(lessonUUID);
-        if (lesson.getMaxGuest() != null && totalRegistered >= lesson.getMaxGuest()) {
-            throw new BadRequestException("A aula já atingiu o número máximo de participantes");
-        }
-
-        LessonMentored relation = new LessonMentored();
-        LessonMentoredId id = new LessonMentoredId();
-        id.setLessonId(lessonUUID);
-        id.setMentoredId(mentored.getId());
-        relation.setId(id);
-        relation.setLesson(lesson);
-        relation.setMentored(mentored);
-        lessonMentoredRepository.save(relation);
-
-        try {
-            calendarPort.sendInviteToMentored(lesson, mentored.getUser().getEmail());
-        } catch (Exception ex) {
-            System.err.println("Erro ao enviar convite para o mentorado: " + ex.getMessage());
-        }
-
-        return new GenericModelResponse("MENTORED_REGISTERED", "Inscrição realizada e convite enviado com sucesso!");
+    long totalRegistered = lessonMentoredRepository.countByLessonId(lessonUUID);
+    if (lesson.getMaxGuest() != null && totalRegistered >= lesson.getMaxGuest()) {
+      throw new BadRequestException("A aula já atingiu o número máximo de participantes");
     }
 
-    @Override
-    public PagedModelResponse<LessonModelResponse> listLesson(String title, LocalDate date, String order, int page, int size) {
-        AuthUserRole userRole = SecurityUtils.getCurrentUserRole();
-        UUID profileId = SecurityUtils.getCurrentProfileId();
+    LessonMentored relation = new LessonMentored();
+    LessonMentoredId id = new LessonMentoredId();
+    id.setLessonId(lessonUUID);
+    id.setMentoredId(mentored.getId());
+    relation.setId(id);
+    relation.setLesson(lesson);
+    relation.setMentored(mentored);
+    lessonMentoredRepository.save(relation);
 
-        Pageable pageable = PageRequest.of(page, size, getSort(order));
-        Specification<Lesson> spec = (root, query, cb) -> cb.conjunction();
-
-        if (title != null && !title.isBlank()) {
-            spec = spec.and((root, query, cb) ->
-                    cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
-        }
-
-        if (date != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.equal(cb.function("DATE", LocalDate.class, root.get("startTime")), date));
-        }
-
-        if (userRole == AuthUserRole.MENTORED) {
-            spec = spec.and(hasAvailableSpots());
-        }
-
-        Page<Lesson> lessons = lessonRepository.findAll(spec, pageable);
-
-        List<LessonModelResponse> responseList = lessons.getContent().stream()
-                .map(lessonMapper::entityToResponse)
-                .toList();
-
-        Page<LessonModelResponse> mappedPage = new PageImpl<>(responseList, pageable, lessons.getTotalElements());
-
-        return paginationMapper.toPagedModel(mappedPage);
+    try {
+      calendarPort.sendInviteToMentored(lesson, mentored.getUser().getEmail());
+    } catch (Exception ex) {
+      System.err.println("Erro ao enviar convite para o mentorado: " + ex.getMessage());
     }
 
-    private Sort getSort(String order) {
-        return "desc".equalsIgnoreCase(order)
-                ? Sort.by(Sort.Direction.DESC, "startTime")
-                : Sort.by(Sort.Direction.ASC, "startTime");
+    return new GenericModelResponse(
+        "MENTORED_REGISTERED", "Inscrição realizada e convite enviado com sucesso!");
+  }
+
+  @Override
+  public PagedModelResponse<LessonModelResponse> listLesson(
+      String title, LocalDate date, String order, int page, int size) {
+    AuthUserRole userRole = SecurityUtils.getCurrentUserRole();
+    UUID profileId = SecurityUtils.getCurrentProfileId();
+
+    Pageable pageable = PageRequest.of(page, size, getSort(order));
+    Specification<Lesson> spec = (root, query, cb) -> cb.conjunction();
+
+    if (title != null && !title.isBlank()) {
+      spec =
+          spec.and(
+              (root, query, cb) ->
+                  cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
     }
 
-    private Specification<Lesson> hasAvailableSpots() {
-        return (root, query, cb) -> {
-            Subquery<Long> countSubquery = query.subquery(Long.class);
-            Root<LessonMentored> subRoot = countSubquery.from(LessonMentored.class);
-            countSubquery.select(cb.count(subRoot))
-                    .where(cb.equal(subRoot.get("lesson"), root));
-            return cb.greaterThan(root.get("maxGuest"), countSubquery);
-        };
+    if (date != null) {
+      spec =
+          spec.and(
+              (root, query, cb) ->
+                  cb.equal(cb.function("DATE", LocalDate.class, root.get("startTime")), date));
     }
 
-    private LessonDetailsModelResponse buildLessonResponseForUser(
-            Lesson lesson,
-            AuthUserRole role,
-            UUID profileId
-    ) {
-        LessonDetailsModelResponse response = lessonMapper.entityToDetailsResponse(lesson);
+    if (userRole == AuthUserRole.MENTORED) {
+      spec = spec.and(hasAvailableSpots());
+    }
 
-        UUID lessonId = lesson.getId();
+    Page<Lesson> lessons = lessonRepository.findAll(spec, pageable);
 
-        UUID mentoredId = (role == AuthUserRole.MENTORED)
-                ? mentoredRepository.findByUserId(profileId)
-                .map(Mentored::getId)
+    List<LessonModelResponse> responseList =
+        lessons.getContent().stream().map(lessonMapper::entityToResponse).toList();
+
+    Page<LessonModelResponse> mappedPage =
+        new PageImpl<>(responseList, pageable, lessons.getTotalElements());
+
+    return paginationMapper.toPagedModel(mappedPage);
+  }
+
+  private Sort getSort(String order) {
+    return "desc".equalsIgnoreCase(order)
+        ? Sort.by(Sort.Direction.DESC, "startTime")
+        : Sort.by(Sort.Direction.ASC, "startTime");
+  }
+
+  private Specification<Lesson> hasAvailableSpots() {
+    return (root, query, cb) -> {
+      Subquery<Long> countSubquery = query.subquery(Long.class);
+      Root<LessonMentored> subRoot = countSubquery.from(LessonMentored.class);
+      countSubquery.select(cb.count(subRoot)).where(cb.equal(subRoot.get("lesson"), root));
+      return cb.greaterThan(root.get("maxGuest"), countSubquery);
+    };
+  }
+
+  private LessonDetailsModelResponse buildLessonResponseForUser(
+      Lesson lesson, AuthUserRole role, UUID profileId) {
+    LessonDetailsModelResponse response = lessonMapper.entityToDetailsResponse(lesson);
+
+    UUID lessonId = lesson.getId();
+
+    UUID mentoredId =
+        (role == AuthUserRole.MENTORED)
+            ? mentoredRepository.findByUserId(profileId).map(Mentored::getId).orElse(null)
+            : null;
+
+    LessonMentored lessonMentored =
+        (mentoredId != null)
+            ? lessonMentoredRepository
+                .findByLessonIdAndMentoredId(lessonId, mentoredId)
                 .orElse(null)
-                : null;
+            : null;
 
-        LessonMentored lessonMentored = (mentoredId != null)
-                ? lessonMentoredRepository.findByLessonIdAndMentoredId(lessonId, mentoredId).orElse(null)
-                : null;
+    boolean isMentor =
+        role == AuthUserRole.MENTOR && lesson.getMentor().getUser().getId().equals(profileId);
 
-        boolean isMentor = role == AuthUserRole.MENTOR &&
-                lesson.getMentor().getUser().getId().equals(profileId);
+    boolean isRegisteredMentored = (lessonMentored != null);
 
-        boolean isRegisteredMentored = (lessonMentored != null);
+    response.setPresentCodeFilled(
+        lessonMentored != null && Boolean.TRUE.equals(lessonMentored.getPresentCodeFilled()));
 
-        response.setPresentCodeFilled(
-                lessonMentored != null && Boolean.TRUE.equals(lessonMentored.getPresentCodeFilled())
-        );
-
-        if (!(isMentor || isRegisteredMentored)) {
-            response.setLink(null);
-        }
-
-        if (role == AuthUserRole.MENTORED) {
-            response.setPresentCode(null);
-        }
-
-        return response;
+    if (!(isMentor || isRegisteredMentored)) {
+      response.setLink(null);
     }
 
-
-    @Override
-    public CountLessonsResponse countUpcomingAndUnavailabLessons() {
-        CountLessonsResponse response = new CountLessonsResponse();
-        response.setCountUpcomingLessons(countUpcomingLessons());
-        response.setCountUnavailableLessons(countUnavailableLessons());
-        return response;
+    if (role == AuthUserRole.MENTORED) {
+      response.setPresentCode(null);
     }
 
-    private Integer countUpcomingLessons() {
-        return lessonRepository.countUpcomingLessons();
-    }
+    return response;
+  }
 
-    private Integer countUnavailableLessons() {
-        return lessonRepository.countUnavailableLessons();
-    }
+  @Override
+  public CountLessonsResponse countUpcomingAndUnavailabLessons() {
+    CountLessonsResponse response = new CountLessonsResponse();
+    response.setCountUpcomingLessons(countUpcomingLessons());
+    response.setCountUnavailableLessons(countUnavailableLessons());
+    return response;
+  }
+
+  private Integer countUpcomingLessons() {
+    return lessonRepository.countUpcomingLessons();
+  }
+
+  private Integer countUnavailableLessons() {
+    return lessonRepository.countUnavailableLessons();
+  }
 }

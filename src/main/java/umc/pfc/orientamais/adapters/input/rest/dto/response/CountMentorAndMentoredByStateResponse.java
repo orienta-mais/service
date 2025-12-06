@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CountMentorAndMentoredByStateResponse {
-    private String state;
-    private Integer totalRegistered;
+  private String state;
+  private Integer totalRegistered;
 }

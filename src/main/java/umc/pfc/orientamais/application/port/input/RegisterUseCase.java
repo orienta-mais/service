@@ -4,5 +4,5 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequ
 import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 
 public interface RegisterUseCase {
-    void register(UserRegisterModelRequest request, AuthUserRole role);
+  void register(UserRegisterModelRequest request, AuthUserRole role);
 }

@@ -5,6 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,66 +20,59 @@ import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
 import umc.pfc.orientamais.domain.model.auth.AuthUser;
 
-import java.io.IOException;
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final List<String> PUBLIC_PATHS = List.of(
-            "/api/auth/",
-            "/swagger-ui/",
-            "/v3/api-docs/",
-            "/swagger-ui.html"
-    );
-    private final JwtProvider jwtProvider;
-    private final AuthUserRepository authUserRepository;
+  private static final List<String> PUBLIC_PATHS =
+      List.of("/api/auth/", "/swagger-ui/", "/v3/api-docs/", "/swagger-ui.html");
+  private final JwtProvider jwtProvider;
+  private final AuthUserRepository authUserRepository;
 
-    @Override
-    protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+  @Override
+  protected void doFilterInternal(
+      @NonNull HttpServletRequest request,
+      @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain)
+      throws ServletException, IOException {
 
-        String path = request.getRequestURI();
+    String path = request.getRequestURI();
 
-        if (isPublicPath(path)) {
-            filterChain.doFilter(request, response);
-            return;
+    if (isPublicPath(path)) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+
+    try {
+      String token = recoverToken(request);
+      if (token != null) {
+        String email = jwtProvider.validateAndGetUser(token);
+        AuthUser user = authUserRepository.findByEmail(email).orElse(null);
+
+        if (user != null) {
+          var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
+          var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
+          SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+      }
 
-        try {
-            String token = recoverToken(request);
-            if (token != null) {
-                String email = jwtProvider.validateAndGetUser(token);
-                AuthUser user = authUserRepository.findByEmail(email).orElse(null);
+      filterChain.doFilter(request, response);
 
-                if (user != null) {
-                    var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
-                    var authentication = new UsernamePasswordAuthenticationToken(user, null, authorities);
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
-            }
-
-            filterChain.doFilter(request, response);
-
-        } catch (TokenExpiredException | InvalidOrExpiredTokenException exception) {
-            SecurityContextHolder.clearContext();
-            throw exception;
-        } catch (Exception e) {
-            throw new InternalErrorException(e.getMessage());
-        }
+    } catch (TokenExpiredException | InvalidOrExpiredTokenException exception) {
+      SecurityContextHolder.clearContext();
+      throw exception;
+    } catch (Exception e) {
+      throw new InternalErrorException(e.getMessage());
     }
+  }
 
-    private boolean isPublicPath(String path) {
-        return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
-    }
+  private boolean isPublicPath(String path) {
+    return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
+  }
 
-    private String recoverToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token == null || !token.startsWith("Bearer ")) return null;
-        return token.replace("Bearer ", "");
-    }
+  private String recoverToken(HttpServletRequest request) {
+    String token = request.getHeader("Authorization");
+    if (token == null || !token.startsWith("Bearer ")) return null;
+    return token.replace("Bearer ", "");
+  }
 }

@@ -16,47 +16,49 @@ import umc.pfc.orientamais.domain.model.auth.RefreshToken;
 @RequiredArgsConstructor
 public class LoginService implements LoginUseCase {
 
-    private final JwtProvider jwtProvider;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final AuthUserRepository authUserRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+  private final JwtProvider jwtProvider;
+  private final RefreshTokenRepository refreshTokenRepository;
+  private final AuthUserRepository authUserRepository;
+  private final BCryptPasswordEncoder passwordEncoder;
 
-    @Override
-    public LoginResponse login(String email, String password) {
-        AuthUser authUser = authUserRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Email ou senha inválidos"));
+  @Override
+  public LoginResponse login(String email, String password) {
+    AuthUser authUser =
+        authUserRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new NotFoundException("Email ou senha inválidos"));
 
-        if (!passwordEncoder.matches(password, authUser.getPassword())) {
-            throw new NotFoundException("Email ou senha inválidos");
-        }
-        String accessToken = jwtProvider.generateAccessToken(authUser);
-        String refreshToken = jwtProvider.generateRefreshToken(authUser);
-        return new LoginResponse("SUCCESS", "Login realizado com sucesso", accessToken, refreshToken);
+    if (!passwordEncoder.matches(password, authUser.getPassword())) {
+      throw new NotFoundException("Email ou senha inválidos");
+    }
+    String accessToken = jwtProvider.generateAccessToken(authUser);
+    String refreshToken = jwtProvider.generateRefreshToken(authUser);
+    return new LoginResponse("SUCCESS", "Login realizado com sucesso", accessToken, refreshToken);
+  }
+
+  @Override
+  public LoginResponse refreshToken(String token) {
+    String cleanToken = token.replace("Bearer ", "");
+    RefreshToken storedToken =
+        refreshTokenRepository
+            .findByToken(cleanToken)
+            .orElseThrow(() -> new NotFoundException("Refresh token não encontrado ou inválido."));
+
+    if (jwtProvider.isRefreshTokenExpired(storedToken)) {
+      throw new NotFoundException("Refresh token expirado. Faça login novamente.");
     }
 
-    @Override
-    public LoginResponse refreshToken(String token) {
-        String cleanToken = token.replace("Bearer ", "");
-        RefreshToken storedToken = refreshTokenRepository.findByToken(cleanToken)
-                .orElseThrow(() -> new NotFoundException("Refresh token não encontrado ou inválido."));
+    String email = jwtProvider.validateAndGetUser(storedToken.getToken());
+    AuthUser user =
+        authUserRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new NotFoundException("Usuário não encontrado."));
 
-        if (jwtProvider.isRefreshTokenExpired(storedToken)) {
-            throw new NotFoundException("Refresh token expirado. Faça login novamente.");
-        }
+    String newAccessToken = jwtProvider.generateAccessToken(user);
+    String newRefreshToken = jwtProvider.generateRefreshToken(user);
+    refreshTokenRepository.delete(storedToken);
 
-        String email = jwtProvider.validateAndGetUser(storedToken.getToken());
-        AuthUser user = authUserRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado."));
-
-        String newAccessToken = jwtProvider.generateAccessToken(user);
-        String newRefreshToken = jwtProvider.generateRefreshToken(user);
-        refreshTokenRepository.delete(storedToken);
-
-        return new LoginResponse(
-                "SUCCESS",
-                "Token renovado com sucesso",
-                newAccessToken,
-                newRefreshToken
-        );
-    }
+    return new LoginResponse(
+        "SUCCESS", "Token renovado com sucesso", newAccessToken, newRefreshToken);
+  }
 }
