@@ -3,6 +3,7 @@ package umc.pfc.orientamais.domain.model.mentor;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 import umc.pfc.orientamais.domain.model.auth.AuthUser;
 import umc.pfc.orientamais.domain.model.clazz.Lesson;
@@ -45,6 +46,8 @@ public class Mentor implements Profile {
 
     private String nationality;
 
+    @Column(insertable = false)
+    @org.hibernate.annotations.ColumnDefault("true")
     private Boolean active;
 
     @OneToMany(mappedBy = "mentor")
