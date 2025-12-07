@@ -31,6 +31,7 @@ import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -177,6 +178,9 @@ public class LessonService implements LessonUseCase {
         Pageable pageable = PageRequest.of(page, size, getSort(order));
         Specification<Lesson> spec = (root, query, cb) -> cb.conjunction();
 
+        spec = spec.and((root, query, cb) ->
+                cb.greaterThan(root.get("startTime"), LocalDateTime.now()));
+
         if (title != null && !title.isBlank()) {
             spec = spec.and((root, query, cb) ->
                     cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
@@ -252,6 +256,8 @@ public class LessonService implements LessonUseCase {
 
         if (role == AuthUserRole.MENTORED) {
             response.setPresentCode(null);
+            if (!lesson.getMentor().getActive())
+                response.setMentorId(null);
         }
 
         return response;

@@ -1,6 +1,8 @@
 package umc.pfc.orientamais.adapters.output.persistence.repository;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
@@ -27,4 +29,11 @@ public interface MentoredRepository extends JpaRepository<Mentored, UUID> {
             ORDER BY state;
             """, nativeQuery = true)
     List<Object[]> countByState();
+
+    @Modifying
+    @Transactional
+    @Query(value = """
+            delete from mentored where id = :id;
+            """, nativeQuery = true)
+    void deleteMentored(UUID id);
 }
