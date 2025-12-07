@@ -35,6 +35,13 @@ import umc.pfc.orientamais.domain.model.clazz.LessonMentoredId;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
 @Service
 @Transactional
 @AllArgsConstructor
@@ -172,10 +179,35 @@ public class LessonService implements LessonUseCase {
     relation.setMentored(mentored);
     lessonMentoredRepository.save(relation);
 
-    try {
-      calendarPort.sendInviteToMentored(lesson, mentored.getUser().getEmail());
-    } catch (Exception ex) {
-      System.err.println("Erro ao enviar convite para o mentorado: " + ex.getMessage());
+        Pageable pageable = PageRequest.of(page, size, getSort(order));
+        Specification<Lesson> spec = (root, query, cb) -> cb.conjunction();
+
+        spec = spec.and((root, query, cb) ->
+                cb.greaterThan(root.get("startTime"), LocalDateTime.now()));
+
+        if (title != null && !title.isBlank()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
+        }
+
+        if (date != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(cb.function("DATE", LocalDate.class, root.get("startTime")), date));
+        }
+
+        if (userRole == AuthUserRole.MENTORED) {
+            spec = spec.and(hasAvailableSpots());
+        }
+
+        Page<Lesson> lessons = lessonRepository.findAll(spec, pageable);
+
+        List<LessonModelResponse> responseList = lessons.getContent().stream()
+                .map(lessonMapper::entityToResponse)
+                .toList();
+
+        Page<LessonModelResponse> mappedPage = new PageImpl<>(responseList, pageable, lessons.getTotalElements());
+
+        return paginationMapper.toPagedModel(mappedPage);
     }
 
     return new GenericModelResponse(
@@ -261,8 +293,21 @@ public class LessonService implements LessonUseCase {
     response.setPresentCodeFilled(
         lessonMentored != null && Boolean.TRUE.equals(lessonMentored.getPresentCodeFilled()));
 
-    if (!(isMentor || isRegisteredMentored)) {
-      response.setLink(null);
+        response.setPresentCodeFilled(
+                lessonMentored != null && Boolean.TRUE.equals(lessonMentored.getPresentCodeFilled())
+        );
+
+        if (!(isMentor || isRegisteredMentored)) {
+            response.setLink(null);
+        }
+
+        if (role == AuthUserRole.MENTORED) {
+            response.setPresentCode(null);
+            if (!lesson.getMentor().getActive())
+                response.setMentorId(null);
+        }
+
+        return response;
     }
 
     if (role == AuthUserRole.MENTORED) {

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
 import umc.pfc.orientamais.domain.model.auth.AuthUser;
 import umc.pfc.orientamais.domain.model.auth.Profile;
@@ -45,8 +46,12 @@ public class Mentor implements Profile {
 
   private String nationality;
 
-  @OneToMany(mappedBy = "mentor")
-  private List<Lesson> classes;
+    @Column(insertable = false)
+    @org.hibernate.annotations.ColumnDefault("true")
+    private Boolean active;
+
+    @OneToMany(mappedBy = "mentor")
+    private List<Lesson> classes;
 
   @OneToMany(mappedBy = "mentor")
   private List<MentorInterest> interests;

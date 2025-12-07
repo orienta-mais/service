@@ -126,8 +126,53 @@ public class MentorService implements MentorUseCase {
     }
   }
 
-  @Override
-  public Integer countMentors() {
-    return mentorRepository.countMentors();
-  }
+    @Override
+    @Transactional
+    public MentorModelResponse updateMentor(UUID id, MentorUpdateModelRequest request) {
+        Mentor mentor = mentorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+        checkPermission(mentor);
+        mentorMapper.updateEntityFromRequest(mentor, request);
+        return mentorMapper.entityToResponse(mentorRepository.save(mentor));
+    }
+
+    @Override
+    @Transactional
+    public void deleteMentor(UUID id) {
+        Mentor mentor = mentorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+        checkPermission(mentor);
+        AuthUser authUser = mentor.getUser();
+        mentorRepository.delete(mentor);
+        authUserRepository.delete(authUser);
+    }
+
+    private void checkPermission(Mentor mentor) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        AuthUser authUser = (AuthUser) authentication.getPrincipal();
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        boolean isOwner = mentor.getUser().getEmail().equalsIgnoreCase(authUser.getEmail());
+
+        if (!isAdmin && !isOwner) {
+            throw new AccessDeniedException("Você não tem permissão para executar esta ação.");
+        }
+    }
+
+    @Override
+    public Integer countMentors() {
+        return mentorRepository.countMentors();
+    }
+
+    @Override
+    public void anonymizeMentorData(UUID id) {
+        var mentor = mentorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+        mentorRepository.anonymizeMentorData(id);
+        mentorReviewRepository.deleteMentorReviews(id);
+        authUserRepository.anonymizeAuthUserData(mentor.getUser().getId());
+        lessonRepository.deleteFutureLessonByMentorId(id);
+    }
 }

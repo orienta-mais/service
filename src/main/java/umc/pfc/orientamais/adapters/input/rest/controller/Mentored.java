@@ -58,11 +58,11 @@ public class Mentored {
     return ResponseEntity.ok(mentoredUseCase.updateMentored(id, request));
   }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteMentored(@PathVariable UUID id) {
-    mentoredUseCase.deleteMentored(id);
-    return ResponseEntity.noContent().build();
-  }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMentored(@PathVariable UUID id) {
+        mentoredUseCase.deleteMentoredCascade(id);
+        return ResponseEntity.noContent().build();
+    }
 
   @GetMapping("/mentor-info/{id}")
   public ResponseEntity<MentorInfoModelResponse> getMentorInfosById(@PathVariable UUID id) {
