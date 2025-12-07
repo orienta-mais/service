@@ -2,6 +2,10 @@ package umc.pfc.orientamais.application.service.utils;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
@@ -11,46 +15,85 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class EmailTemplateBuilderTest {
 
+    @Mock
     private ResourceLoader resourceLoader;
-    private EmailTemplateBuilder emailTemplateBuilder;
+
+    @Mock
     private Resource resource;
+
+    @InjectMocks
+    private EmailTemplateBuilder emailTemplateBuilder;
 
     @BeforeEach
     void setUp() {
-        resourceLoader = mock(ResourceLoader.class);
-        resource = mock(Resource.class);
-        emailTemplateBuilder = new EmailTemplateBuilder(resourceLoader);
+        // No-op: dependencies mocked via annotations
     }
 
     @Test
-    void shouldBuildMentorRegisterEmailSuccessfully() throws IOException {
-        String templateContent = "<html>Confirme seu cadastro: ${link}</html>";
-        when(resourceLoader.getResource("classpath:templates/mentor_register.html")).thenReturn(resource);
-        when(resource.getInputStream()).thenReturn(new ByteArrayInputStream(templateContent.getBytes(StandardCharsets.UTF_8)));
+    void buildMentorRegisterEmailShouldReplacePlaceholder() throws IOException {
+        when(resourceLoader.getResource(eq("classpath:templates/mentor_register.html"))).thenReturn(resource);
+        when(resource.getInputStream()).thenReturn(stream("<html>${link}</html>"));
 
-        String link = "http://teste.com/confirm";
-        String result = emailTemplateBuilder.buildMentorRegisterEmail(link);
+        String result = emailTemplateBuilder.buildMentorRegisterEmail("http://link");
 
-        assertTrue(result.contains(link));
-        assertFalse(result.contains("${link}"));
-        assertEquals("<html>Confirme seu cadastro: http://teste.com/confirm</html>", result);
+        assertEquals("<html>http://link</html>", result);
     }
 
     @Test
-    void shouldThrowInternalErrorExceptionWhenIOExceptionOccurs() throws IOException {
-        when(resourceLoader.getResource("classpath:templates/mentor_register.html")).thenReturn(resource);
-        when(resource.getInputStream()).thenThrow(new IOException("Falha ao ler"));
+    void buildMentorRegisterEmailShouldThrowWhenResourceFails() throws IOException {
+        when(resourceLoader.getResource(eq("classpath:templates/mentor_register.html"))).thenReturn(resource);
+        when(resource.getInputStream()).thenThrow(new IOException("fail"));
 
-        InternalErrorException exception = assertThrows(
-                InternalErrorException.class,
-                () -> emailTemplateBuilder.buildMentorRegisterEmail("http://teste.com/confirm")
-        );
-
+        InternalErrorException exception = assertThrows(InternalErrorException.class,
+                () -> emailTemplateBuilder.buildMentorRegisterEmail("link"));
         assertEquals("Erro ao carregar template de e-mail", exception.getMessage());
     }
+
+    @Test
+    void buildPasswordResetEmailShouldReplacePlaceholder() throws IOException {
+        when(resourceLoader.getResource(eq("classpath:templates/password_reset.html"))).thenReturn(resource);
+        when(resource.getInputStream()).thenReturn(stream("<body>${link}</body>"));
+
+        String result = emailTemplateBuilder.buildPasswordResetEmail("reset-link");
+
+        assertEquals("<body>reset-link</body>", result);
+    }
+
+    @Test
+    void buildPasswordResetEmailShouldThrowWhenResourceFails() throws IOException {
+        when(resourceLoader.getResource(eq("classpath:templates/password_reset.html"))).thenReturn(resource);
+        when(resource.getInputStream()).thenThrow(new IOException("fail"));
+
+        assertThrows(InternalErrorException.class,
+                () -> emailTemplateBuilder.buildPasswordResetEmail("reset"));
+    }
+
+    @Test
+    void buildPasswordChangedEmailShouldReturnTemplateContent() throws IOException {
+        when(resourceLoader.getResource(eq("classpath:templates/password_changed.html"))).thenReturn(resource);
+        when(resource.getInputStream()).thenReturn(stream("<p>Password changed</p>"));
+
+        String result = emailTemplateBuilder.buildPasswordChangedEmail();
+
+        assertEquals("<p>Password changed</p>", result);
+    }
+
+    @Test
+    void buildPasswordChangedEmailShouldThrowWhenResourceFails() throws IOException {
+        when(resourceLoader.getResource(eq("classpath:templates/password_changed.html"))).thenReturn(resource);
+        when(resource.getInputStream()).thenThrow(new IOException("fail"));
+
+        assertThrows(InternalErrorException.class, emailTemplateBuilder::buildPasswordChangedEmail);
+    }
+
+    private ByteArrayInputStream stream(String value) {
+        return new ByteArrayInputStream(value.getBytes(StandardCharsets.UTF_8));
+    }
 }
+
