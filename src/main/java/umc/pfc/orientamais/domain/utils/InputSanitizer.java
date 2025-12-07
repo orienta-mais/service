@@ -25,12 +25,21 @@ public class InputSanitizer {
               + "(expression\\s*\\()",
           Pattern.CASE_INSENSITIVE);
 
-  private static final Pattern LDAP_INJECTION_PATTERN = Pattern.compile("[\\(\\)\\*\\\\&\\|!]");
 
   private static final Pattern PATH_TRAVERSAL_PATTERN =
       Pattern.compile("(\\.\\./)|(\\.\\\\)|(%2e%2e)|(%252e%252e)");
 
   private static final Pattern NULL_BYTE_PATTERN = Pattern.compile("\\x00|%00");
+
+  private static final Pattern COMMAND_INJECTION_PATTERN =
+      Pattern.compile(
+          "(;\\s*(rm|cat|ls|pwd|whoami|id|uname|wget|curl|bash|sh|cmd|powershell|eval|exec)\\s)|"
+              + "(\\|\\s*(rm|cat|ls|pwd|whoami|id|uname|wget|curl|bash|sh|cmd|powershell|eval|exec)\\s)|"
+              + "(&&\\s*(rm|cat|ls|pwd|whoami|id|uname|wget|curl|bash|sh|cmd|powershell|eval|exec)\\s)|"
+              + "(\\$\\(.*\\))|"
+              + "(`.*`)|"
+              + "(\\|\\||&&)",
+          Pattern.CASE_INSENSITIVE);
 
   private InputSanitizer() {
     // Utility class
@@ -83,18 +92,6 @@ public class InputSanitizer {
     return !XSS_PATTERN.matcher(input).find();
   }
 
-  /**
-   * Validates that the input doesn't contain LDAP injection patterns.
-   *
-   * @param input the input to validate
-   * @return true if no LDAP injection patterns are detected
-   */
-  public static boolean isSafeFromLdapInjection(String input) {
-    if (input == null || input.isEmpty()) {
-      return true;
-    }
-    return !LDAP_INJECTION_PATTERN.matcher(input).find();
-  }
 
   /**
    * Validates that the input doesn't contain path traversal patterns.
@@ -123,6 +120,19 @@ public class InputSanitizer {
   }
 
   /**
+   * Validates that the input doesn't contain command injection patterns.
+   *
+   * @param input the input to validate
+   * @return true if no command injection patterns are detected
+   */
+  public static boolean isSafeFromCommandInjection(String input) {
+    if (input == null || input.isEmpty()) {
+      return true;
+    }
+    return !COMMAND_INJECTION_PATTERN.matcher(input).find();
+  }
+
+  /**
    * Performs comprehensive validation against all known injection patterns.
    *
    * @param input the input to validate
@@ -131,9 +141,9 @@ public class InputSanitizer {
   public static boolean isComprehensiveSafe(String input) {
     return isSafeFromSqlInjection(input)
         && isSafeFromXss(input)
-        && isSafeFromLdapInjection(input)
         && isSafeFromPathTraversal(input)
-        && isSafeFromNullBytes(input);
+        && isSafeFromNullBytes(input)
+        && isSafeFromCommandInjection(input);
   }
 
   /**

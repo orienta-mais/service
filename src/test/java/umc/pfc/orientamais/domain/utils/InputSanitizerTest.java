@@ -92,27 +92,6 @@ class InputSanitizerTest {
     assertTrue(InputSanitizer.isSafeFromXss(input), "Should accept safe input: " + input);
   }
 
-  @ParameterizedTest
-  @ValueSource(
-      strings = {
-        "*(objectClass=*)",
-        "admin)(|(password=*))",
-        "user*",
-        "test\\user",
-        "(cn=*)",
-        "user&admin",
-        "test|malicious"
-      })
-  void testIsSafeFromLdapInjection_maliciousInput_returnsFalse(String input) {
-    assertFalse(
-        InputSanitizer.isSafeFromLdapInjection(input), "Should detect LDAP injection: " + input);
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"normaluser", "user.name", "test-user", "user_123"})
-  void testIsSafeFromLdapInjection_safeInput_returnsTrue(String input) {
-    assertTrue(InputSanitizer.isSafeFromLdapInjection(input), "Should accept safe input: " + input);
-  }
 
   @ParameterizedTest
   @ValueSource(
@@ -239,7 +218,6 @@ class InputSanitizerTest {
   void testEmptyString_allChecks_returnsTrue() {
     assertTrue(InputSanitizer.isSafeFromSqlInjection(""));
     assertTrue(InputSanitizer.isSafeFromXss(""));
-    assertTrue(InputSanitizer.isSafeFromLdapInjection(""));
     assertTrue(InputSanitizer.isSafeFromPathTraversal(""));
     assertTrue(InputSanitizer.isSafeFromNullBytes(""));
     assertTrue(InputSanitizer.isComprehensiveSafe(""));
@@ -249,7 +227,6 @@ class InputSanitizerTest {
   void testNullString_allChecks_returnsTrue() {
     assertTrue(InputSanitizer.isSafeFromSqlInjection(null));
     assertTrue(InputSanitizer.isSafeFromXss(null));
-    assertTrue(InputSanitizer.isSafeFromLdapInjection(null));
     assertTrue(InputSanitizer.isSafeFromPathTraversal(null));
     assertTrue(InputSanitizer.isSafeFromNullBytes(null));
     assertTrue(InputSanitizer.isComprehensiveSafe(null));

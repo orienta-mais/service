@@ -14,11 +14,13 @@ import umc.pfc.orientamais.domain.utils.InputSanitizer;
 public class SafeInputValidator implements ConstraintValidator<SafeInput, String> {
 
   private Set<SafeInput.InjectionType> checksToPerform;
+  private boolean allowHtml;
 
   @Override
   public void initialize(SafeInput constraintAnnotation) {
     this.checksToPerform =
         Arrays.stream(constraintAnnotation.checkFor()).collect(Collectors.toSet());
+    this.allowHtml = constraintAnnotation.allowHtml();
   }
 
   @Override
@@ -41,7 +43,8 @@ public class SafeInputValidator implements ConstraintValidator<SafeInput, String
     }
 
     if (checksToPerform.contains(SafeInput.InjectionType.XSS)) {
-      if (!InputSanitizer.isSafeFromXss(value)) {
+      // If allowHtml is true, skip XSS check (HTML will be sanitized by InputSanitizer)
+      if (!allowHtml && !InputSanitizer.isSafeFromXss(value)) {
         context.disableDefaultConstraintViolation();
         context
             .buildConstraintViolationWithTemplate("Input contém padrões de XSS")
@@ -50,15 +53,6 @@ public class SafeInputValidator implements ConstraintValidator<SafeInput, String
       }
     }
 
-    if (checksToPerform.contains(SafeInput.InjectionType.LDAP_INJECTION)) {
-      if (!InputSanitizer.isSafeFromLdapInjection(value)) {
-        context.disableDefaultConstraintViolation();
-        context
-            .buildConstraintViolationWithTemplate("Input contém padrões de LDAP injection")
-            .addConstraintViolation();
-        isValid = false;
-      }
-    }
 
     if (checksToPerform.contains(SafeInput.InjectionType.PATH_TRAVERSAL)) {
       if (!InputSanitizer.isSafeFromPathTraversal(value)) {
@@ -75,6 +69,16 @@ public class SafeInputValidator implements ConstraintValidator<SafeInput, String
         context.disableDefaultConstraintViolation();
         context
             .buildConstraintViolationWithTemplate("Input contém null bytes")
+            .addConstraintViolation();
+        isValid = false;
+      }
+    }
+
+    if (checksToPerform.contains(SafeInput.InjectionType.COMMAND_INJECTION)) {
+      if (!InputSanitizer.isSafeFromCommandInjection(value)) {
+        context.disableDefaultConstraintViolation();
+        context
+            .buildConstraintViolationWithTemplate("Input contém padrões de command injection")
             .addConstraintViolation();
         isValid = false;
       }

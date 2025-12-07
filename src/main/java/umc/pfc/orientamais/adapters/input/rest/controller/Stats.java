@@ -15,7 +15,7 @@ import umc.pfc.orientamais.application.port.input.MentorUseCase;
 import umc.pfc.orientamais.application.port.input.MentoredUseCase;
 
 @RestController
-@RequestMapping("/api/stats")
+@RequestMapping("/api/admin/stats")
 @RequiredArgsConstructor
 public class Stats {
 

@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 
 /**
  * Custom validation annotation to ensure input is safe from injection attacks. Validates against
- * SQL injection, XSS, LDAP injection, path traversal, and null bytes.
+ * SQL injection, XSS, path traversal, command injection, and null bytes.
  */
 @Documented
 @Constraint(validatedBy = SafeInputValidator.class)
@@ -25,14 +25,21 @@ public @interface SafeInput {
     InjectionType.SQL_INJECTION,
     InjectionType.XSS,
     InjectionType.PATH_TRAVERSAL,
-    InjectionType.NULL_BYTES
+    InjectionType.NULL_BYTES,
+    InjectionType.COMMAND_INJECTION
   };
+
+  /**
+   * Allow HTML tags in the input. When true, XSS check will be more lenient and allow safe HTML.
+   * Default is false.
+   */
+  boolean allowHtml() default false;
 
   enum InjectionType {
     SQL_INJECTION,
     XSS,
-    LDAP_INJECTION,
     PATH_TRAVERSAL,
-    NULL_BYTES
+    NULL_BYTES,
+    COMMAND_INJECTION
   }
 }
