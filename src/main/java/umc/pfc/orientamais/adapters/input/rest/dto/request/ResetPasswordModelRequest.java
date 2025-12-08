@@ -35,4 +35,12 @@ public record ResetPasswordModelRequest(
                 "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#^()_+=\\-\\[\\]{}|;:,.<>~`])[A-Za-z\\d@$!%*?&#^()_+=\\-\\[\\]{}|;:,.<>~`]{8,128}$",
             message =
                 "Senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial")
-        String newPassword) {}
+        String newPassword,
+    @NotBlank(message = "Este campo é obrigatório!")
+        @Length(min = 8, max = 128, message = "A nova senha deve conter entre 8 e 128 caracteres")
+        @Pattern(
+            regexp =
+                "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#^()_+=\\-\\[\\]{}|;:,.<>~`])[A-Za-z\\d@$!%*?&#^()_+=\\-\\[\\]{}|;:,.<>~`]{8,128}$",
+            message =
+                "Senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial")
+        String confirmPassword) {}

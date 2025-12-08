@@ -64,12 +64,12 @@ class MentorTest {
             "Name",
             "Last Name",
             "12345678",
+            "12345678",
             LocalDate.of(2002, 6, 21),
             null,
             null,
             "SP",
             "BR",
-            AuthUserRole.MENTOR,
             "token123");
     updateRequest =
         new MentorUpdateModelRequest(

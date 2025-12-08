@@ -2,13 +2,12 @@ package umc.pfc.orientamais.domain.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import umc.pfc.orientamais.domain.utils.InputSanitizer;
-
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import umc.pfc.orientamais.domain.utils.InputSanitizer;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +21,7 @@ public class SafeInputValidator implements ConstraintValidator<SafeInput, String
   @Override
   public void initialize(SafeInput constraintAnnotation) {
     this.checksToPerform =
-      Arrays.stream(constraintAnnotation.checkFor()).collect(Collectors.toSet());
+        Arrays.stream(constraintAnnotation.checkFor()).collect(Collectors.toSet());
     this.allowHtml = constraintAnnotation.allowHtml();
   }
 
@@ -39,22 +38,22 @@ public class SafeInputValidator implements ConstraintValidator<SafeInput, String
         if (containsSqlInjectionPatterns(lower)) {
           context.disableDefaultConstraintViolation();
           context
-            .buildConstraintViolationWithTemplate(
-              "Input contém padrões possivelmente maliciosos (SQL)")
-            .addConstraintViolation();
+              .buildConstraintViolationWithTemplate(
+                  "Input contém padrões possivelmente maliciosos (SQL)")
+              .addConstraintViolation();
           return false;
         }
       } else {
         if (lower.contains(";")
-          || lower.contains("--")
-          || lower.contains("/*")
-          || lower.contains("*/")
-          || containsSqlInjectionPatterns(lower)) {
+            || lower.contains("--")
+            || lower.contains("/*")
+            || lower.contains("*/")
+            || containsSqlInjectionPatterns(lower)) {
           context.disableDefaultConstraintViolation();
           context
-            .buildConstraintViolationWithTemplate(
-              "Input contém padrões possivelmente maliciosos (SQL)")
-            .addConstraintViolation();
+              .buildConstraintViolationWithTemplate(
+                  "Input contém padrões possivelmente maliciosos (SQL)")
+              .addConstraintViolation();
           return false;
         }
       }
@@ -65,8 +64,8 @@ public class SafeInputValidator implements ConstraintValidator<SafeInput, String
       if (!safe) {
         context.disableDefaultConstraintViolation();
         context
-          .buildConstraintViolationWithTemplate("Input contém padrões de XSS")
-          .addConstraintViolation();
+            .buildConstraintViolationWithTemplate("Input contém padrões de XSS")
+            .addConstraintViolation();
         return false;
       }
     }
@@ -75,8 +74,8 @@ public class SafeInputValidator implements ConstraintValidator<SafeInput, String
       if (!sanitizer.isSafePathTraversal(value)) {
         context.disableDefaultConstraintViolation();
         context
-          .buildConstraintViolationWithTemplate("Input contém padrões de path traversal")
-          .addConstraintViolation();
+            .buildConstraintViolationWithTemplate("Input contém padrões de path traversal")
+            .addConstraintViolation();
         return false;
       }
     }
@@ -85,8 +84,8 @@ public class SafeInputValidator implements ConstraintValidator<SafeInput, String
       if (!sanitizer.isSafeFromNullBytes(value)) {
         context.disableDefaultConstraintViolation();
         context
-          .buildConstraintViolationWithTemplate("Input contém null bytes")
-          .addConstraintViolation();
+            .buildConstraintViolationWithTemplate("Input contém null bytes")
+            .addConstraintViolation();
         return false;
       }
     }
@@ -95,9 +94,9 @@ public class SafeInputValidator implements ConstraintValidator<SafeInput, String
       if (!sanitizer.isSafeFromCommandInjection(value, allowHtml)) {
         context.disableDefaultConstraintViolation();
         context
-          .buildConstraintViolationWithTemplate(
-            "Input contém padrões possivelmente de command injection")
-          .addConstraintViolation();
+            .buildConstraintViolationWithTemplate(
+                "Input contém padrões possivelmente de command injection")
+            .addConstraintViolation();
         return false;
       }
     }

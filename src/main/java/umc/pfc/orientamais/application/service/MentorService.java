@@ -15,7 +15,6 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.*;
 import umc.pfc.orientamais.application.mapper.MentorMapper;
 import umc.pfc.orientamais.application.mapper.MentorReviewMapper;
 import umc.pfc.orientamais.application.port.input.MentorUseCase;
-import umc.pfc.orientamais.application.service.utils.MentorReviewUtils;
 import umc.pfc.orientamais.application.service.utils.SecurityUtils;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.auth.AuthUser;
@@ -33,7 +32,6 @@ public class MentorService implements MentorUseCase {
   private final AuthUserRepository authUserRepository;
   private final MentoredRepository mentoredRepository;
   private final MentorReviewRepository mentorReviewRepository;
-  private final MentorReviewUtils mentorReviewUtils;
   private final LessonRepository lessonRepository;
 
   @Override
@@ -131,14 +129,25 @@ public class MentorService implements MentorUseCase {
   }
 
   @Override
+  @Transactional
   public void anonymizeMentorData(UUID id) {
+    UUID mentorAuthUserUUID = SecurityUtils.getCurrentProfileId();
     var mentor =
         mentorRepository
             .findById(id)
             .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
-    mentorRepository.anonymizeMentorData(id);
-    mentorReviewRepository.deleteMentorReviews(id);
-    authUserRepository.anonymizeAuthUserData(mentor.getUser().getId());
+
+    mentor.setUser(null);
+    mentor.setBirthDate(null);
+    mentor.setSocialMedias(null);
+    mentor.setDescription(null);
+    mentor.setState(null);
+    mentor.setNationality(null);
+    mentor.setActive(false);
+    mentorRepository.save(mentor);
+
+    mentorReviewRepository.anonymizeMentorReviews(id);
     lessonRepository.deleteFutureLessonByMentorId(id);
+    authUserRepository.deleteById(mentorAuthUserUUID);
   }
 }

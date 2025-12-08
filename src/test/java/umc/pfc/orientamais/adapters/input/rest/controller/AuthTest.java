@@ -47,10 +47,12 @@ class AuthTest {
   void setUp() {
     loginRequest = new LoginRequest("user@email.com", "123456");
     loginResponse =
-        new LoginResponse("SUCCESS", "Login realizado com sucesso", "accessToken", "refreshToken", true);
+        new LoginResponse(
+            "SUCCESS", "Login realizado com sucesso", "accessToken", "refreshToken", true);
     emailModelRequest = new EmailModelRequest("user@email.com");
     resetPasswordModelRequest =
-        new ResetPasswordModelRequest("token", "user@email.com", "newPassword123");
+        new ResetPasswordModelRequest(
+            "token", "user@email.com", "newPassword123", "newPassword123");
     changePasswordModelRequest =
         new ChangePasswordModelRequest("user@email.com", "currentPassword123", "newPassword456");
   }

@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
@@ -50,6 +51,9 @@ public class RegisterService implements RegisterUseCase {
   @Override
   public void register(UserRegisterModelRequest request, AuthUserRole role) {
     RegistrationToken token = validateToken(request.token());
+    if (!Objects.equals(request.password(), request.confirmPassword())) {
+      throw new IllegalArgumentException("As senhas não coincidem.");
+    }
     AuthUser user = createAuthUser(request, role);
     authUserRepository.save(user);
 
@@ -70,10 +74,10 @@ public class RegisterService implements RegisterUseCase {
   }
 
   private AuthUser createAuthUser(UserRegisterModelRequest request, AuthUserRole role) {
-    String encryptedPassword = passwordEncoder.encode(request.password());
+    String encryptedConfirmPassword = passwordEncoder.encode(request.confirmPassword());
     String safeEmail = request.email().replace("%2B", "+");
     String decodedEmail = URLDecoder.decode(safeEmail, StandardCharsets.UTF_8);
-    return new AuthUser(decodedEmail, encryptedPassword, role, false);
+    return new AuthUser(decodedEmail, encryptedConfirmPassword, role, true);
   }
 
   private <T extends Profile> void createProfile(

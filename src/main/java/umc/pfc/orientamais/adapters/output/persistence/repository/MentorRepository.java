@@ -29,6 +29,7 @@ public interface MentorRepository extends JpaRepository<Mentor, UUID> {
             description   = NULL,
             state         = NULL,
             nationality   = NULL,
+            user_uuid     = NULL,
             active = FALSE
         WHERE id = :id
         """,

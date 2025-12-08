@@ -17,10 +17,10 @@ public interface MentorReviewRepository extends JpaRepository<MentorReview, UUID
   @Modifying
   @Query(
       value = """
-                delete from mentor_review where mentor_id = :id;
+                DELETE FROM mentor_review WHERE mentor_id = :id;
             """,
       nativeQuery = true)
-  void deleteMentorReviews(UUID id);
+  void anonymizeMentorReviews(UUID id);
 
   @Modifying
   @Transactional

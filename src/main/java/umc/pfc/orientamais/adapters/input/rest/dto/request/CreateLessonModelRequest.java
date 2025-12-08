@@ -31,7 +31,6 @@ public class CreateLessonModelRequest {
   private Integer maxGuest;
 
   @NotNull(message = "A data da mentoria é obrigatória.")
-  @Future(message = "A data da mentoria deve ser no futuro")
   private LocalDate date;
 
   @NotNull(message = "O horário de início é obrigatório.")

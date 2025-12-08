@@ -3,6 +3,7 @@ package umc.pfc.orientamais.adapters.input.rest.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.Instant;
 import lombok.*;
+import umc.pfc.orientamais.application.service.utils.TimeUtils;
 
 @Getter
 @Setter
@@ -27,7 +28,7 @@ public class GenericModelResponse {
         .code("SUCCESS")
         .message(message)
         .data(data)
-        .timestamp(Instant.now())
+        .timestamp(TimeUtils.nowUtc())
         .build();
   }
 
@@ -35,11 +36,11 @@ public class GenericModelResponse {
     return GenericModelResponse.builder()
         .code(code)
         .message(message)
-        .timestamp(Instant.now())
+        .timestamp(TimeUtils.nowUtc())
         .build();
   }
 
   public static GenericModelResponse message(String message) {
-    return GenericModelResponse.builder().message(message).timestamp(Instant.now()).build();
+    return GenericModelResponse.builder().message(message).timestamp(TimeUtils.nowUtc()).build();
   }
 }

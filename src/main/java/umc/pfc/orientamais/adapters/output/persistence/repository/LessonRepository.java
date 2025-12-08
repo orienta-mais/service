@@ -2,6 +2,7 @@ package umc.pfc.orientamais.adapters.output.persistence.repository;
 
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import umc.pfc.orientamais.domain.model.clazz.Lesson;
+import umc.pfc.orientamais.domain.model.clazz.LessonStatus;
 
 @Repository
 public interface LessonRepository
@@ -20,10 +22,10 @@ public interface LessonRepository
   @Query(
       value =
           """
-    SELECT * FROM class c
-    WHERE (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%')))
-      AND (:startDate IS NULL OR DATE(c.start_time) = :startDate)
-""",
+            SELECT * FROM class c
+            WHERE (:title IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%')))
+              AND (:startDate IS NULL OR DATE(c.start_time) = :startDate)
+        """,
       nativeQuery = true)
   List<Lesson> findAllLessonsByFilters(
       @Param("title") String title, @Param("startDate") LocalDate startDate);
@@ -31,28 +33,28 @@ public interface LessonRepository
   @Query(
       value =
           """
-            select count(*) from "class" c
-            where c.start_time > NOW();
-            """,
+        select count(*) from "class" c
+        where c.start_time > NOW();
+        """,
       nativeQuery = true)
   Integer countUpcomingLessons();
 
   @Query(
       value =
           """
-            SELECT COUNT(*) AS total_classes_disponiveis
-            FROM (
-                SELECT
-                    c.id,
-                    c.max_guest,
-                    COUNT(cm.*) AS total_mentored
-                FROM "class" c
-                LEFT JOIN class_mentored cm ON cm.class_id = c.id
-                WHERE c.end_time < NOW()
-                GROUP BY c.id, c.max_guest
-                HAVING COUNT(cm.*) <= c.max_guest
-            ) AS sub;
-            """,
+        SELECT COUNT(*) AS total_classes_disponiveis
+        FROM (
+            SELECT
+                c.id,
+                c.max_guest,
+                COUNT(cm.*) AS total_mentored
+            FROM "class" c
+            LEFT JOIN class_mentored cm ON cm.class_id = c.id
+            WHERE c.end_time < NOW()
+            GROUP BY c.id, c.max_guest
+            HAVING COUNT(cm.*) <= c.max_guest
+        ) AS sub;
+        """,
       nativeQuery = true)
   Integer countUnavailableLessons();
 
@@ -61,10 +63,14 @@ public interface LessonRepository
   @Query(
       value =
           """
-            DELETE FROM class
-            WHERE mentor_id = :id
-                AND start_time > NOW();
-            """,
+        DELETE FROM class
+        WHERE mentor_id = :id
+            AND start_time > NOW();
+        """,
       nativeQuery = true)
   void deleteFutureLessonByMentorId(UUID id);
+
+  List<Lesson> findByStatusAndStartTimeBefore(LessonStatus status, LocalDateTime dateTime);
+
+  List<Lesson> findByStatus(LessonStatus status);
 }

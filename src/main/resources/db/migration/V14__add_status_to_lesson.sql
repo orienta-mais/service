@@ -1,0 +1,6 @@
+ALTER TABLE class
+  ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'PENDING';
+
+UPDATE class
+SET status = 'PASSED'
+WHERE start_time < NOW();

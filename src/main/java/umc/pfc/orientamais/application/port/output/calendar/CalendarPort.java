@@ -7,4 +7,6 @@ public interface CalendarPort {
   String createEvent(Lesson lesson, List<String> attendees);
 
   void sendInviteToMentored(Lesson lesson, String mentoredEmail);
+
+  void cancelEvent(Lesson lesson, List<String> mentoredEmails);
 }

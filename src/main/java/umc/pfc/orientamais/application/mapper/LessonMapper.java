@@ -70,24 +70,38 @@ public class LessonMapper {
 
   public LessonDetailsModelResponse entityToDetailsResponse(Lesson lesson) {
     var response = new LessonDetailsModelResponse();
+
     response.setId(lesson.getId());
     response.setTitle(lesson.getTitle());
     response.setDescription(lesson.getDescription());
     response.setLink(lesson.getLink());
     response.setMaxGuest(lesson.getMaxGuest());
     response.setPresentCode(lesson.getPresentCode());
-    response.setDate(LocalDate.from(lesson.getEndTime()));
-    var startTime = lesson.getStartTime().toLocalTime();
-    var endTime = lesson.getEndTime().toLocalTime();
-    response.setStartTime(startTime);
-    response.setEndTime(endTime);
-    response.setMentorId(lesson.getMentor().getId());
-    response.setMentorName(lesson.getMentor().getName());
+
+    response.setDate(lesson.getStartTime().toLocalDate());
+    response.setStartTime(lesson.getStartTime().toLocalTime());
+    response.setEndTime(lesson.getEndTime().toLocalTime());
+
+    try {
+      if (lesson.getMentor() != null) {
+        response.setMentorId(lesson.getMentor().getId());
+        response.setMentorName(lesson.getMentor().getName());
+      } else {
+        response.setMentorId(null);
+        response.setMentorName(null);
+      }
+    } catch (jakarta.persistence.EntityNotFoundException e) {
+      response.setMentorId(null);
+      response.setMentorName(null);
+    }
+
     response.setAdditionalLinks(
         lesson.getAdditionalLinks() == null
             ? Collections.emptyList()
             : lesson.getAdditionalLinks());
+
     response.setPresentCodeFilled(null);
+
     return response;
   }
 
@@ -102,7 +116,17 @@ public class LessonMapper {
     var endTime = lesson.getEndTime().toLocalTime();
     response.setStartTime(startTime);
     response.setEndTime(endTime);
-    response.setMentorName(lesson.getMentor().getName());
+
+    try {
+      if (lesson.getMentor() != null) {
+        response.setMentorName(lesson.getMentor().getName());
+      } else {
+        response.setMentorName(null);
+      }
+    } catch (jakarta.persistence.EntityNotFoundException e) {
+      response.setMentorName(null);
+    }
+
     return response;
   }
 }

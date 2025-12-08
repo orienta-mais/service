@@ -1,7 +1,6 @@
 package umc.pfc.orientamais.adapters.input.rest.controller;
 
 import jakarta.validation.ConstraintViolationException;
-import java.time.Instant;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
+import umc.pfc.orientamais.application.service.utils.TimeUtils;
 import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.EmailAlreadyExistsException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
                 .code("VALIDATION_ERROR")
                 .message("Erro de validação nos campos")
                 .data(fieldErrors)
-                .timestamp(Instant.now())
+                .timestamp(TimeUtils.nowUtc())
                 .build());
   }
 
@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
             GenericModelResponse.builder()
                 .code("CONSTRAINT_VIOLATION")
                 .message(ex.getMessage())
-                .timestamp(Instant.now())
+                .timestamp(TimeUtils.nowUtc())
                 .build());
   }
 
@@ -69,7 +69,7 @@ public class GlobalExceptionHandler {
             GenericModelResponse.builder()
                 .code("INVALID_ARGUMENT")
                 .message(ex.getMessage())
-                .timestamp(Instant.now())
+                .timestamp(TimeUtils.nowUtc())
                 .build());
   }
 
@@ -82,7 +82,7 @@ public class GlobalExceptionHandler {
             GenericModelResponse.builder()
                 .code("INVALID_TOKEN")
                 .message(ex.getMessage())
-                .timestamp(Instant.now())
+                .timestamp(TimeUtils.nowUtc())
                 .build());
   }
 
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler {
             GenericModelResponse.builder()
                 .code("BAD_REQUEST")
                 .message(ex.getMessage())
-                .timestamp(Instant.now())
+                .timestamp(TimeUtils.nowUtc())
                 .build());
   }
 
@@ -107,7 +107,7 @@ public class GlobalExceptionHandler {
             GenericModelResponse.builder()
                 .code("EMAIL_EXISTS")
                 .message(ex.getMessage())
-                .timestamp(Instant.now())
+                .timestamp(TimeUtils.nowUtc())
                 .build());
   }
 
@@ -119,7 +119,7 @@ public class GlobalExceptionHandler {
             GenericModelResponse.builder()
                 .code("NOT_FOUND")
                 .message(ex.getMessage())
-                .timestamp(Instant.now())
+                .timestamp(TimeUtils.nowUtc())
                 .build());
   }
 
@@ -135,7 +135,7 @@ public class GlobalExceptionHandler {
             GenericModelResponse.builder()
                 .code("BAD_REQUEST")
                 .message(ex.getMessage())
-                .timestamp(Instant.now())
+                .timestamp(TimeUtils.nowUtc())
                 .build());
   }
 
@@ -147,7 +147,7 @@ public class GlobalExceptionHandler {
             GenericModelResponse.builder()
                 .code("RUNTIME_ERROR")
                 .message(ex.getMessage() != null ? ex.getMessage() : "Ocorreu um erro inesperado")
-                .timestamp(Instant.now())
+                .timestamp(TimeUtils.nowUtc())
                 .build());
   }
 
@@ -159,7 +159,7 @@ public class GlobalExceptionHandler {
             GenericModelResponse.builder()
                 .code("INTERNAL_ERROR")
                 .message("Ocorreu um erro inesperado no servidor")
-                .timestamp(Instant.now())
+                .timestamp(TimeUtils.nowUtc())
                 .build());
   }
 }
