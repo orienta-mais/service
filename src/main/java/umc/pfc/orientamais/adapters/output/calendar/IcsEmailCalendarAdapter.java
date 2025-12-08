@@ -2,15 +2,6 @@ package umc.pfc.orientamais.adapters.output.calendar;
 
 import jakarta.activation.DataSource;
 import jakarta.mail.internet.MimeMessage;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,13 +13,29 @@ import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
 import umc.pfc.orientamais.application.service.utils.IcsBuilder;
 import umc.pfc.orientamais.domain.model.clazz.Lesson;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class IcsEmailCalendarAdapter implements CalendarPort {
 
+  private static final ZoneId ZONE_SAO_PAULO = ZoneId.of("America/Sao_Paulo");
+  private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter
+    .ofPattern("dd/MM/yyyy")
+    .withLocale(Locale.forLanguageTag("pt-BR"));
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter
+    .ofPattern("HH:mm")
+    .withLocale(Locale.forLanguageTag("pt-BR"));
   private final JavaMailSender mailSender;
-
   @Value("${spring.mail.username}")
   private String senderAddress;
 
@@ -46,28 +53,28 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
       helper.setFrom(senderAddress, "Orientamais");
 
       helper.addAttachment(
-          "invite.ics",
-          new DataSource() {
-            @Override
-            public InputStream getInputStream() {
-              return new ByteArrayInputStream(ics.getBytes(StandardCharsets.UTF_8));
-            }
+        "invite.ics",
+        new DataSource() {
+          @Override
+          public InputStream getInputStream() {
+            return new ByteArrayInputStream(ics.getBytes(StandardCharsets.UTF_8));
+          }
 
-            @Override
-            public OutputStream getOutputStream() {
-              throw new UnsupportedOperationException("Read-only");
-            }
+          @Override
+          public OutputStream getOutputStream() {
+            throw new UnsupportedOperationException("Read-only");
+          }
 
-            @Override
-            public String getContentType() {
-              return "text/calendar; method=REQUEST; charset=UTF-8";
-            }
+          @Override
+          public String getContentType() {
+            return "text/calendar; method=REQUEST; charset=UTF-8";
+          }
 
-            @Override
-            public String getName() {
-              return "invite.ics";
-            }
-          });
+          @Override
+          public String getName() {
+            return "invite.ics";
+          }
+        });
 
       mailSender.send(message);
       return uid;
@@ -90,28 +97,28 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
       helper.setFrom(senderAddress, "Orientamais");
 
       helper.addAttachment(
-          "invite.ics",
-          new DataSource() {
-            @Override
-            public InputStream getInputStream() {
-              return new ByteArrayInputStream(ics.getBytes(StandardCharsets.UTF_8));
-            }
+        "invite.ics",
+        new DataSource() {
+          @Override
+          public InputStream getInputStream() {
+            return new ByteArrayInputStream(ics.getBytes(StandardCharsets.UTF_8));
+          }
 
-            @Override
-            public OutputStream getOutputStream() {
-              throw new UnsupportedOperationException("Read-only");
-            }
+          @Override
+          public OutputStream getOutputStream() {
+            throw new UnsupportedOperationException("Read-only");
+          }
 
-            @Override
-            public String getContentType() {
-              return "text/calendar; method=REQUEST; charset=UTF-8";
-            }
+          @Override
+          public String getContentType() {
+            return "text/calendar; method=REQUEST; charset=UTF-8";
+          }
 
-            @Override
-            public String getName() {
-              return "invite.ics";
-            }
-          });
+          @Override
+          public String getName() {
+            return "invite.ics";
+          }
+        });
 
       mailSender.send(message);
     } catch (Exception ex) {
@@ -129,7 +136,7 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     String subject = "Aula Cancelada - " + lesson.getTitle();
-    String text = buildLessonCanceledEmailText(lesson, dateFormatter, timeFormatter);
+    String text = buildLessonCanceledEmailText(lesson);
 
     SimpleMailMessage message = new SimpleMailMessage();
     message.setSubject(subject);
@@ -144,47 +151,58 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
           }
         });
   }
+  }
 
   private String buildHtmlBody(Lesson lesson) {
-    LocalDateTime startTimeBRT = lesson.getStartTime().minusHours(3);
 
-    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    ZonedDateTime zonedStart = lesson.getStartTime()
+      .atZone(ZoneId.of("UTC"))
+      .withZoneSameInstant(ZONE_SAO_PAULO);
+
+    String dateFormatted = zonedStart.toLocalDate().format(DATE_FORMATTER);
+    String timeFormatted = zonedStart.toLocalTime().format(TIME_FORMATTER);
 
     return "<p>Olá,</p>"
       + "<p>Você foi convidado para a aula: <strong>" + lesson.getTitle() + "</strong></p>"
-      + "<p>Data: " + startTimeBRT.toLocalDate().format(dateFormatter)
-      + " - " + startTimeBRT.toLocalTime().format(timeFormatter) + "</p>"
+      + "<p>Data: " + dateFormatted + " - " + timeFormatted + "</p>"
+      + "<p>Descrição: " + (lesson.getDescription() != null ? lesson.getDescription() : "") + "</p>"
+      + "<p><a href=\"" + lesson.getLink() + "\" target=\"_blank\" "
+      + "style=\"display:inline-block;padding:10px 20px;color:#ffffff;"
+      + "background-color:#1a73e8;text-decoration:none;border-radius:5px;\">Entrar na Reunião</a></p>"
+      + "<p>Cumprimentos,<br/>Equipe Orientamais</p>";
+  }
+
+  private String buildLessonCanceledEmailText(
+    Lesson lesson) {
+      ZonedDateTime zonedStart = lesson.getStartTime()
+      .atZone(ZoneId.of("UTC"))
+      .withZoneSameInstant(ZONE_SAO_PAULO);
+
+    String dateFormatted = zonedStart.toLocalDate().format(DATE_FORMATTER);
+    String timeFormatted = zonedStart.toLocalTime().format(TIME_FORMATTER);
+
+    return String.format(
+      """
+        Olá,
+
+        Informamos que a aula "%s" foi cancelada.
+
+        Detalhes da aula cancelada:
+        - Data: %s
+        - Horário: %s às %s
+
+        Pedimos desculpas pelo inconveniente.
+
+        Atenciosamente,
+        Equipe Orienta+
+        """,
+
+      "<p>Data: " + dateFormatted + " - " + timeFormatted + "</p>"
       + "<p>Descrição: " + (lesson.getDescription() != null ? lesson.getDescription() : "") + "</p>"
       + "<p><a href=\"" + lesson.getLink()
       + "\" target=\"_blank\" style=\"display:inline-block;padding:10px 20px;color:#ffffff;"
       + "background-color:#1a73e8;text-decoration:none;border-radius:5px;\">Entrar na Reunião</a></p>"
-      + "<p>Cumprimentos,<br/>Equipe OrientaMais</p>";
-  }
-
-  private String buildLessonCanceledEmailText(Lesson lesson, DateTimeFormatter dateFormatter, DateTimeFormatter timeFormatter) {
-    LocalDateTime startTimeBRT = lesson.getStartTime().minusHours(3);
-    LocalDateTime endTimeBRT = lesson.getEndTime().minusHours(3);
-
-    return String.format(
-      """
-    Olá,
-
-    Informamos que a aula "%s" foi cancelada.
-
-    Detalhes da aula cancelada:
-    - Data: %s
-    - Horário: %s às %s
-
-    Pedimos desculpas pelo inconveniente.
-
-    Atenciosamente,
-    Equipe OrientaMais
-    """,
-      lesson.getTitle(),
-      startTimeBRT.toLocalDate().format(dateFormatter),
-      startTimeBRT.toLocalTime().format(timeFormatter),
-      endTimeBRT.toLocalTime().format(timeFormatter)
-    );
+      + "<p>Cumprimentos,<br/>Equipe OrientaMais</p>"
+      );
   }
 }
