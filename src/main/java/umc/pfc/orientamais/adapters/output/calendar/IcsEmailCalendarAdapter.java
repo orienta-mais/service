@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -145,51 +146,45 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
   }
 
   private String buildHtmlBody(Lesson lesson) {
-    LocalDate date = lesson.getStartTime().toLocalDate();
-    LocalTime time = lesson.getStartTime().toLocalTime();
+    LocalDateTime startTimeBRT = lesson.getStartTime().minusHours(3);
 
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     return "<p>Olá,</p>"
-        + "<p>Você foi convidado para a aula: <strong>"
-        + lesson.getTitle()
-        + "</strong></p>"
-        + "<p>Data: "
-        + date.format(dateFormatter)
-        + " - "
-        + time.format(timeFormatter)
-        + "</p>"
-        + "<p>Descrição: "
-        + (lesson.getDescription() != null ? lesson.getDescription() : "")
-        + "</p>"
-        + "<p><a href=\""
-        + lesson.getLink()
-        + "\" target=\"_blank\" style=\"display:inline-block;padding:10px 20px;"
-        + "color:#ffffff;background-color:#1a73e8;text-decoration:none;border-radius:5px;\">Entrar na Reunião</a></p>"
-        + "<p>Cumprimentos,<br/>Equipe Orientamais</p>";
+      + "<p>Você foi convidado para a aula: <strong>" + lesson.getTitle() + "</strong></p>"
+      + "<p>Data: " + startTimeBRT.toLocalDate().format(dateFormatter)
+      + " - " + startTimeBRT.toLocalTime().format(timeFormatter) + "</p>"
+      + "<p>Descrição: " + (lesson.getDescription() != null ? lesson.getDescription() : "") + "</p>"
+      + "<p><a href=\"" + lesson.getLink()
+      + "\" target=\"_blank\" style=\"display:inline-block;padding:10px 20px;color:#ffffff;"
+      + "background-color:#1a73e8;text-decoration:none;border-radius:5px;\">Entrar na Reunião</a></p>"
+      + "<p>Cumprimentos,<br/>Equipe OrientaMais</p>";
   }
 
-  private String buildLessonCanceledEmailText(
-      Lesson lesson, DateTimeFormatter dateFormatter, DateTimeFormatter timeFormatter) {
+  private String buildLessonCanceledEmailText(Lesson lesson, DateTimeFormatter dateFormatter, DateTimeFormatter timeFormatter) {
+    LocalDateTime startTimeBRT = lesson.getStartTime().minusHours(3);
+    LocalDateTime endTimeBRT = lesson.getEndTime().minusHours(3);
+
     return String.format(
-        """
-      Olá,
+      """
+    Olá,
 
-      Informamos que a aula "%s" foi cancelada.
+    Informamos que a aula "%s" foi cancelada.
 
-      Detalhes da aula cancelada:
-      - Data: %s
-      - Horário: %s às %s
+    Detalhes da aula cancelada:
+    - Data: %s
+    - Horário: %s às %s
 
-      Pedimos desculpas pelo inconveniente.
+    Pedimos desculpas pelo inconveniente.
 
-      Atenciosamente,
-      Equipe Orienta+
-      """,
-        lesson.getTitle(),
-        lesson.getStartTime().format(dateFormatter),
-        lesson.getStartTime().format(timeFormatter),
-        lesson.getEndTime().format(timeFormatter));
+    Atenciosamente,
+    Equipe OrientaMais
+    """,
+      lesson.getTitle(),
+      startTimeBRT.toLocalDate().format(dateFormatter),
+      startTimeBRT.toLocalTime().format(timeFormatter),
+      endTimeBRT.toLocalTime().format(timeFormatter)
+    );
   }
 }

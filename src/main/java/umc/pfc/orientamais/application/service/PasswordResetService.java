@@ -118,7 +118,7 @@ public class PasswordResetService implements PasswordResetUseCase {
             .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
 
     if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
-      throw new BadRequestException("Senha atual incorrera!");
+      throw new BadRequestException("Senha atual incorreta!");
     }
 
     user.updatePassword(request.newPassword(), passwordEncoder);
