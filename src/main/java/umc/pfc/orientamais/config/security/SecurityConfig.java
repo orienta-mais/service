@@ -47,7 +47,7 @@ public class SecurityConfig {
                         "/api/mentor/validate-email",
                         "/api/mentor/register",
                         "/api/mentored/validate-email",
-                        "/api/mentored/register,",
+                        "/api/mentored/register",
                         "/api/terms/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/admin/**")
