@@ -33,7 +33,12 @@ public class LoginService implements LoginUseCase {
     }
     String accessToken = jwtProvider.generateAccessToken(authUser);
     String refreshToken = jwtProvider.generateRefreshToken(authUser);
-    return new LoginResponse("SUCCESS", "Login realizado com sucesso", accessToken, refreshToken);
+    return new LoginResponse(
+        "SUCCESS",
+        "Login realizado com sucesso",
+        accessToken,
+        refreshToken,
+        authUser.getTermsAccepted());
   }
 
   @Override
@@ -59,6 +64,10 @@ public class LoginService implements LoginUseCase {
     refreshTokenRepository.delete(storedToken);
 
     return new LoginResponse(
-        "SUCCESS", "Token renovado com sucesso", newAccessToken, newRefreshToken);
+        "SUCCESS",
+        "Token renovado com sucesso",
+        newAccessToken,
+        newRefreshToken,
+        user.getTermsAccepted());
   }
 }

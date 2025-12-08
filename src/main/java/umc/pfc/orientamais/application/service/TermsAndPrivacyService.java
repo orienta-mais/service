@@ -2,17 +2,21 @@ package umc.pfc.orientamais.application.service;
 
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.TermsAndPrivacyRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.TermsAndPrivacyResponse;
+import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.TermsAndPrivacyRepository;
 import umc.pfc.orientamais.application.mapper.TermsAndPrivacyMapper;
 import umc.pfc.orientamais.application.port.input.TermsAndPrivacyUseCase;
+import umc.pfc.orientamais.application.service.utils.SecurityUtils;
 import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
 import umc.pfc.orientamais.domain.model.terms.TermType;
 import umc.pfc.orientamais.domain.model.terms.TermsAndPrivacy;
 
@@ -24,6 +28,7 @@ public class TermsAndPrivacyService implements TermsAndPrivacyUseCase {
 
   private final TermsAndPrivacyRepository repository;
   private final TermsAndPrivacyMapper mapper;
+  private final AuthUserRepository authUserRepository;
 
   @Override
   public TermsAndPrivacyResponse getActiveTerm(TermType type) {
@@ -93,6 +98,14 @@ public class TermsAndPrivacyService implements TermsAndPrivacyUseCase {
       TermsAndPrivacy newTerm = mapper.requestToEntity(request, nextVersion);
       TermsAndPrivacy savedTerm = repository.save(newTerm);
 
+      authUserRepository
+          .findAll()
+          .forEach(
+              user -> {
+                user.setTermsAccepted(false);
+                authUserRepository.save(user);
+              });
+
       return mapper.entityToResponse(savedTerm);
 
     } catch (Exception ex) {
@@ -137,6 +150,14 @@ public class TermsAndPrivacyService implements TermsAndPrivacyUseCase {
 
       termToActivate.setIsActive(true);
       TermsAndPrivacy activatedTerm = repository.save(termToActivate);
+
+      authUserRepository
+          .findAll()
+          .forEach(
+              user -> {
+                user.setTermsAccepted(false);
+                authUserRepository.save(user);
+              });
 
       log.info("Versão {} do tipo {} ativada com sucesso", version, type);
 
@@ -200,6 +221,17 @@ public class TermsAndPrivacyService implements TermsAndPrivacyUseCase {
       log.error("Erro ao deletar versão do termo: {}", ex.getMessage(), ex);
       throw new BadRequestException("Erro ao deletar versão do termo: " + ex.getMessage());
     }
+  }
+
+  @Override
+  public void confirmTermsPolicy() {
+    UUID authUserUUID = SecurityUtils.getCurrentProfileId();
+    AuthUser authUser =
+        authUserRepository
+            .findById(authUserUUID)
+            .orElseThrow(() -> new NotFoundException("Email ou senha inválidos"));
+    authUser.setTermsAccepted(true);
+    authUserRepository.save(authUser);
   }
 
   private void deactivateCurrentActiveTerm(TermType type) {

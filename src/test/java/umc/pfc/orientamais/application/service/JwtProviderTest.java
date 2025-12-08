@@ -40,9 +40,9 @@ class JwtProviderTest {
     ReflectionTestUtils.setField(jwtProvider, "refreshTokenValidity", 86400000L); // 24h
 
     mentorUser =
-        new AuthUser(UUID.randomUUID(), "mentor@test.com", "password", AuthUserRole.MENTOR);
+        new AuthUser(UUID.randomUUID(), "mentor@test.com", "password", AuthUserRole.MENTOR, true);
     mentoredUser =
-        new AuthUser(UUID.randomUUID(), "mentored@test.com", "password", AuthUserRole.MENTORED);
+        new AuthUser(UUID.randomUUID(), "mentored@test.com", "password", AuthUserRole.MENTORED, true);
   }
 
   @Test

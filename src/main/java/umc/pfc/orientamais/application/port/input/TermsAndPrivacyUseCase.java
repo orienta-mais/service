@@ -24,4 +24,6 @@ public interface TermsAndPrivacyUseCase {
   List<TermsAndPrivacyResponse> getAllActiveTerms();
 
   GenericModelResponse deleteVersion(TermType type, Integer version);
+
+  void confirmTermsPolicy();
 }

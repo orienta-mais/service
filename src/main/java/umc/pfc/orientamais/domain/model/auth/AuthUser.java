@@ -32,9 +32,13 @@ public class AuthUser implements Profile {
   @Enumerated(EnumType.STRING)
   private AuthUserRole role;
 
-  public AuthUser(String email, String password, AuthUserRole role) {
+  @Column(nullable = false)
+  private Boolean termsAccepted;
+
+  public AuthUser(String email, String password, AuthUserRole role, Boolean termsAccepted) {
     this.email = email;
     this.password = password;
+    this.termsAccepted = termsAccepted;
     this.role = role;
   }
 

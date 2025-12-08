@@ -1,0 +1,3 @@
+ALTER TABLE auth_user
+  ADD COLUMN terms_accepted BOOLEAN NOT NULL DEFAULT FALSE;
+
