@@ -1,0 +1,28 @@
+package umc.pfc.orientamais.domain.model.auth;
+
+import jakarta.persistence.*;
+import java.time.Instant;
+import lombok.*;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RefreshToken {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Column(nullable = false, unique = true)
+  private String token;
+
+  @OneToOne
+  @JoinColumn(name = "user_id", referencedColumnName = "id")
+  private AuthUser user;
+
+  @Column(nullable = false)
+  private Instant expiryDate;
+}

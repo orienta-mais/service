@@ -1,0 +1,35 @@
+package umc.pfc.orientamais.domain.model.clazz;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
+import umc.pfc.orientamais.domain.model.mentored.Mentored;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "class_mentored")
+public class LessonMentored {
+
+  @EmbeddedId private LessonMentoredId id;
+
+  @ManyToOne
+  @MapsId("lessonId")
+  @JoinColumn(name = "class_id")
+  private Lesson lesson;
+
+  @ManyToOne
+  @MapsId("mentoredId")
+  @JoinColumn(name = "mentored_id")
+  private Mentored mentored;
+
+  @Column(name = "present_code_filled")
+  private Boolean presentCodeFilled;
+
+  @Column(name = "certificate_generated", nullable = false)
+  private boolean certificateGenerated;
+
+  @Column(name = "certificate_generated_at")
+  private LocalDateTime certificateGeneratedAt;
+}

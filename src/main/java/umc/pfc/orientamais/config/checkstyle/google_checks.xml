@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+
+    <!-- Encoding -->
+    <property name="charset" value="UTF-8"/>
+
+    <!-- Ignore generated files -->
+    <module name="SuppressionFilter">
+        <property name="file" value="config/checkstyle/suppressions.xml"/>
+        <property name="optional" value="true"/>
+    </module>
+
+    <!-- Google style base -->
+    <module name="TreeWalker">
+
+        <!-- Naming conventions -->
+        <module name="TypeName"/>
+        <module name="PackageName"/>
+        <module name="MethodName"/>
+        <module name="ParameterName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+
+        <!-- Imports -->
+        <module name="UnusedImports"/>
+        <module name="AvoidStarImport"/>
+        <module name="ImportOrder">
+            <property name="option" value="top"/>
+            <property name="ordered" value="true"/>
+            <property name="groups" value="java,javax,org,com"/>
+        </module>
+
+        <!-- Javadoc rules adapted for Spring Boot -->
+        <module name="JavadocType">
+            <property name="scope" value="public"/>
+            <property name="allowMissingParamTags" value="true"/>
+            <property name="allowMissingReturnTag" value="true"/>
+        </module>
+
+        <module name="JavadocMethod">
+            <property name="validateThrows" value="false"/>
+            <property name="allowMissingParamTags" value="true"/>
+            <property name="allowMissingReturnTag" value="true"/>
+            <property name="allowMissingJavadoc" value="true"/>
+        </module>
+
+        <!-- Spacing and indentation -->
+        <module name="WhitespaceAround"/>
+        <module name="WhitespaceAfter"/>
+        <module name="NoLineWrap"/>
+        <module name="LineLength">
+            <property name="max" value="140"/>
+        </module>
+        <module name="Indentation">
+            <property name="basicOffset" value="4"/>
+            <property name="braceAdjustment" value="0"/>
+            <property name="caseIndent" value="4"/>
+            <property name="throwsIndent" value="4"/>
+        </module>
+
+        <!-- Code structure -->
+        <module name="FinalLocalVariable"/>
+        <module name="EqualsHashCode"/>
+        <module name="EmptyBlock">
+            <property name="option" value="TEXT"/>
+        </module>
+
+        <!-- Blocks and braces -->
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+
+        <!-- Misc rules -->
+        <module name="ModifierOrder"/>
+        <module name="NeedBraces"/>
+        <module name="UpperEll"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+
+        <!-- Avoid magic numbers -->
+        <module name="MagicNumber">
+            <property name="ignoreNumbers" value="-1,0,1,2"/>
+            <property name="ignoreHashCodeMethod" value="true"/>
+        </module>
+
+    </module>
+
+    <!-- File size and format rules -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+</module>

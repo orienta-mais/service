@@ -11,16 +11,15 @@ import umc.pfc.orientamais.domain.model.Interest;
 @Table(name = "class_interests")
 public class ClassInterest {
 
-    @EmbeddedId
-    private ClassInterestId id;
+  @EmbeddedId private ClassInterestId id;
 
-    @ManyToOne
-    @MapsId("classId")
-    @JoinColumn(name = "class_id")
-    private Class clazz;
+  @ManyToOne
+  @MapsId("classId")
+  @JoinColumn(name = "class_id")
+  private Lesson clazz;
 
-    @ManyToOne
-    @MapsId("interestId")
-    @JoinColumn(name = "interest_id")
-    private Interest interest;
+  @ManyToOne
+  @MapsId("interestId")
+  @JoinColumn(name = "interest_id")
+  private Interest interest;
 }

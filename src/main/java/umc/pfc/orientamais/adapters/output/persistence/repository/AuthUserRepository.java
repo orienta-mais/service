@@ -1,12 +1,29 @@
 package umc.pfc.orientamais.adapters.output.persistence.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import umc.pfc.orientamais.domain.model.AuthUser;
-
+import jakarta.transaction.Transactional;
+import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import umc.pfc.orientamais.domain.model.auth.AuthUser;
 
 @Repository
 public interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {
-    boolean existsByEmail(String email);
+  Optional<AuthUser> findByEmail(String email);
+
+  Optional<AuthUser> findById(UUID id);
+
+  boolean existsByEmail(String email);
+
+  @Modifying
+  @Transactional
+  @Query(
+      value = """
+            delete from auth_user
+            WHERE id = :id;
+            """,
+      nativeQuery = true)
+  void anonymizeAuthUserData(UUID id);
 }

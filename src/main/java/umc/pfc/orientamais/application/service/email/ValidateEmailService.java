@@ -1,0 +1,64 @@
+package umc.pfc.orientamais.application.service.email;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
+import umc.pfc.orientamais.adapters.input.rest.dto.request.EmailModelRequest;
+import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
+import umc.pfc.orientamais.adapters.output.persistence.repository.RegistrationTokenRepository;
+import umc.pfc.orientamais.application.port.input.ValidateEmailUseCase;
+import umc.pfc.orientamais.application.service.utils.EmailTemplateBuilder;
+import umc.pfc.orientamais.application.service.utils.RegistrationTokenFactory;
+import umc.pfc.orientamais.domain.exceptions.EmailAlreadyExistsException;
+import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
+import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
+import umc.pfc.orientamais.domain.model.auth.RegistrationToken;
+
+@Service
+@RequiredArgsConstructor
+public class ValidateEmailService implements ValidateEmailUseCase {
+
+  private final AuthUserRepository authUserRepository;
+  private final RegistrationTokenRepository tokenRepository;
+  private final EmailSenderService emailSender;
+  private final RegistrationTokenFactory tokenFactory;
+  private final EmailTemplateBuilder templateProvider;
+
+  @Value("${app.registration.url}")
+  private String registerUrl;
+
+  @Override
+  public void validateAndSendLink(EmailModelRequest request, AuthUserRole role) {
+    if (authUserRepository.existsByEmail(request.email())) {
+      throw new EmailAlreadyExistsException("Email já cadastrado: " + request.email());
+    }
+
+    tokenRepository.findByEmail(request.email()).ifPresent(tokenRepository::delete);
+
+    RegistrationToken token = tokenFactory.create(request.email(), role);
+    try {
+      tokenRepository.save(token);
+    } catch (Exception e) {
+      tokenRepository.findByEmail(request.email()).ifPresent(tokenRepository::delete);
+      tokenRepository.save(token);
+    }
+
+    String safeEmail = token.getEmail().replace("+", "%2B");
+    String link =
+        UriComponentsBuilder.fromUriString(registerUrl)
+            .path(role.toString().toLowerCase())
+            .queryParam("token", token.getToken())
+            .queryParam("email", safeEmail)
+            .toUriString();
+
+    String htmlContent = templateProvider.buildMentorRegisterEmail(link);
+
+    try {
+      emailSender.sendEmail(request.email(), "Complete seu cadastro", htmlContent);
+    } catch (Exception e) {
+      tokenRepository.delete(token);
+      throw new InternalErrorException("Erro ao enviar e-mail de validação");
+    }
+  }
+}

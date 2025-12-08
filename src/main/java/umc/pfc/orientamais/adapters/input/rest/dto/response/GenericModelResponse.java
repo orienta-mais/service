@@ -1,0 +1,46 @@
+package umc.pfc.orientamais.adapters.input.rest.dto.response;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import java.time.Instant;
+import lombok.*;
+import umc.pfc.orientamais.application.service.utils.TimeUtils;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class GenericModelResponse {
+
+  private String code;
+  private String message;
+  private Object data;
+  private Instant timestamp;
+
+  public GenericModelResponse(String success, String message) {
+    this.code = success;
+    this.message = message;
+  }
+
+  public static GenericModelResponse success(String message, Object data) {
+    return GenericModelResponse.builder()
+        .code("SUCCESS")
+        .message(message)
+        .data(data)
+        .timestamp(TimeUtils.nowUtc())
+        .build();
+  }
+
+  public static GenericModelResponse error(String code, String message) {
+    return GenericModelResponse.builder()
+        .code(code)
+        .message(message)
+        .timestamp(TimeUtils.nowUtc())
+        .build();
+  }
+
+  public static GenericModelResponse message(String message) {
+    return GenericModelResponse.builder().message(message).timestamp(TimeUtils.nowUtc()).build();
+  }
+}
