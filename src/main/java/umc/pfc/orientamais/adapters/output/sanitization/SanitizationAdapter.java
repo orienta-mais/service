@@ -34,6 +34,6 @@ public class SanitizationAdapter implements SanitizationPort {
       return false;
     }
 
-    return sanitizer.isSafeFromCommandInjection(input);
+    return sanitizer.isSafeFromCommandInjection(input, allowHtml);
   }
 }

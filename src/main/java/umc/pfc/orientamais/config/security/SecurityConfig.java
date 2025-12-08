@@ -29,58 +29,62 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.csrf(AbstractHttpConfigurer::disable)
-        .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
-        .sessionManagement(
-            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(
-            auth ->
-                auth
-                    // Endpoints públicos
-                    .requestMatchers(
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui.html",
-                        "/api/auth/**",
-                        "/api/mentor/validate-email",
-                        "/api/mentor/register",
-                        "/api/mentored/validate-email",
-                        "/api/mentored/register")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/stats/**")
-                    .hasRole("ADMIN")
+      .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
+      .sessionManagement(
+        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+      .authorizeHttpRequests(
+        auth ->
+          auth
+            // Endpoints públicos
+            .requestMatchers(
+              "/swagger-ui/**",
+              "/v3/api-docs/**",
+              "/swagger-ui.html",
+              "/api/auth/login",
+              "/api/auth/refresh-token",
+              "/api/auth/forget-password",
+              "/api/auth/reset-password",
+              "/api/mentor/validate-email",
+              "/api/mentor/register",
+              "/api/mentored/validate-email",
+              "/api/mentored/register,",
+              "/api/terms/**")
+            .permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/admin/**")
+            .hasRole("ADMIN")
 
-                    // GET /api/mentor/** - ADMIN, MENTOR, MENTORED
-                    .requestMatchers(HttpMethod.GET, "/api/mentor/**")
-                    .hasAnyRole("ADMIN", "MENTOR", "MENTORED")
+            // GET /api/mentor/** - ADMIN, MENTOR, MENTORED
+            .requestMatchers(HttpMethod.GET, "/api/mentor/**")
+            .hasAnyRole("ADMIN", "MENTOR", "MENTORED")
 
-                    // PUT/PATCH /api/mentor/** - ADMIN, MENTOR
-                    .requestMatchers(HttpMethod.PUT, "/api/mentor/**")
-                    .hasAnyRole("ADMIN", "MENTOR")
-                    .requestMatchers(HttpMethod.PATCH, "/api/mentor/**")
-                    .hasAnyRole("ADMIN", "MENTOR")
+            // PUT/PATCH /api/mentor/** - ADMIN, MENTOR
+            .requestMatchers(HttpMethod.PUT, "/api/mentor/**")
+            .hasAnyRole("ADMIN", "MENTOR")
+            .requestMatchers(HttpMethod.PATCH, "/api/mentor/**")
+            .hasAnyRole("ADMIN", "MENTOR")
 
-                    // DELETE /api/mentor/** - ADMIN, MENTOR
-                    .requestMatchers(HttpMethod.DELETE, "/api/mentor/**")
-                    .hasAnyRole("ADMIN", "MENTOR")
+            // DELETE /api/mentor/** - ADMIN, MENTOR
+            .requestMatchers(HttpMethod.DELETE, "/api/mentor/**")
+            .hasAnyRole("ADMIN", "MENTOR")
 
-                    // GET /api/mentored/** - ADMIN, MENTORED
-                    .requestMatchers(HttpMethod.GET, "/api/mentored/**")
-                    .hasAnyRole("ADMIN", "MENTORED")
+            // GET /api/mentored/** - ADMIN, MENTORED
+            .requestMatchers(HttpMethod.GET, "/api/mentored/**")
+            .hasAnyRole("ADMIN", "MENTORED")
 
-                    // PUT/PATCH /api/mentored/** - ADMIN, MENTORED
-                    .requestMatchers(HttpMethod.PUT, "/api/mentored/**")
-                    .hasAnyRole("ADMIN", "MENTORED")
-                    .requestMatchers(HttpMethod.PATCH, "/api/mentored/**")
-                    .hasAnyRole("ADMIN", "MENTORED")
+            // PUT/PATCH /api/mentored/** - ADMIN, MENTORED
+            .requestMatchers(HttpMethod.PUT, "/api/mentored/**")
+            .hasAnyRole("ADMIN", "MENTORED")
+            .requestMatchers(HttpMethod.PATCH, "/api/mentored/**")
+            .hasAnyRole("ADMIN", "MENTORED")
 
-                    // DELETE /api/mentored/** - ADMIN, MENTORED
-                    .requestMatchers(HttpMethod.DELETE, "/api/mentored/**")
-                    .hasAnyRole("ADMIN", "MENTORED")
+            // DELETE /api/mentored/** - ADMIN, MENTORED
+            .requestMatchers(HttpMethod.DELETE, "/api/mentored/**")
+            .hasAnyRole("ADMIN", "MENTORED")
 
-                    // Qualquer outra requisição precisa estar autenticada
-                    .anyRequest()
-                    .authenticated())
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .build();
+            // Qualquer outra requisição precisa estar autenticada
+            .anyRequest()
+            .authenticated())
+      .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+      .build();
   }
 }
