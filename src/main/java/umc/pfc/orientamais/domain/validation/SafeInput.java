@@ -2,7 +2,6 @@ package umc.pfc.orientamais.domain.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-
 import java.lang.annotation.*;
 
 @Documented
@@ -31,6 +30,7 @@ public @interface SafeInput {
     XSS,
     LDAP_INJECTION,
     PATH_TRAVERSAL,
-    COMMAND_INJECTION, NULL_BYTES
+    COMMAND_INJECTION,
+    NULL_BYTES
   }
 }

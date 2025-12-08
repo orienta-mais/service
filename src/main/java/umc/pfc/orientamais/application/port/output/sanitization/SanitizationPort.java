@@ -6,4 +6,3 @@ public interface SanitizationPort {
 
   boolean isSecure(String input, boolean allowHtml);
 }
-

@@ -1,5 +1,7 @@
 package umc.pfc.orientamais.application.service;
 
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,9 +19,6 @@ import umc.pfc.orientamais.application.port.input.MentoredUseCase;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.auth.AuthUser;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -39,9 +38,9 @@ public class MentoredService implements MentoredUseCase {
   @Override
   public MentoredModelResponse getMentoredById(UUID id) {
     Mentored mentored =
-      mentoredRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
+        mentoredRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
     return mentoredMapper.entityToResponse(mentored);
   }
 
@@ -49,9 +48,9 @@ public class MentoredService implements MentoredUseCase {
   @Transactional
   public MentoredModelResponse updateMentored(UUID id, MentoredUpdateModelRequest request) {
     Mentored mentored =
-      mentoredRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
+        mentoredRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
     checkPermission(mentored);
     mentoredMapper.updateEntityFromRequest(mentored, request);
     return mentoredMapper.entityToResponse(mentoredRepository.save(mentored));
@@ -61,9 +60,9 @@ public class MentoredService implements MentoredUseCase {
   @Transactional
   public void deleteMentored(UUID id) {
     Mentored mentored =
-      mentoredRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
+        mentoredRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
     checkPermission(mentored);
     AuthUser authUser = mentored.getUser();
     mentoredRepository.delete(mentored);
@@ -75,8 +74,8 @@ public class MentoredService implements MentoredUseCase {
     AuthUser authUser = (AuthUser) authentication.getPrincipal();
 
     boolean isAdmin =
-      authentication.getAuthorities().stream()
-        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
     boolean isOwner = mentored.getUser().getEmail().equalsIgnoreCase(authUser.getEmail());
 
@@ -99,9 +98,9 @@ public class MentoredService implements MentoredUseCase {
   @Override
   public void deleteMentoredCascade(UUID id) {
     var mentored =
-      mentoredRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
+        mentoredRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
     lessonMentoredRepository.deleteLessonByMentoredId(id);
     mentorReviewRepository.deleteReviewByMentoredId(id);
     mentoredRepository.deleteMentored(id);

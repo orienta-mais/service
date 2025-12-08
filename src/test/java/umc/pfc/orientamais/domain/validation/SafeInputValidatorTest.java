@@ -1,18 +1,17 @@
 package umc.pfc.orientamais.domain.validation;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("SafeInputValidator Integration Tests")
 class SafeInputValidatorTest {
@@ -34,13 +33,14 @@ class SafeInputValidatorTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "<script>alert('xss')</script>",
-    "test; DROP TABLE users;",
-    "../../../etc/passwd",
-    "test\u0000malicious",
-    "rm -rf /"
-  })
+  @ValueSource(
+      strings = {
+        "<script>alert('xss')</script>",
+        "test; DROP TABLE users;",
+        "../../../etc/passwd",
+        "test\u0000malicious",
+        "rm -rf /"
+      })
   @DisplayName("Should reject malicious patterns")
   void shouldRejectMaliciousPatterns(String input) {
     TestDto dto = new TestDto(input);
@@ -53,8 +53,8 @@ class SafeInputValidatorTest {
   void shouldAcceptSafeHtmlWhenAllowHtmlTrue() {
     TestDtoWithHtml dto = new TestDtoWithHtml("<p>Safe <strong>HTML</strong> content</p>");
     Set<ConstraintViolation<TestDtoWithHtml>> violations = validator.validate(dto);
-    assertTrue(violations.isEmpty() || violations.stream()
-      .noneMatch(v -> v.getMessage().contains("XSS")));
+    assertTrue(
+        violations.isEmpty() || violations.stream().noneMatch(v -> v.getMessage().contains("XSS")));
   }
 
   @Test
@@ -76,8 +76,7 @@ class SafeInputValidatorTest {
   }
 
   static class TestDto {
-    @SafeInput
-    private final String value;
+    @SafeInput private final String value;
 
     TestDto(String value) {
       this.value = value;
@@ -93,4 +92,3 @@ class SafeInputValidatorTest {
     }
   }
 }
-

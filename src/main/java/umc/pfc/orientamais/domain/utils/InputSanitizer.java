@@ -1,18 +1,15 @@
 package umc.pfc.orientamais.domain.utils;
 
+import java.util.Locale;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.springframework.stereotype.Component;
 
-import java.util.Locale;
-
 @Component
 public class InputSanitizer {
 
-  private static final PolicyFactory SAFE_HTML_POLICY = Sanitizers.FORMATTING
-    .and(Sanitizers.LINKS)
-    .and(Sanitizers.BLOCKS)
-    .and(Sanitizers.STYLES);
+  private static final PolicyFactory SAFE_HTML_POLICY =
+      Sanitizers.FORMATTING.and(Sanitizers.LINKS).and(Sanitizers.BLOCKS).and(Sanitizers.STYLES);
 
   public String sanitizeAllowHtml(String raw) {
     if (raw == null) return null;

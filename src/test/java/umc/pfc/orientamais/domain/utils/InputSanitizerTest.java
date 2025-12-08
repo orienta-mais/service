@@ -1,12 +1,12 @@
 package umc.pfc.orientamais.domain.utils;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("InputSanitizer Tests")
 class InputSanitizerTest {
@@ -47,24 +47,21 @@ class InputSanitizerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "<script>alert('xss')</script>",
-    "<iframe src='evil.com'></iframe>",
-    "javascript:alert(1)",
-    "<img onerror='alert(1)'>",
-    "<svg onload='alert(1)'>"
-  })
+  @ValueSource(
+      strings = {
+        "<script>alert('xss')</script>",
+        "<iframe src='evil.com'></iframe>",
+        "javascript:alert(1)",
+        "<img onerror='alert(1)'>",
+        "<svg onload='alert(1)'>"
+      })
   @DisplayName("Should detect XSS when HTML not allowed")
   void shouldDetectXssWhenHtmlNotAllowed(String input) {
     assertFalse(sanitizer.isSafeXss(input, false));
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "Normal text",
-    "Text with numbers 123",
-    "email@example.com"
-  })
+  @ValueSource(strings = {"Normal text", "Text with numbers 123", "email@example.com"})
   @DisplayName("Should accept safe input when HTML not allowed")
   void shouldAcceptSafeInputWhenHtmlNotAllowed(String input) {
     assertTrue(sanitizer.isSafeXss(input, false));
@@ -88,25 +85,22 @@ class InputSanitizerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "../../../etc/passwd",
-    "..\\..\\windows\\system32",
-    "%2e%2e%2f",
-    "%2e%2e%5c",
-    "file:///../etc/passwd"
-  })
+  @ValueSource(
+      strings = {
+        "../../../etc/passwd",
+        "..\\..\\windows\\system32",
+        "%2e%2e%2f",
+        "%2e%2e%5c",
+        "file:///../etc/passwd"
+      })
   @DisplayName("Should detect path traversal patterns")
   void shouldDetectPathTraversalPatterns(String input) {
     assertFalse(sanitizer.isSafePathTraversal(input));
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "/normal/path",
-    "filename.txt",
-    "folder/subfolder/file.pdf",
-    "my-file_123.doc"
-  })
+  @ValueSource(
+      strings = {"/normal/path", "filename.txt", "folder/subfolder/file.pdf", "my-file_123.doc"})
   @DisplayName("Should accept safe paths")
   void shouldAcceptSafePaths(String input) {
     assertTrue(sanitizer.isSafePathTraversal(input));
@@ -125,28 +119,24 @@ class InputSanitizerTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "rm -rf /",
-    "cat /etc/passwd",
-    "; ls -la",
-    "| whoami",
-    "&& cat file",
-    "|| echo",
-    "$(malicious)",
-    "`command`"
-  })
+  @ValueSource(
+      strings = {
+        "rm -rf /",
+        "cat /etc/passwd",
+        "; ls -la",
+        "| whoami",
+        "&& cat file",
+        "|| echo",
+        "$(malicious)",
+        "`command`"
+      })
   @DisplayName("Should detect command injection patterns")
   void shouldDetectCommandInjectionPatterns(String input) {
     assertFalse(sanitizer.isSafeFromCommandInjection(input));
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {
-    "normal-filename",
-    "file_name.txt",
-    "My Document.pdf",
-    "123-test"
-  })
+  @ValueSource(strings = {"normal-filename", "file_name.txt", "My Document.pdf", "123-test"})
   @DisplayName("Should accept safe strings for command injection check")
   void shouldAcceptSafeStringsForCommandInjection(String input) {
     assertTrue(sanitizer.isSafeFromCommandInjection(input));
@@ -184,4 +174,3 @@ class InputSanitizerTest {
     assertFalse(sanitizer.isSafePathTraversal("..\\file"));
   }
 }
-

@@ -2,7 +2,6 @@ package umc.pfc.orientamais.domain.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -27,7 +26,9 @@ public class ValidAgeValidator implements ConstraintValidator<ValidAge, LocalDat
 
     if (birthDate.isAfter(now)) {
       context.disableDefaultConstraintViolation();
-      context.buildConstraintViolationWithTemplate("Data de nascimento não pode ser no futuro").addConstraintViolation();
+      context
+          .buildConstraintViolationWithTemplate("Data de nascimento não pode ser no futuro")
+          .addConstraintViolation();
       return false;
     }
 
@@ -35,13 +36,17 @@ public class ValidAgeValidator implements ConstraintValidator<ValidAge, LocalDat
 
     if (age < minAge) {
       context.disableDefaultConstraintViolation();
-      context.buildConstraintViolationWithTemplate("Idade mínima é " + minAge + " anos").addConstraintViolation();
+      context
+          .buildConstraintViolationWithTemplate("Idade mínima é " + minAge + " anos")
+          .addConstraintViolation();
       return false;
     }
 
     if (age > maxAge) {
       context.disableDefaultConstraintViolation();
-      context.buildConstraintViolationWithTemplate("Idade máxima é " + maxAge + " anos").addConstraintViolation();
+      context
+          .buildConstraintViolationWithTemplate("Idade máxima é " + maxAge + " anos")
+          .addConstraintViolation();
       return false;
     }
 
