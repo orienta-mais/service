@@ -23,7 +23,7 @@ public class Mentor implements Profile {
   private UUID id;
 
   @OneToOne
-  @JoinColumn(name = "user_uuid", nullable = false, unique = true)
+  @JoinColumn(name = "user_uuid", unique = true)
   private AuthUser user;
 
   @Column(nullable = false)

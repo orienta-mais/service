@@ -26,12 +26,14 @@ import umc.pfc.orientamais.application.port.input.LessonUseCase;
 import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
 import umc.pfc.orientamais.application.port.output.zoom.CreateMeetingPort;
 import umc.pfc.orientamais.application.service.utils.SecurityUtils;
+import umc.pfc.orientamais.application.service.utils.TimeUtils;
 import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 import umc.pfc.orientamais.domain.model.clazz.Lesson;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentoredId;
+import umc.pfc.orientamais.domain.model.clazz.LessonStatus;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
@@ -57,20 +59,29 @@ public class LessonService implements LessonUseCase {
             .findById(request.getMentorId())
             .orElseThrow(() -> new NotFoundException("Mentor não encontrado."));
 
+    LocalDateTime lessonStartDateTime = request.getDate().atTime(request.getStartTime());
+    LocalDateTime now = TimeUtils.nowLocalDateTimeUtc();
+
+    if (lessonStartDateTime.isBefore(now) || lessonStartDateTime.isEqual(now)) {
+      throw new BadRequestException("A data e horário da aula devem ser no futuro");
+    }
+
     var meetingUrl = createMeetingPort.returnMeetingUrl();
 
     Lesson lesson = lessonMapper.requestToEntity(request);
     lesson.setLink(meetingUrl);
     lesson.setMentor(mentor);
+    lesson.setStatus(LessonStatus.PENDING);
 
     lessonRepository.save(lesson);
 
     try {
-      List<String> attendees = Collections.singletonList(mentor.getUser().getEmail());
-      String externalEventId = calendarPort.createEvent(lesson, attendees);
-      lesson.setExternalEventId(externalEventId);
-      lessonRepository.save(lesson);
-
+      if (mentor.getUser() != null) {
+        List<String> attendees = Collections.singletonList(mentor.getUser().getEmail());
+        String externalEventId = calendarPort.createEvent(lesson, attendees);
+        lesson.setExternalEventId(externalEventId);
+        lessonRepository.save(lesson);
+      }
     } catch (Exception ex) {
       System.err.println("Erro ao enviar convite da aula: " + ex.getMessage());
     }
@@ -105,13 +116,23 @@ public class LessonService implements LessonUseCase {
   @Override
   public GenericModelResponse updateLesson(String lessonId, UpdateLessonModelRequest request) {
     UUID lessonIdParsed = UUID.fromString(lessonId);
-    var lesson = lessonMapper.requestToEntity(request, lessonIdParsed);
+
     lessonRepository
         .findById(lessonIdParsed)
         .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
     mentorRepository
         .findById(request.getMentorId())
         .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+
+    // Valida se a data/hora da aula está no futuro (em UTC)
+    LocalDateTime lessonStartDateTime = request.getDate().atTime(request.getStartTime());
+    LocalDateTime now = TimeUtils.nowLocalDateTimeUtc();
+
+    if (lessonStartDateTime.isBefore(now) || lessonStartDateTime.isEqual(now)) {
+      throw new BadRequestException("A data e horário da aula devem ser no futuro");
+    }
+
+    var lesson = lessonMapper.requestToEntity(request, lessonIdParsed);
     lessonRepository.save(lesson);
 
     return new GenericModelResponse("LESSON_UPDATED", "Lesson updated successfully!");
@@ -186,6 +207,8 @@ public class LessonService implements LessonUseCase {
     Pageable pageable = PageRequest.of(page, size, getSort(order));
     Specification<Lesson> spec = (root, query, cb) -> cb.conjunction();
 
+    spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), LessonStatus.PENDING));
+
     spec =
         spec.and((root, query, cb) -> cb.greaterThan(root.get("startTime"), LocalDateTime.now()));
 
@@ -251,8 +274,11 @@ public class LessonService implements LessonUseCase {
                 .orElse(null)
             : null;
 
-    boolean isMentor =
-        role == AuthUserRole.MENTOR && lesson.getMentor().getUser().getId().equals(profileId);
+    boolean isMentor = false;
+    if (role == AuthUserRole.MENTOR && lesson.getMentor() != null
+        && lesson.getMentor().getUser() != null) {
+      isMentor = lesson.getMentor().getUser().getId().equals(profileId);
+    }
 
     boolean isRegisteredMentored = (lessonMentored != null);
 
@@ -265,7 +291,7 @@ public class LessonService implements LessonUseCase {
 
     if (role == AuthUserRole.MENTORED) {
       response.setPresentCode(null);
-      if (!lesson.getMentor().getActive()) {
+      if (lesson.getMentor() != null && !lesson.getMentor().getActive()) {
         response.setMentorId(null);
       }
     }

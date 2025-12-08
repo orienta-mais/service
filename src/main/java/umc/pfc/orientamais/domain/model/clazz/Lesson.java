@@ -8,6 +8,7 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
+import umc.pfc.orientamais.application.service.utils.TimeUtils;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
 @Getter
@@ -52,8 +53,12 @@ public class Lesson {
   @Column(name = "external_event_id", length = 255)
   private String externalEventId;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", length = 20, nullable = false)
+  private LessonStatus status = LessonStatus.PENDING;
+
   @Column(name = "created_at", nullable = false, updatable = false)
-  private LocalDateTime createdAt = LocalDateTime.now();
+  private LocalDateTime createdAt = TimeUtils.nowLocalDateTimeUtc();
 
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
@@ -65,6 +70,6 @@ public class Lesson {
 
   @PreUpdate
   public void preUpdate() {
-    this.updatedAt = LocalDateTime.now();
+    this.updatedAt = TimeUtils.nowLocalDateTimeUtc();
   }
 }

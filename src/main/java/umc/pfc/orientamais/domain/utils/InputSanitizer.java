@@ -1,16 +1,15 @@
 package umc.pfc.orientamais.domain.utils;
 
+import java.util.Locale;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
 import org.springframework.stereotype.Component;
-
-import java.util.Locale;
 
 @Component
 public class InputSanitizer {
 
   private static final PolicyFactory SAFE_HTML_POLICY =
-    Sanitizers.FORMATTING.and(Sanitizers.LINKS).and(Sanitizers.BLOCKS).and(Sanitizers.STYLES);
+      Sanitizers.FORMATTING.and(Sanitizers.LINKS).and(Sanitizers.BLOCKS).and(Sanitizers.STYLES);
 
   public String sanitizeAllowHtml(String raw) {
     if (raw == null) return null;
@@ -44,9 +43,10 @@ public class InputSanitizer {
   public boolean isSafeFromCommandInjection(String raw, boolean allowHtml) {
     if (raw == null) return true;
 
-    String[] suspects = allowHtml
-      ? new String[]{"|", "`", "$(", ">$"}
-      : new String[]{"&", "|", "`", "$(", ">$", "2>", "||", "&&"};
+    String[] suspects =
+        allowHtml
+            ? new String[] {"|", "`", "$(", ">$"}
+            : new String[] {"&", "|", "`", "$(", ">$", "2>", "||", "&&"};
 
     for (String s : suspects) {
       if (raw.contains(s)) return false;

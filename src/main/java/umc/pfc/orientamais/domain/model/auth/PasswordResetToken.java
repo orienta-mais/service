@@ -3,6 +3,7 @@ package umc.pfc.orientamais.domain.model.auth;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Builder;
+import umc.pfc.orientamais.application.service.utils.TimeUtils;
 
 public record PasswordResetToken(String token, String email, Instant expiresAt, Instant createdAt) {
 
@@ -15,6 +16,6 @@ public record PasswordResetToken(String token, String email, Instant expiresAt, 
   }
 
   public boolean isExpired() {
-    return Instant.now().isAfter(expiresAt);
+    return TimeUtils.nowUtc().isAfter(expiresAt);
   }
 }

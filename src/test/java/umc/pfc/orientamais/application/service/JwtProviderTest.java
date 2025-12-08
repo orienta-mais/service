@@ -42,7 +42,8 @@ class JwtProviderTest {
     mentorUser =
         new AuthUser(UUID.randomUUID(), "mentor@test.com", "password", AuthUserRole.MENTOR, true);
     mentoredUser =
-        new AuthUser(UUID.randomUUID(), "mentored@test.com", "password", AuthUserRole.MENTORED, true);
+        new AuthUser(
+            UUID.randomUUID(), "mentored@test.com", "password", AuthUserRole.MENTORED, true);
   }
 
   @Test
