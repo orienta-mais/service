@@ -1,10 +1,6 @@
 package umc.pfc.orientamais.application.service;
 
 import jakarta.transaction.Transactional;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.Map;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequest;
@@ -22,6 +18,12 @@ import umc.pfc.orientamais.domain.model.auth.RegistrationToken;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Objects;
+
 @Service
 @Transactional
 public class RegisterService implements RegisterUseCase {
@@ -32,24 +34,27 @@ public class RegisterService implements RegisterUseCase {
   private final Map<AuthUserRole, ProfileMapping<? extends Profile>> profileMappings;
 
   public RegisterService(
-      AuthUserRepository authUserRepository,
-      RegistrationTokenRepository tokenRepository,
-      BCryptPasswordEncoder passwordEncoder,
-      MentorRepository mentorRepository,
-      MentoredRepository mentoredRepository) {
+    AuthUserRepository authUserRepository,
+    RegistrationTokenRepository tokenRepository,
+    BCryptPasswordEncoder passwordEncoder,
+    MentorRepository mentorRepository,
+    MentoredRepository mentoredRepository) {
     this.authUserRepository = authUserRepository;
     this.tokenRepository = tokenRepository;
     this.passwordEncoder = passwordEncoder;
 
     this.profileMappings =
-        Map.of(
-            AuthUserRole.MENTOR, new ProfileMapping<>(mentorRepository, Mentor::new),
-            AuthUserRole.MENTORED, new ProfileMapping<>(mentoredRepository, Mentored::new));
+      Map.of(
+        AuthUserRole.MENTOR, new ProfileMapping<>(mentorRepository, Mentor::new),
+        AuthUserRole.MENTORED, new ProfileMapping<>(mentoredRepository, Mentored::new));
   }
 
   @Override
   public void register(UserRegisterModelRequest request, AuthUserRole role) {
     RegistrationToken token = validateToken(request.token());
+    if (!Objects.equals(request.password(), request.confirmPassword())) {
+      throw new IllegalArgumentException("As senhas não coincidem.");
+    }
     AuthUser user = createAuthUser(request, role);
     authUserRepository.save(user);
 
@@ -60,7 +65,7 @@ public class RegisterService implements RegisterUseCase {
 
   private RegistrationToken validateToken(String tokenStr) {
     RegistrationToken token =
-        tokenRepository.findByToken(tokenStr).orElseThrow(InvalidOrExpiredTokenException::new);
+      tokenRepository.findByToken(tokenStr).orElseThrow(InvalidOrExpiredTokenException::new);
 
     if (token.getExpiration().isBefore(LocalDateTime.now())) {
       throw new InvalidOrExpiredTokenException();
@@ -70,14 +75,14 @@ public class RegisterService implements RegisterUseCase {
   }
 
   private AuthUser createAuthUser(UserRegisterModelRequest request, AuthUserRole role) {
-    String encryptedPassword = passwordEncoder.encode(request.password());
+    String encryptedConfirmPassword = passwordEncoder.encode(request.confirmPassword());
     String safeEmail = request.email().replace("%2B", "+");
     String decodedEmail = URLDecoder.decode(safeEmail, StandardCharsets.UTF_8);
-    return new AuthUser(decodedEmail, encryptedPassword, role, false);
+    return new AuthUser(decodedEmail, encryptedConfirmPassword, role, true);
   }
 
   private <T extends Profile> void createProfile(
-      AuthUser user, AuthUserRole role, UserRegisterModelRequest request) {
+    AuthUser user, AuthUserRole role, UserRegisterModelRequest request) {
     @SuppressWarnings("unchecked")
     ProfileMapping<T> mapping = (ProfileMapping<T>) profileMappings.get(role);
 

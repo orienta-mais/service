@@ -67,12 +67,12 @@ class RegisterServiceTest {
             "Name",
             "Last Name",
             "senha123",
+            "senha123",
             LocalDate.of(2002, 6, 21),
             null,
             null,
             "SP",
             "BR",
-            AuthUserRole.MENTOR,
             "token123");
 
     when(tokenRepository.findByToken("token123")).thenReturn(Optional.of(token));
@@ -106,12 +106,12 @@ class RegisterServiceTest {
             "Name",
             "Last Name",
             "senha123",
+            "senha123",
             LocalDate.of(2002, 6, 21),
             null,
             null,
             "SP",
             "BR",
-            AuthUserRole.MENTORED,
             "token123");
 
     when(tokenRepository.findByToken("token123")).thenReturn(Optional.of(token));
@@ -134,12 +134,12 @@ class RegisterServiceTest {
             "Name",
             "Last Name",
             "senha123",
+            "senha123",
             LocalDate.of(2002, 6, 21),
             null,
             null,
             "SP",
             "BR",
-            AuthUserRole.MENTOR,
             "tokenInvalido");
 
     assertThrows(
@@ -165,12 +165,12 @@ class RegisterServiceTest {
             "Name",
             "Last Name",
             "senha123",
+            "senha123",
             LocalDate.of(2002, 6, 21),
             null,
             null,
             "SP",
             "BR",
-            AuthUserRole.MENTOR,
             "token123");
 
     assertThrows(

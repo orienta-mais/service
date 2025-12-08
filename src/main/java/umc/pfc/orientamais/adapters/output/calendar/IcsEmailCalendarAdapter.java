@@ -11,7 +11,9 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -19,6 +21,7 @@ import umc.pfc.orientamais.application.port.output.calendar.CalendarPort;
 import umc.pfc.orientamais.application.service.utils.IcsBuilder;
 import umc.pfc.orientamais.domain.model.clazz.Lesson;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class IcsEmailCalendarAdapter implements CalendarPort {
@@ -115,6 +118,31 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
     }
   }
 
+  @Override
+  public void cancelEvent(Lesson lesson, List<String> mentoredEmails) {
+    if (mentoredEmails == null || mentoredEmails.isEmpty()) {
+      return;
+    }
+
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+    String subject = "Aula Cancelada - " + lesson.getTitle();
+    String text = buildLessonCanceledEmailText(lesson, dateFormatter, timeFormatter);
+
+    SimpleMailMessage message = new SimpleMailMessage();
+    message.setSubject(subject);
+    message.setText(text);
+    mentoredEmails.forEach(email -> {
+      try {
+        message.setTo(email);
+        mailSender.send(message);
+      } catch (Exception e) {
+        log.error("Erro ao enviar email de cancelamento para {}: {}", email, e.getMessage());
+      }
+    });
+  }
+
   private String buildHtmlBody(Lesson lesson) {
     LocalDate date = lesson.getStartTime().toLocalDate();
     LocalTime time = lesson.getStartTime().toLocalTime();
@@ -139,5 +167,28 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
         + "\" target=\"_blank\" style=\"display:inline-block;padding:10px 20px;"
         + "color:#ffffff;background-color:#1a73e8;text-decoration:none;border-radius:5px;\">Entrar na Reunião</a></p>"
         + "<p>Cumprimentos,<br/>Equipe Orientamais</p>";
+  }
+
+  private String buildLessonCanceledEmailText(Lesson lesson, DateTimeFormatter dateFormatter, DateTimeFormatter timeFormatter) {
+    return String.format(
+      """
+      Olá,
+
+      Informamos que a aula "%s" foi cancelada.
+
+      Detalhes da aula cancelada:
+      - Data: %s
+      - Horário: %s às %s
+
+      Pedimos desculpas pelo inconveniente.
+
+      Atenciosamente,
+      Equipe Orienta+
+      """,
+      lesson.getTitle(),
+      lesson.getStartTime().format(dateFormatter),
+      lesson.getStartTime().format(timeFormatter),
+      lesson.getEndTime().format(timeFormatter)
+    );
   }
 }

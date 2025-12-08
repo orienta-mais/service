@@ -3,12 +3,6 @@ package umc.pfc.orientamais.application.service;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import jakarta.transaction.Transactional;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
@@ -37,6 +31,13 @@ import umc.pfc.orientamais.domain.model.clazz.LessonStatus;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+
 @Service
 @Transactional
 @AllArgsConstructor
@@ -55,9 +56,9 @@ public class LessonService implements LessonUseCase {
   @Override
   public GenericModelResponse createLesson(CreateLessonModelRequest request) {
     Mentor mentor =
-        mentorRepository
-            .findById(request.getMentorId())
-            .orElseThrow(() -> new NotFoundException("Mentor não encontrado."));
+      mentorRepository
+        .findById(request.getMentorId())
+        .orElseThrow(() -> new NotFoundException("Mentor não encontrado."));
 
     LocalDateTime lessonStartDateTime = request.getDate().atTime(request.getStartTime());
     LocalDateTime now = TimeUtils.nowLocalDateTimeUtc();
@@ -92,12 +93,31 @@ public class LessonService implements LessonUseCase {
   @Override
   public GenericModelResponse deleteLesson(String request) {
     UUID lessonId = UUID.fromString(request);
-    lessonRepository
+    Lesson lesson =
+      lessonRepository
         .findById(lessonId)
         .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
+
+    List<String> mentoredEmails = getMentoredEmailsByLessonId(lessonId);
+
+    try {
+      calendarPort.cancelEvent(lesson, mentoredEmails);
+    } catch (Exception ex) {
+      System.err.println("Erro ao enviar emails de cancelamento: " + ex.getMessage());
+    }
+
     lessonRepository.deleteById(lessonId);
 
     return new GenericModelResponse("LESSON_DELETED", "Lesson deleted successfully!");
+  }
+
+  private List<String> getMentoredEmailsByLessonId(UUID lessonId) {
+    List<LessonMentored> lessonMentoreds = lessonMentoredRepository.findAllByLessonId(lessonId);
+    return lessonMentoreds.stream()
+      .map(LessonMentored::getMentored)
+      .filter(mentored -> mentored.getUser() != null)
+      .map(mentored -> mentored.getUser().getEmail())
+      .toList();
   }
 
   @Override
@@ -107,9 +127,9 @@ public class LessonService implements LessonUseCase {
     UUID lessonId = UUID.fromString(request);
 
     Lesson lesson =
-        lessonRepository
-            .findById(lessonId)
-            .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
+      lessonRepository
+        .findById(lessonId)
+        .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
     return buildLessonResponseForUser(lesson, userRole, profileId);
   }
 
@@ -118,13 +138,12 @@ public class LessonService implements LessonUseCase {
     UUID lessonIdParsed = UUID.fromString(lessonId);
 
     lessonRepository
-        .findById(lessonIdParsed)
-        .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
+      .findById(lessonIdParsed)
+      .orElseThrow(() -> new NotFoundException(lessonNotFoundMessage));
     mentorRepository
-        .findById(request.getMentorId())
-        .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+      .findById(request.getMentorId())
+      .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
 
-    // Valida se a data/hora da aula está no futuro (em UTC)
     LocalDateTime lessonStartDateTime = request.getDate().atTime(request.getStartTime());
     LocalDateTime now = TimeUtils.nowLocalDateTimeUtc();
 
@@ -158,19 +177,19 @@ public class LessonService implements LessonUseCase {
     UUID lessonUUID = UUID.fromString(lessonId);
 
     Lesson lesson =
-        lessonRepository
-            .findById(lessonUUID)
-            .orElseThrow(() -> new NotFoundException("Aula não encontrada"));
+      lessonRepository
+        .findById(lessonUUID)
+        .orElseThrow(() -> new NotFoundException("Aula não encontrada"));
 
     UUID mentoredAuthUserUUID = SecurityUtils.getCurrentProfileId();
 
     Mentored mentored =
-        mentoredRepository
-            .findByUserId(mentoredAuthUserUUID)
-            .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
+      mentoredRepository
+        .findByUserId(mentoredAuthUserUUID)
+        .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
 
     boolean alreadyRegistered =
-        lessonMentoredRepository.existsByLessonIdAndMentoredId(lessonUUID, mentored.getId());
+      lessonMentoredRepository.existsByLessonIdAndMentoredId(lessonUUID, mentored.getId());
     if (alreadyRegistered) {
       throw new BadRequestException("Você já está inscrito nesta aula");
     }
@@ -196,12 +215,12 @@ public class LessonService implements LessonUseCase {
     }
 
     return new GenericModelResponse(
-        "MENTORED_REGISTERED", "Inscrição realizada e convite enviado com sucesso!");
+      "MENTORED_REGISTERED", "Inscrição realizada e convite enviado com sucesso!");
   }
 
   @Override
   public PagedModelResponse<LessonModelResponse> listLesson(
-      String title, LocalDate date, String order, int page, int size) {
+    String title, LocalDate date, String order, int page, int size) {
     AuthUserRole userRole = SecurityUtils.getCurrentUserRole();
 
     Pageable pageable = PageRequest.of(page, size, getSort(order));
@@ -210,20 +229,20 @@ public class LessonService implements LessonUseCase {
     spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), LessonStatus.PENDING));
 
     spec =
-        spec.and((root, query, cb) -> cb.greaterThan(root.get("startTime"), LocalDateTime.now()));
+      spec.and((root, query, cb) -> cb.greaterThan(root.get("startTime"), LocalDateTime.now()));
 
     if (title != null && !title.isBlank()) {
       spec =
-          spec.and(
-              (root, query, cb) ->
-                  cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
+        spec.and(
+          (root, query, cb) ->
+            cb.like(cb.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
     }
 
     if (date != null) {
       spec =
-          spec.and(
-              (root, query, cb) ->
-                  cb.equal(cb.function("DATE", LocalDate.class, root.get("startTime")), date));
+        spec.and(
+          (root, query, cb) ->
+            cb.equal(cb.function("DATE", LocalDate.class, root.get("startTime")), date));
     }
 
     if (userRole == AuthUserRole.MENTORED) {
@@ -233,18 +252,18 @@ public class LessonService implements LessonUseCase {
     Page<Lesson> lessons = lessonRepository.findAll(spec, pageable);
 
     List<LessonModelResponse> responseList =
-        lessons.getContent().stream().map(lessonMapper::entityToResponse).toList();
+      lessons.getContent().stream().map(lessonMapper::entityToResponse).toList();
 
     Page<LessonModelResponse> mappedPage =
-        new PageImpl<>(responseList, pageable, lessons.getTotalElements());
+      new PageImpl<>(responseList, pageable, lessons.getTotalElements());
 
     return paginationMapper.toPagedModel(mappedPage);
   }
 
   private Sort getSort(String order) {
     return "desc".equalsIgnoreCase(order)
-        ? Sort.by(Sort.Direction.DESC, "startTime")
-        : Sort.by(Sort.Direction.ASC, "startTime");
+      ? Sort.by(Sort.Direction.DESC, "startTime")
+      : Sort.by(Sort.Direction.ASC, "startTime");
   }
 
   private Specification<Lesson> hasAvailableSpots() {
@@ -257,33 +276,33 @@ public class LessonService implements LessonUseCase {
   }
 
   private LessonDetailsModelResponse buildLessonResponseForUser(
-      Lesson lesson, AuthUserRole role, UUID profileId) {
+    Lesson lesson, AuthUserRole role, UUID profileId) {
     LessonDetailsModelResponse response = lessonMapper.entityToDetailsResponse(lesson);
 
     UUID lessonId = lesson.getId();
 
     UUID mentoredId =
-        (role == AuthUserRole.MENTORED)
-            ? mentoredRepository.findByUserId(profileId).map(Mentored::getId).orElse(null)
-            : null;
+      (role == AuthUserRole.MENTORED)
+        ? mentoredRepository.findByUserId(profileId).map(Mentored::getId).orElse(null)
+        : null;
 
     LessonMentored lessonMentored =
-        (mentoredId != null)
-            ? lessonMentoredRepository
-                .findByLessonIdAndMentoredId(lessonId, mentoredId)
-                .orElse(null)
-            : null;
+      (mentoredId != null)
+        ? lessonMentoredRepository
+        .findByLessonIdAndMentoredId(lessonId, mentoredId)
+        .orElse(null)
+        : null;
 
     boolean isMentor = false;
     if (role == AuthUserRole.MENTOR && lesson.getMentor() != null
-        && lesson.getMentor().getUser() != null) {
+      && lesson.getMentor().getUser() != null) {
       isMentor = lesson.getMentor().getUser().getId().equals(profileId);
     }
 
     boolean isRegisteredMentored = (lessonMentored != null);
 
     response.setPresentCodeFilled(
-        lessonMentored != null && Boolean.TRUE.equals(lessonMentored.getPresentCodeFilled()));
+      lessonMentored != null && Boolean.TRUE.equals(lessonMentored.getPresentCodeFilled()));
 
     if (!(isMentor || isRegisteredMentored)) {
       response.setLink(null);

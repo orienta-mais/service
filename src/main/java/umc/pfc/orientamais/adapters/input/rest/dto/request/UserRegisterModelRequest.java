@@ -41,6 +41,14 @@ public record UserRegisterModelRequest(
             message =
                 "Senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial")
         String password,
+    @NotBlank(message = "Este campo é obrigatório!")
+    @Length(min = 8, max = 128, message = "Sua senha deve conter entre 8 e 128 caracteres")
+    @Pattern(
+      regexp =
+        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#^()_+=\\-\\[\\]{}|;:,.<>~`])[A-Za-z\\d@$!%*?&#^()_+=\\-\\[\\]{}|;:,.<>~`]{8,128}$",
+      message =
+        "Senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial")
+    String confirmPassword,
     @NotNull(message = "Este campo é obrigatório!")
         @Past(message = "Data de nascimento deve ser no passado")
         @ValidAge(min = 16, max = 100, message = "Idade deve estar entre 16 e 100 anos")
@@ -64,7 +72,6 @@ public record UserRegisterModelRequest(
         @Size(min = 2, max = 100, message = "Nacionalidade deve ter entre 2 e 100 caracteres")
         @SafeInput(message = "Nacionalidade contém caracteres suspeitos")
         String nationality,
-    @NotNull(message = "Este campo é obrigatório!") AuthUserRole role,
     @NotBlank(message = "Este campo é obrigatório!")
         @Pattern(regexp = "^[a-zA-Z0-9\\-]{36,255}$", message = "Token inválido")
         @Size(min = 36, max = 255, message = "Token deve ter entre 36 e 255 caracteres")
