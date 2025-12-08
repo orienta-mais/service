@@ -27,4 +27,3 @@ public class TermTypeConverter implements Converter<String, TermType> {
     };
   }
 }
-

@@ -177,24 +177,8 @@ public class CertificatePdfGenerator {
       platformCell.setBorder(Rectangle.NO_BORDER);
       footer.addCell(platformCell);
     }
-  }
 
     document.add(footer);
-  }
-
-  private void addQrCode(Document document, Mentored mentored, Lesson lesson)
-      throws IOException, WriterException, DocumentException {
-    String validationUrl = CERTIFICATE_VALIDATION_URL + mentored.getId() + "-" + lesson.getId();
-    Image qrCodeImage = generateQrCodeImage(validationUrl);
-    qrCodeImage.scaleToFit(80, 80);
-    qrCodeImage.setAbsolutePosition(PageSize.A4.rotate().getWidth() - 130, 60);
-    document.add(qrCodeImage);
-
-    Font qrFont = new Font(Font.FontFamily.HELVETICA, 9, Font.ITALIC, new BaseColor(120, 120, 120));
-    Paragraph qrText = new Paragraph("Verifique autenticidade:\n" + validationUrl, qrFont);
-    qrText.setAlignment(Element.ALIGN_RIGHT);
-    qrText.setSpacingBefore(47);
-    document.add(qrText);
   }
 
   private Image generateQrCodeImage(String text)

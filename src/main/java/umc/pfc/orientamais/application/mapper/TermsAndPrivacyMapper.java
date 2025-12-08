@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.adapters.input.rest.dto.request.TermsAndPrivacyRequest;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.TermsAndPrivacyResponse;
 import umc.pfc.orientamais.domain.model.terms.TermsAndPrivacy;
-import umc.pfc.orientamais.domain.utils.InputSanitizer;
 
 @Component
 public class TermsAndPrivacyMapper {
@@ -15,11 +14,9 @@ public class TermsAndPrivacyMapper {
       throw new IllegalArgumentException("Request não pode ser nulo");
     }
 
-    String sanitizedContent = InputSanitizer.sanitize(request.content());
-
     TermsAndPrivacy entity = new TermsAndPrivacy();
     entity.setType(request.type());
-    entity.setContent(sanitizedContent);
+    entity.setContent(request.content());
     entity.setVersion(1);
     entity.setIsActive(true);
 
@@ -34,11 +31,9 @@ public class TermsAndPrivacyMapper {
       throw new IllegalArgumentException("Versão deve ser maior que zero");
     }
 
-    String sanitizedContent = InputSanitizer.sanitize(request.content());
-
     TermsAndPrivacy entity = new TermsAndPrivacy();
     entity.setType(request.type());
-    entity.setContent(sanitizedContent);
+    entity.setContent(request.content());
     entity.setVersion(version);
     entity.setIsActive(true);
 
@@ -96,4 +91,3 @@ public class TermsAndPrivacyMapper {
     return entities.stream().map(this::entityToSummaryResponse).toList();
   }
 }
-

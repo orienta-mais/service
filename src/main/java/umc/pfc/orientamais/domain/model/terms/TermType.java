@@ -12,5 +12,4 @@ public enum TermType {
   TermType(String displayName) {
     this.displayName = displayName;
   }
-
 }

@@ -1,6 +1,7 @@
 package umc.pfc.orientamais.application.service;
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,8 +15,6 @@ import umc.pfc.orientamais.domain.exceptions.BadRequestException;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.terms.TermType;
 import umc.pfc.orientamais.domain.model.terms.TermsAndPrivacy;
-
-import java.util.List;
 
 @Slf4j
 @Service
@@ -31,12 +30,12 @@ public class TermsAndPrivacyService implements TermsAndPrivacyUseCase {
     validateTermType(type);
 
     TermsAndPrivacy activeTerm =
-      repository
-        .findByTypeAndIsActive(type, true)
-        .orElseThrow(
-          () ->
-            new NotFoundException(
-              "Nenhum termo ativo encontrado para o tipo: " + type.getDisplayName()));
+        repository
+            .findByTypeAndIsActive(type, true)
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "Nenhum termo ativo encontrado para o tipo: " + type.getDisplayName()));
 
     return mapper.entityToResponse(activeTerm);
   }
@@ -71,13 +70,14 @@ public class TermsAndPrivacyService implements TermsAndPrivacyUseCase {
     validateVersion(version);
 
     TermsAndPrivacy term =
-      repository
-        .findByTypeAndVersion(type, version)
-        .orElseThrow(
-          () ->
-            new NotFoundException(
-              String.format(
-                "Termo não encontrado para tipo %s e versão %d", type.getDisplayName(), version)));
+        repository
+            .findByTypeAndVersion(type, version)
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        String.format(
+                            "Termo não encontrado para tipo %s e versão %d",
+                            type.getDisplayName(), version)));
 
     return mapper.entityToResponse(term);
   }
@@ -119,14 +119,14 @@ public class TermsAndPrivacyService implements TermsAndPrivacyUseCase {
 
     try {
       TermsAndPrivacy termToActivate =
-        repository
-          .findByTypeAndVersion(type, version)
-          .orElseThrow(
-            () ->
-              new NotFoundException(
-                String.format(
-                  "Termo não encontrado para tipo %s e versão %d",
-                  type.getDisplayName(), version)));
+          repository
+              .findByTypeAndVersion(type, version)
+              .orElseThrow(
+                  () ->
+                      new NotFoundException(
+                          String.format(
+                              "Termo não encontrado para tipo %s e versão %d",
+                              type.getDisplayName(), version)));
 
       if (Boolean.TRUE.equals(termToActivate.getIsActive())) {
         log.warn("Versão {} do tipo {} já está ativa", version, type);
@@ -171,18 +171,18 @@ public class TermsAndPrivacyService implements TermsAndPrivacyUseCase {
 
     try {
       TermsAndPrivacy term =
-        repository
-          .findByTypeAndVersion(type, version)
-          .orElseThrow(
-            () ->
-              new NotFoundException(
-                String.format(
-                  "Termo não encontrado para tipo %s e versão %d",
-                  type.getDisplayName(), version)));
+          repository
+              .findByTypeAndVersion(type, version)
+              .orElseThrow(
+                  () ->
+                      new NotFoundException(
+                          String.format(
+                              "Termo não encontrado para tipo %s e versão %d",
+                              type.getDisplayName(), version)));
 
       if (Boolean.TRUE.equals(term.getIsActive())) {
         throw new BadRequestException(
-          "Não é possível deletar uma versão ativa. Desative-a primeiro.");
+            "Não é possível deletar uma versão ativa. Desative-a primeiro.");
       }
 
       repository.delete(term);
@@ -190,8 +190,9 @@ public class TermsAndPrivacyService implements TermsAndPrivacyUseCase {
       log.info("Versão {} do tipo {} deletada com sucesso", version, type);
 
       return new GenericModelResponse(
-        "TERM_DELETED",
-        String.format("Versão %d do termo %s deletada com sucesso", version, type.getDisplayName()));
+          "TERM_DELETED",
+          String.format(
+              "Versão %d do termo %s deletada com sucesso", version, type.getDisplayName()));
 
     } catch (NotFoundException | BadRequestException ex) {
       throw ex;
@@ -203,21 +204,20 @@ public class TermsAndPrivacyService implements TermsAndPrivacyUseCase {
 
   private void deactivateCurrentActiveTerm(TermType type) {
     repository
-      .findByTypeAndIsActive(type, true)
-      .ifPresent(
-        activeTerm -> {
-          log.info(
-            "Desativando versão {} do tipo {}", activeTerm.getVersion(), type);
-          activeTerm.setIsActive(false);
-          repository.save(activeTerm);
-        });
+        .findByTypeAndIsActive(type, true)
+        .ifPresent(
+            activeTerm -> {
+              log.info("Desativando versão {} do tipo {}", activeTerm.getVersion(), type);
+              activeTerm.setIsActive(false);
+              repository.save(activeTerm);
+            });
   }
 
   private Integer calculateNextVersion(TermType type) {
     return repository.findAllByTypeOrderByVersionDesc(type).stream()
-      .findFirst()
-      .map(term -> term.getVersion() + 1)
-      .orElse(1);
+        .findFirst()
+        .map(term -> term.getVersion() + 1)
+        .orElse(1);
   }
 
   private void validateTermType(TermType type) {
