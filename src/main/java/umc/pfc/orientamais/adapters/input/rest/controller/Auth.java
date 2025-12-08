@@ -75,7 +75,7 @@ public class Auth {
   }
 
   @PostMapping("/terms/policy/confirm")
-  public ResponseEntity<GenericModelResponse> confirmTermsPolicy(HttpServletRequest httpRequest) {
+  public ResponseEntity<GenericModelResponse> confirmTermsPolicy() {
     termsAndPrivacyUseCase.confirmTermsPolicy();
     return ResponseEntity.ok(
         new GenericModelResponse(
