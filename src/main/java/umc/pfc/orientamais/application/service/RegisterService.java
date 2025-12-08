@@ -73,7 +73,7 @@ public class RegisterService implements RegisterUseCase {
     String encryptedPassword = passwordEncoder.encode(request.password());
     String safeEmail = request.email().replace("%2B", "+");
     String decodedEmail = URLDecoder.decode(safeEmail, StandardCharsets.UTF_8);
-    return new AuthUser(decodedEmail, encryptedPassword, role);
+    return new AuthUser(decodedEmail, encryptedPassword, role, false);
   }
 
   private <T extends Profile> void createProfile(

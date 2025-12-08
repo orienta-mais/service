@@ -13,6 +13,8 @@ import umc.pfc.orientamais.domain.model.auth.AuthUser;
 public interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {
   Optional<AuthUser> findByEmail(String email);
 
+  Optional<AuthUser> findById(UUID id);
+
   boolean existsByEmail(String email);
 
   @Modifying

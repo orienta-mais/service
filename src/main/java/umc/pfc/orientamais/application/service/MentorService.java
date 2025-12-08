@@ -67,7 +67,6 @@ public class MentorService implements MentorUseCase {
     boolean hasReviewed =
         reviews.stream().anyMatch(review -> review.getMentoredId().equals(mentored.getId()));
 
-    // Convert reviews to DTOs with mentored names
     List<MentorReviewResponse> reviewResponses =
         reviews.stream()
             .map(

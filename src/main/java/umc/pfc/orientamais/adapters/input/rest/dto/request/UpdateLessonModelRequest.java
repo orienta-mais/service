@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import umc.pfc.orientamais.domain.validation.SafeInput;
 
+/** Request model for lesson update with comprehensive security validations. */
 @Getter
 @Setter
 public class UpdateLessonModelRequest {

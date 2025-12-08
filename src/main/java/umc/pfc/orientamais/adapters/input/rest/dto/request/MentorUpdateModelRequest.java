@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import umc.pfc.orientamais.domain.validation.SafeInput;
 import umc.pfc.orientamais.domain.validation.ValidAge;
 
+/** Request model for mentor update with comprehensive security validations. */
 public record MentorUpdateModelRequest(
     @NotBlank(message = "Este campo é obrigatório!")
         @Pattern(

@@ -132,14 +132,14 @@ class InputSanitizerTest {
       })
   @DisplayName("Should detect command injection patterns")
   void shouldDetectCommandInjectionPatterns(String input) {
-    assertFalse(sanitizer.isSafeFromCommandInjection(input));
+    assertFalse(sanitizer.isSafeFromCommandInjection(input, false));
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"normal-filename", "file_name.txt", "My Document.pdf", "123-test"})
   @DisplayName("Should accept safe strings for command injection check")
   void shouldAcceptSafeStringsForCommandInjection(String input) {
-    assertTrue(sanitizer.isSafeFromCommandInjection(input));
+    assertTrue(sanitizer.isSafeFromCommandInjection(input, false));
   }
 
   @Test
@@ -161,7 +161,8 @@ class InputSanitizerTest {
   void shouldReturnTrueForNullInAllChecks() {
     assertTrue(sanitizer.isSafePathTraversal(null));
     assertTrue(sanitizer.isSafeFromNullBytes(null));
-    assertTrue(sanitizer.isSafeFromCommandInjection(null));
+    assertTrue(sanitizer.isSafeFromCommandInjection(null, false));
+    assertTrue(sanitizer.isSafeFromCommandInjection(null, true));
   }
 
   @Test
@@ -172,5 +173,28 @@ class InputSanitizerTest {
 
     assertFalse(sanitizer.isSafePathTraversal("../file"));
     assertFalse(sanitizer.isSafePathTraversal("..\\file"));
+  }
+
+  @Test
+  @DisplayName("Should allow HTML entities when allowHtml is true")
+  void shouldAllowHtmlEntitiesWhenAllowHtmlTrue() {
+    // Entidades HTML comuns
+    assertTrue(sanitizer.isSafeFromCommandInjection("Hello&nbsp;World", true));
+    assertTrue(sanitizer.isSafeFromCommandInjection("&lt;div&gt;", true));
+    assertTrue(sanitizer.isSafeFromCommandInjection("&#123;test&#125;", true));
+    assertTrue(sanitizer.isSafeFromCommandInjection("&amp; symbol", true));
+
+    // Mas ainda deve bloquear & em contexto de command injection quando allowHtml é false
+    assertFalse(sanitizer.isSafeFromCommandInjection("test && command", false));
+    assertFalse(sanitizer.isSafeFromCommandInjection("test || command", false));
+  }
+
+  @Test
+  @DisplayName("Should detect command injection even with allowHtml true")
+  void shouldDetectCommandInjectionWithAllowHtmlTrue() {
+    // Command injection patterns devem ser bloqueados mesmo com allowHtml = true
+    assertFalse(sanitizer.isSafeFromCommandInjection("test | whoami", true));
+    assertFalse(sanitizer.isSafeFromCommandInjection("test `command`", true));
+    assertFalse(sanitizer.isSafeFromCommandInjection("$(malicious)", true));
   }
 }

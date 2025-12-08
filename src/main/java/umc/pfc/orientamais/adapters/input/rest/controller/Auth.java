@@ -16,6 +16,7 @@ import umc.pfc.orientamais.adapters.input.rest.dto.response.GenericModelResponse
 import umc.pfc.orientamais.adapters.input.rest.dto.response.LoginResponse;
 import umc.pfc.orientamais.application.port.input.LoginUseCase;
 import umc.pfc.orientamais.application.port.input.PasswordResetUseCase;
+import umc.pfc.orientamais.application.port.input.TermsAndPrivacyUseCase;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
 
 @RestController
@@ -25,6 +26,7 @@ public class Auth {
 
   private final LoginUseCase loginUseCase;
   private final PasswordResetUseCase passwordResetUseCase;
+  private final TermsAndPrivacyUseCase termsAndPrivacyUseCase;
 
   @PostMapping("/login")
   public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {
@@ -70,5 +72,13 @@ public class Auth {
     passwordResetUseCase.changePassword(request);
     return ResponseEntity.ok(
         new GenericModelResponse("PASSWORD_CHANGE_SUCCESS", "Password changed successfully"));
+  }
+
+  @PostMapping("/terms/policy/confirm")
+  public ResponseEntity<GenericModelResponse> confirmTermsPolicy() {
+    termsAndPrivacyUseCase.confirmTermsPolicy();
+    return ResponseEntity.ok(
+        new GenericModelResponse(
+            "TERMS_POLICY_CONFIRMED", "Terms and Policy confirmed successfully"));
   }
 }

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Length;
 import umc.pfc.orientamais.domain.validation.SafeInput;
 
+/** Request model for password reset with comprehensive security validations. */
 public record ResetPasswordModelRequest(
     @NotBlank(message = "Este campo é obrigatório!")
         @Pattern(regexp = "^[a-zA-Z0-9\\-]{36,255}$", message = "Token inválido")
