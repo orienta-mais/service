@@ -136,7 +136,7 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
     String subject = "Aula Cancelada - " + lesson.getTitle();
-    String text = buildLessonCanceledEmailText(lesson, dateFormatter, timeFormatter);
+    String text = buildLessonCanceledEmailText(lesson);
 
     SimpleMailMessage message = new SimpleMailMessage();
     message.setSubject(subject);
@@ -151,28 +151,6 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
           }
         });
   }
-
-  private String buildHtmlBody(Lesson lesson) {
-    LocalDateTime startTimeBRT = lesson.getStartTime().minusHours(3);
-
-    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-
-    String subject = "Aula Cancelada - " + lesson.getTitle();
-    String text = buildLessonCanceledEmailText(lesson, dateFormatter, timeFormatter);
-
-    SimpleMailMessage message = new SimpleMailMessage();
-    message.setSubject(subject);
-    message.setText(text);
-    mentoredEmails.forEach(
-      email -> {
-        try {
-          message.setTo(email);
-          mailSender.send(message);
-        } catch (Exception e) {
-          log.error("Erro ao enviar email de cancelamento para {}: {}", email, e.getMessage());
-        }
-      });
   }
 
   private String buildHtmlBody(Lesson lesson) {
@@ -195,7 +173,7 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
   }
 
   private String buildLessonCanceledEmailText(
-    Lesson lesson,) {
+    Lesson lesson) {
       ZonedDateTime zonedStart = lesson.getStartTime()
       .atZone(ZoneId.of("UTC"))
       .withZoneSameInstant(ZONE_SAO_PAULO);
@@ -219,12 +197,12 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
         Equipe Orienta+
         """,
 
-      + "<p>Data: " + dateFormatted
-      + " - " + zonedStart.toLocalTime().format(TIME_FORMATTER) + "</p>"
+      "<p>Data: " + dateFormatted + " - " + timeFormatted + "</p>"
       + "<p>Descrição: " + (lesson.getDescription() != null ? lesson.getDescription() : "") + "</p>"
       + "<p><a href=\"" + lesson.getLink()
       + "\" target=\"_blank\" style=\"display:inline-block;padding:10px 20px;color:#ffffff;"
       + "background-color:#1a73e8;text-decoration:none;border-radius:5px;\">Entrar na Reunião</a></p>"
-      + "<p>Cumprimentos,<br/>Equipe OrientaMais</p>";
+      + "<p>Cumprimentos,<br/>Equipe OrientaMais</p>"
+      );
   }
 }
