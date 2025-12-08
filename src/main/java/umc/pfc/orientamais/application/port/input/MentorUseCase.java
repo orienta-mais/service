@@ -17,7 +17,7 @@ public interface MentorUseCase {
 
   void deleteMentor(UUID id);
 
-    Integer countMentors();
+  Integer countMentors();
 
-    void anonymizeMentorData(UUID id);
+  void anonymizeMentorData(UUID id);
 }

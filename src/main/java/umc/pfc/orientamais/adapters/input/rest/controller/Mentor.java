@@ -57,11 +57,11 @@ public class Mentor {
     return ResponseEntity.ok(mentorUseCase.updateMentor(id, request));
   }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMentor(@PathVariable UUID id) {
-        mentorUseCase.anonymizeMentorData(id);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteMentor(@PathVariable UUID id) {
+    mentorUseCase.anonymizeMentorData(id);
+    return ResponseEntity.noContent().build();
+  }
 
   @PostMapping("/{id}/mentor-review")
   public ResponseEntity<GenericModelResponse> addMentorReview(

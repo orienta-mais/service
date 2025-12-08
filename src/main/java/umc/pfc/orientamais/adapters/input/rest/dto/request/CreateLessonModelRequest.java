@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.Setter;
 import umc.pfc.orientamais.domain.validation.SafeInput;
 
-/** Request model for lesson creation with comprehensive security validations. */
 @Getter
 @Setter
 public class CreateLessonModelRequest {
@@ -23,8 +22,7 @@ public class CreateLessonModelRequest {
   private String title;
 
   @Size(max = 5000, message = "A descrição da aula deve ter no máximo 5000 caracteres.")
-  @Pattern(regexp = "^[^<>{}\\\\]*$", message = "Descrição contém caracteres inválidos")
-  @SafeInput(message = "Descrição contém caracteres suspeitos")
+  @SafeInput(allowHtml = true, message = "Descrição contém conteúdo suspeito")
   private String description;
 
   @Min(value = 1, message = "Número máximo de participantes deve ser no mínimo 1")

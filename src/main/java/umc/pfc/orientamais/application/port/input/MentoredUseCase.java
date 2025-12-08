@@ -17,7 +17,7 @@ public interface MentoredUseCase {
 
   Integer countMentoreds();
 
-    CountByStateResponse countMentoredsByState();
+  CountByStateResponse countMentoredsByState();
 
-    void deleteMentoredCascade(UUID id);
+  void deleteMentoredCascade(UUID id);
 }

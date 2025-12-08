@@ -33,15 +33,14 @@ public class ValidateEmailService implements ValidateEmailUseCase {
     if (authUserRepository.existsByEmail(request.email())) {
       throw new EmailAlreadyExistsException("Email já cadastrado: " + request.email());
     }
-    tokenRepository
-        .findByEmail(request.email())
-        .ifPresent(oldToken -> tokenRepository.deleteByEmail(oldToken.getEmail()));
+
+    tokenRepository.findByEmail(request.email()).ifPresent(tokenRepository::delete);
+
     RegistrationToken token = tokenFactory.create(request.email(), role);
     try {
       tokenRepository.save(token);
     } catch (Exception e) {
-      RegistrationToken oldToken = tokenRepository.findByEmail(request.email()).orElse(token);
-      tokenRepository.deleteByEmail(oldToken.getEmail());
+      tokenRepository.findByEmail(request.email()).ifPresent(tokenRepository::delete);
       tokenRepository.save(token);
     }
 

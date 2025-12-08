@@ -2,84 +2,77 @@ package umc.pfc.orientamais.domain.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import umc.pfc.orientamais.domain.utils.InputSanitizer;
+
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-import umc.pfc.orientamais.domain.utils.InputSanitizer;
 
-/**
- * Validator implementation for the @SafeInput annotation. Checks input strings against various
- * injection attack patterns.
- */
+@Component
+@RequiredArgsConstructor
 public class SafeInputValidator implements ConstraintValidator<SafeInput, String> {
 
+  private final InputSanitizer sanitizer;
+
   private Set<SafeInput.InjectionType> checksToPerform;
+  private boolean allowHtml;
 
   @Override
   public void initialize(SafeInput constraintAnnotation) {
-    this.checksToPerform =
-        Arrays.stream(constraintAnnotation.checkFor()).collect(Collectors.toSet());
+    this.checksToPerform = Arrays.stream(constraintAnnotation.checkFor()).collect(Collectors.toSet());
+    this.allowHtml = constraintAnnotation.allowHtml();
   }
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
-    // Null or empty values are considered valid (use @NotNull/@NotBlank for null checks)
     if (value == null || value.isEmpty()) {
       return true;
     }
 
-    boolean isValid = true;
-
     if (checksToPerform.contains(SafeInput.InjectionType.SQL_INJECTION)) {
-      if (!InputSanitizer.isSafeFromSqlInjection(value)) {
+      String lower = value.toLowerCase();
+      if (lower.contains(";") || lower.contains("--") || lower.contains("/*") || lower.contains("*/")) {
         context.disableDefaultConstraintViolation();
-        context
-            .buildConstraintViolationWithTemplate("Input contém padrões de SQL injection")
-            .addConstraintViolation();
-        isValid = false;
+        context.buildConstraintViolationWithTemplate("Input contém padrões possivelmente maliciosos (SQL)").addConstraintViolation();
+        return false;
       }
     }
 
     if (checksToPerform.contains(SafeInput.InjectionType.XSS)) {
-      if (!InputSanitizer.isSafeFromXss(value)) {
+      boolean safe = sanitizer.isSafeXss(value, allowHtml);
+      if (!safe) {
         context.disableDefaultConstraintViolation();
-        context
-            .buildConstraintViolationWithTemplate("Input contém padrões de XSS")
-            .addConstraintViolation();
-        isValid = false;
-      }
-    }
-
-    if (checksToPerform.contains(SafeInput.InjectionType.LDAP_INJECTION)) {
-      if (!InputSanitizer.isSafeFromLdapInjection(value)) {
-        context.disableDefaultConstraintViolation();
-        context
-            .buildConstraintViolationWithTemplate("Input contém padrões de LDAP injection")
-            .addConstraintViolation();
-        isValid = false;
+        context.buildConstraintViolationWithTemplate("Input contém padrões de XSS").addConstraintViolation();
+        return false;
       }
     }
 
     if (checksToPerform.contains(SafeInput.InjectionType.PATH_TRAVERSAL)) {
-      if (!InputSanitizer.isSafeFromPathTraversal(value)) {
+      if (!sanitizer.isSafePathTraversal(value)) {
         context.disableDefaultConstraintViolation();
-        context
-            .buildConstraintViolationWithTemplate("Input contém padrões de path traversal")
-            .addConstraintViolation();
-        isValid = false;
+        context.buildConstraintViolationWithTemplate("Input contém padrões de path traversal").addConstraintViolation();
+        return false;
       }
     }
 
     if (checksToPerform.contains(SafeInput.InjectionType.NULL_BYTES)) {
-      if (!InputSanitizer.isSafeFromNullBytes(value)) {
+      if (!sanitizer.isSafeFromNullBytes(value)) {
         context.disableDefaultConstraintViolation();
-        context
-            .buildConstraintViolationWithTemplate("Input contém null bytes")
-            .addConstraintViolation();
-        isValid = false;
+        context.buildConstraintViolationWithTemplate("Input contém null bytes").addConstraintViolation();
+        return false;
       }
     }
 
-    return isValid;
+    if (checksToPerform.contains(SafeInput.InjectionType.COMMAND_INJECTION)) {
+      if (!sanitizer.isSafeFromCommandInjection(value)) {
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate("Input contém padrões possivelmente de command injection").addConstraintViolation();
+        return false;
+      }
+    }
+
+    return true;
   }
 }

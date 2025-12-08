@@ -1,6 +1,8 @@
 package umc.pfc.orientamais.adapters.output.persistence.repository;
 
 import jakarta.transaction.Transactional;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,11 +16,13 @@ public interface MentorRepository extends JpaRepository<Mentor, UUID> {
   @Query(value = """
             select count(*) from mentor m;
             """, nativeQuery = true)
-    Integer countMentors();
+  Integer countMentors();
 
-    @Modifying
-    @Transactional
-    @Query(value = """
+  @Modifying
+  @Transactional
+  @Query(
+      value =
+          """
         UPDATE mentor
         SET birth_date   = NULL,
             social_medias = NULL,
@@ -27,7 +31,7 @@ public interface MentorRepository extends JpaRepository<Mentor, UUID> {
             nationality   = NULL,
             active = FALSE
         WHERE id = :id
-        """, nativeQuery = true)
-    void anonymizeMentorData(UUID id);
-
+        """,
+      nativeQuery = true)
+  void anonymizeMentorData(UUID id);
 }

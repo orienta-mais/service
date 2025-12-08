@@ -2,12 +2,9 @@ package umc.pfc.orientamais.domain.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
+
 import java.lang.annotation.*;
 
-/**
- * Custom validation annotation to ensure input is safe from injection attacks. Validates against
- * SQL injection, XSS, LDAP injection, path traversal, and null bytes.
- */
 @Documented
 @Constraint(validatedBy = SafeInputValidator.class)
 @Target({ElementType.FIELD, ElementType.PARAMETER})
@@ -20,7 +17,6 @@ public @interface SafeInput {
 
   Class<? extends Payload>[] payload() default {};
 
-  /** Specify which types of injection to check for. By default, all checks are enabled. */
   InjectionType[] checkFor() default {
     InjectionType.SQL_INJECTION,
     InjectionType.XSS,
@@ -28,11 +24,13 @@ public @interface SafeInput {
     InjectionType.NULL_BYTES
   };
 
+  boolean allowHtml() default false;
+
   enum InjectionType {
     SQL_INJECTION,
     XSS,
     LDAP_INJECTION,
     PATH_TRAVERSAL,
-    NULL_BYTES
+    COMMAND_INJECTION, NULL_BYTES
   }
 }
