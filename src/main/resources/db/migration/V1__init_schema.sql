@@ -3,9 +3,9 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE auth_user
 (
     id       UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    email    VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255)        NOT NULL,
-    role     VARCHAR(50)         NOT NULL
+    email    VARCHAR(255) UNIQUE,
+    password VARCHAR(255),
+    role     VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE interests
@@ -16,15 +16,16 @@ CREATE TABLE interests
 
 CREATE TABLE mentor
 (
-    id           UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_uuid    UUID UNIQUE  NOT NULL,
-    name         VARCHAR(100) NOT NULL,
-    last_name    VARCHAR(100) NOT NULL,
-    birth_date   DATE,
+    id            UUID                  DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_uuid     UUID UNIQUE,
+    active        BOOLEAN      NOT NULL DEFAULT TRUE,
+    name          VARCHAR(100) NOT NULL,
+    last_name     VARCHAR(100) NOT NULL,
+    birth_date    DATE,
     social_medias VARCHAR(255),
-    description  TEXT,
-    state        VARCHAR(100),
-    nationality  VARCHAR(100),
+    description   TEXT,
+    state         VARCHAR(100),
+    nationality   VARCHAR(100),
     CONSTRAINT fk_mentor_user FOREIGN KEY (user_uuid) REFERENCES auth_user (id) ON DELETE CASCADE
 );
 
@@ -39,15 +40,15 @@ CREATE TABLE mentor_interests
 
 CREATE TABLE mentored
 (
-    id           UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    user_uuid    UUID UNIQUE  NOT NULL,
-    name         VARCHAR(100) NOT NULL,
-    last_name    VARCHAR(100) NOT NULL,
-    birth_date   DATE,
+    id            UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    user_uuid     UUID UNIQUE  NOT NULL,
+    name          VARCHAR(100) NOT NULL,
+    last_name     VARCHAR(100) NOT NULL,
+    birth_date    DATE,
     social_medias VARCHAR(255),
-    description  TEXT,
-    state        VARCHAR(100),
-    nationality  VARCHAR(100),
+    description   TEXT,
+    state         VARCHAR(100),
+    nationality   VARCHAR(100),
     CONSTRAINT fk_mentored_user FOREIGN KEY (user_uuid) REFERENCES auth_user (id) ON DELETE CASCADE
 );
 
