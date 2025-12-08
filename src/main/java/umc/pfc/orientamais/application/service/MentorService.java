@@ -130,4 +130,16 @@ public class MentorService implements MentorUseCase {
   public Integer countMentors() {
     return mentorRepository.countMentors();
   }
+
+  @Override
+  public void anonymizeMentorData(UUID id) {
+    var mentor =
+        mentorRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+    mentorRepository.anonymizeMentorData(id);
+    mentorReviewRepository.deleteMentorReviews(id);
+    authUserRepository.anonymizeAuthUserData(mentor.getUser().getId());
+    lessonRepository.deleteFutureLessonByMentorId(id);
+  }
 }

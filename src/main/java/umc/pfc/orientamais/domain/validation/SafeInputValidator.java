@@ -5,13 +5,15 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import umc.pfc.orientamais.domain.utils.InputSanitizer;
 
-/**
- * Validator implementation for the @SafeInput annotation. Checks input strings against various
- * injection attack patterns.
- */
+@Component
+@RequiredArgsConstructor
 public class SafeInputValidator implements ConstraintValidator<SafeInput, String> {
+
+  private final InputSanitizer sanitizer;
 
   private Set<SafeInput.InjectionType> checksToPerform;
   private boolean allowHtml;
@@ -25,65 +27,67 @@ public class SafeInputValidator implements ConstraintValidator<SafeInput, String
 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
-    // Null or empty values are considered valid (use @NotNull/@NotBlank for null checks)
     if (value == null || value.isEmpty()) {
       return true;
     }
 
-    boolean isValid = true;
-
     if (checksToPerform.contains(SafeInput.InjectionType.SQL_INJECTION)) {
-      if (!InputSanitizer.isSafeFromSqlInjection(value)) {
+      String lower = value.toLowerCase();
+      if (lower.contains(";")
+          || lower.contains("--")
+          || lower.contains("/*")
+          || lower.contains("*/")) {
         context.disableDefaultConstraintViolation();
         context
-            .buildConstraintViolationWithTemplate("Input contém padrões de SQL injection")
+            .buildConstraintViolationWithTemplate(
+                "Input contém padrões possivelmente maliciosos (SQL)")
             .addConstraintViolation();
-        isValid = false;
+        return false;
       }
     }
 
     if (checksToPerform.contains(SafeInput.InjectionType.XSS)) {
-      // If allowHtml is true, skip XSS check (HTML will be sanitized by InputSanitizer)
-      if (!allowHtml && !InputSanitizer.isSafeFromXss(value)) {
+      boolean safe = sanitizer.isSafeXss(value, allowHtml);
+      if (!safe) {
         context.disableDefaultConstraintViolation();
         context
             .buildConstraintViolationWithTemplate("Input contém padrões de XSS")
             .addConstraintViolation();
-        isValid = false;
+        return false;
       }
     }
 
-
     if (checksToPerform.contains(SafeInput.InjectionType.PATH_TRAVERSAL)) {
-      if (!InputSanitizer.isSafeFromPathTraversal(value)) {
+      if (!sanitizer.isSafePathTraversal(value)) {
         context.disableDefaultConstraintViolation();
         context
             .buildConstraintViolationWithTemplate("Input contém padrões de path traversal")
             .addConstraintViolation();
-        isValid = false;
+        return false;
       }
     }
 
     if (checksToPerform.contains(SafeInput.InjectionType.NULL_BYTES)) {
-      if (!InputSanitizer.isSafeFromNullBytes(value)) {
+      if (!sanitizer.isSafeFromNullBytes(value)) {
         context.disableDefaultConstraintViolation();
         context
             .buildConstraintViolationWithTemplate("Input contém null bytes")
             .addConstraintViolation();
-        isValid = false;
+        return false;
       }
     }
 
     if (checksToPerform.contains(SafeInput.InjectionType.COMMAND_INJECTION)) {
-      if (!InputSanitizer.isSafeFromCommandInjection(value)) {
+      if (!sanitizer.isSafeFromCommandInjection(value)) {
         context.disableDefaultConstraintViolation();
         context
-            .buildConstraintViolationWithTemplate("Input contém padrões de command injection")
+            .buildConstraintViolationWithTemplate(
+                "Input contém padrões possivelmente de command injection")
             .addConstraintViolation();
-        isValid = false;
+        return false;
       }
     }
 
-    return isValid;
+    return true;
   }
 }

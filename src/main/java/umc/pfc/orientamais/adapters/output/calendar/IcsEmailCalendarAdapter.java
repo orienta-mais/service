@@ -6,6 +6,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -113,12 +116,20 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
   }
 
   private String buildHtmlBody(Lesson lesson) {
+    LocalDate date = lesson.getStartTime().toLocalDate();
+    LocalTime time = lesson.getStartTime().toLocalTime();
+
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
     return "<p>Olá,</p>"
         + "<p>Você foi convidado para a aula: <strong>"
         + lesson.getTitle()
         + "</strong></p>"
         + "<p>Data: "
-        + lesson.getStartTime()
+        + date.format(dateFormatter)
+        + " - "
+        + time.format(timeFormatter)
         + "</p>"
         + "<p>Descrição: "
         + (lesson.getDescription() != null ? lesson.getDescription() : "")

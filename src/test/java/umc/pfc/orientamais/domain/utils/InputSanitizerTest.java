@@ -2,281 +2,175 @@ package umc.pfc.orientamais.domain.utils;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+@DisplayName("InputSanitizer Tests")
 class InputSanitizerTest {
 
-  @Test
-  void testSanitize_nullInput_returnsNull() {
-    assertNull(InputSanitizer.sanitize(null));
+  private InputSanitizer sanitizer;
+
+  @BeforeEach
+  void setUp() {
+    sanitizer = new InputSanitizer();
   }
 
   @Test
-  void testSanitize_emptyInput_returnsEmpty() {
-    assertEquals("", InputSanitizer.sanitize(""));
+  @DisplayName("Should sanitize HTML allowing safe tags")
+  void shouldSanitizeHtmlAllowingSafeTags() {
+    String html = "<p>Hello <strong>world</strong>!</p>";
+    String result = sanitizer.sanitizeAllowHtml(html);
+
+    assertNotNull(result);
+    assertTrue(result.contains("Hello"));
+    assertTrue(result.contains("world"));
   }
 
   @Test
-  void testSanitize_normalInput_trimmed() {
-    assertEquals("test", InputSanitizer.sanitize("  test  "));
+  @DisplayName("Should remove dangerous HTML tags")
+  void shouldRemoveDangerousHtmlTags() {
+    String dangerous = "<script>alert('xss')</script><p>Safe content</p>";
+    String result = sanitizer.sanitizeAllowHtml(dangerous);
+
+    assertFalse(result.contains("script"));
+    assertFalse(result.contains("alert"));
+    assertTrue(result.contains("Safe content"));
   }
 
   @Test
-  void testSanitize_multipleSpaces_normalized() {
-    assertEquals("test string", InputSanitizer.sanitize("test    string"));
-  }
-
-  @Test
-  void testSanitize_nullBytes_removed() {
-    String input = "test\u0000malicious";
-    String result = InputSanitizer.sanitize(input);
-    assertFalse(result.contains("\u0000"));
+  @DisplayName("Should return null when input is null for sanitizeAllowHtml")
+  void shouldReturnNullWhenInputIsNull() {
+    assertNull(sanitizer.sanitizeAllowHtml(null));
   }
 
   @ParameterizedTest
   @ValueSource(
       strings = {
-        "'; DROP TABLE users--",
-        "1' OR '1'='1",
-        "admin'--",
-        "' UNION SELECT * FROM passwords--",
-        "'; EXEC sp_MSForEachTable 'DROP TABLE ?'--",
-        "1; DELETE FROM users WHERE '1'='1",
-        "test'; INSERT INTO admin VALUES('hacker')--"
+        "<script>alert('xss')</script>",
+        "<iframe src='evil.com'></iframe>",
+        "javascript:alert(1)",
+        "<img onerror='alert(1)'>",
+        "<svg onload='alert(1)'>"
       })
-  void testIsSafeFromSqlInjection_maliciousInput_returnsFalse(String input) {
-    assertFalse(
-        InputSanitizer.isSafeFromSqlInjection(input), "Should detect SQL injection: " + input);
+  @DisplayName("Should detect XSS when HTML not allowed")
+  void shouldDetectXssWhenHtmlNotAllowed(String input) {
+    assertFalse(sanitizer.isSafeXss(input, false));
   }
 
   @ParameterizedTest
-  @ValueSource(
-      strings = {
-        "João Silva",
-        "user@example.com",
-        "Normal text without special chars",
-        "Test-123",
-        "Some description with punctuation!"
-      })
-  void testIsSafeFromSqlInjection_safeInput_returnsTrue(String input) {
-    assertTrue(InputSanitizer.isSafeFromSqlInjection(input), "Should accept safe input: " + input);
+  @ValueSource(strings = {"Normal text", "Text with numbers 123", "email@example.com"})
+  @DisplayName("Should accept safe input when HTML not allowed")
+  void shouldAcceptSafeInputWhenHtmlNotAllowed(String input) {
+    assertTrue(sanitizer.isSafeXss(input, false));
   }
 
-  @ParameterizedTest
-  @ValueSource(
-      strings = {
-        "<script>alert('XSS')</script>",
-        "<img src=x onerror=alert('XSS')>",
-        "<iframe src='http://malicious.com'></iframe>",
-        "javascript:alert('XSS')",
-        "<body onload=alert('XSS')>",
-        "<div onclick='malicious()'>",
-        "eval(document.cookie)",
-        "expression(alert('XSS'))"
-      })
-  void testIsSafeFromXss_maliciousInput_returnsFalse(String input) {
-    assertFalse(InputSanitizer.isSafeFromXss(input), "Should detect XSS: " + input);
+  @Test
+  @DisplayName("Should validate safe HTML when allowHtml is true")
+  void shouldValidateSafeHtmlWhenAllowHtmlTrue() {
+    String safeHtml = "<p>Hello <strong>world</strong></p>";
+    String sanitized = sanitizer.sanitizeAllowHtml(safeHtml);
+
+    assertTrue(sanitizer.isSafeXss(sanitized, true));
   }
 
-  @ParameterizedTest
-  @ValueSource(
-      strings = {
-        "Normal text",
-        "user@example.com",
-        "Description without tags",
-        "Text with (parentheses) and [brackets]"
-      })
-  void testIsSafeFromXss_safeInput_returnsTrue(String input) {
-    assertTrue(InputSanitizer.isSafeFromXss(input), "Should accept safe input: " + input);
-  }
+  @Test
+  @DisplayName("Should reject modified HTML when allowHtml is true")
+  void shouldRejectModifiedHtmlWhenAllowHtmlTrue() {
+    String html = "<p>Test</p><script>alert('xss')</script>";
 
+    assertFalse(sanitizer.isSafeXss(html, true));
+  }
 
   @ParameterizedTest
   @ValueSource(
       strings = {
         "../../../etc/passwd",
         "..\\..\\windows\\system32",
-        "%2e%2e/etc/passwd",
-        "%252e%252e%252f",
-        "test/../../../secret"
+        "%2e%2e%2f",
+        "%2e%2e%5c",
+        "file:///../etc/passwd"
       })
-  void testIsSafeFromPathTraversal_maliciousInput_returnsFalse(String input) {
-    assertFalse(
-        InputSanitizer.isSafeFromPathTraversal(input), "Should detect path traversal: " + input);
+  @DisplayName("Should detect path traversal patterns")
+  void shouldDetectPathTraversalPatterns(String input) {
+    assertFalse(sanitizer.isSafePathTraversal(input));
   }
 
   @ParameterizedTest
-  @ValueSource(strings = {"normalfile.txt", "user/documents/file.pdf", "images/photo.jpg"})
-  void testIsSafeFromPathTraversal_safeInput_returnsTrue(String input) {
-    assertTrue(InputSanitizer.isSafeFromPathTraversal(input), "Should accept safe input: " + input);
+  @ValueSource(
+      strings = {"/normal/path", "filename.txt", "folder/subfolder/file.pdf", "my-file_123.doc"})
+  @DisplayName("Should accept safe paths")
+  void shouldAcceptSafePaths(String input) {
+    assertTrue(sanitizer.isSafePathTraversal(input));
   }
 
   @Test
-  void testIsSafeFromNullBytes_withNullByte_returnsFalse() {
-    assertFalse(InputSanitizer.isSafeFromNullBytes("test\u0000malicious"));
+  @DisplayName("Should detect null bytes in Unicode format")
+  void shouldDetectNullBytesUnicode() {
+    assertFalse(sanitizer.isSafeFromNullBytes("test\u0000malicious"));
   }
 
   @Test
-  void testIsSafeFromNullBytes_withEncodedNullByte_returnsFalse() {
-    assertFalse(InputSanitizer.isSafeFromNullBytes("test%00malicious"));
+  @DisplayName("Should accept input without null bytes")
+  void shouldAcceptInputWithoutNullBytes() {
+    assertTrue(sanitizer.isSafeFromNullBytes("normal text with ñ special chars"));
+  }
+
+  @ParameterizedTest
+  @ValueSource(
+      strings = {
+        "rm -rf /",
+        "cat /etc/passwd",
+        "; ls -la",
+        "| whoami",
+        "&& cat file",
+        "|| echo",
+        "$(malicious)",
+        "`command`"
+      })
+  @DisplayName("Should detect command injection patterns")
+  void shouldDetectCommandInjectionPatterns(String input) {
+    assertFalse(sanitizer.isSafeFromCommandInjection(input));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"normal-filename", "file_name.txt", "My Document.pdf", "123-test"})
+  @DisplayName("Should accept safe strings for command injection check")
+  void shouldAcceptSafeStringsForCommandInjection(String input) {
+    assertTrue(sanitizer.isSafeFromCommandInjection(input));
   }
 
   @Test
-  void testIsSafeFromNullBytes_safeInput_returnsTrue() {
-    assertTrue(InputSanitizer.isSafeFromNullBytes("normal text"));
+  @DisplayName("Should return true for null input in XSS check")
+  void shouldReturnTrueForNullInXssCheck() {
+    assertTrue(sanitizer.isSafeXss(null, false));
+    assertTrue(sanitizer.isSafeXss(null, true));
   }
 
   @Test
-  void testIsComprehensiveSafe_allAttacks_returnsFalse() {
-    String[] attacks = {
-      "'; DROP TABLE--",
-      "<script>alert('XSS')</script>",
-      "../../../etc/passwd",
-      "test\u0000malicious"
-    };
-
-    for (String attack : attacks) {
-      assertFalse(InputSanitizer.isComprehensiveSafe(attack), "Should detect attack: " + attack);
-    }
+  @DisplayName("Should return true for empty input in XSS check")
+  void shouldReturnTrueForEmptyInXssCheck() {
+    assertTrue(sanitizer.isSafeXss("", false));
+    assertTrue(sanitizer.isSafeXss("", true));
   }
 
   @Test
-  void testIsComprehensiveSafe_safeInput_returnsTrue() {
-    String[] safeInputs = {"João Silva", "user@example.com", "Normal description text", "Test-123"};
-
-    for (String safe : safeInputs) {
-      assertTrue(InputSanitizer.isComprehensiveSafe(safe), "Should accept safe input: " + safe);
-    }
+  @DisplayName("Should return true for null input in all checks")
+  void shouldReturnTrueForNullInAllChecks() {
+    assertTrue(sanitizer.isSafePathTraversal(null));
+    assertTrue(sanitizer.isSafeFromNullBytes(null));
+    assertTrue(sanitizer.isSafeFromCommandInjection(null));
   }
 
   @Test
-  void testStripHtmlTags_removesTags() {
-    String input = "<p>Hello</p><script>alert('XSS')</script>";
-    String result = InputSanitizer.stripHtmlTags(input);
-    assertEquals("Helloalert('XSS')", result);
-    assertFalse(result.contains("<"));
-    assertFalse(result.contains(">"));
-  }
+  @DisplayName("Should handle edge cases correctly")
+  void shouldHandleEdgeCases() {
+    assertTrue(sanitizer.isSafePathTraversal(".."));
+    assertTrue(sanitizer.isSafePathTraversal("file..txt"));
 
-  @Test
-  void testStripHtmlTags_nullInput_returnsNull() {
-    assertNull(InputSanitizer.stripHtmlTags(null));
-  }
-
-  @Test
-  void testEscapeHtml_escapesSpecialChars() {
-    String input = "<script>alert(\"XSS\")</script>";
-    String result = InputSanitizer.escapeHtml(input);
-
-    assertFalse(result.contains("<"));
-    assertFalse(result.contains(">"));
-    assertTrue(result.contains("&lt;"));
-    assertTrue(result.contains("&gt;"));
-    assertTrue(result.contains("&quot;"));
-  }
-
-  @Test
-  void testEscapeHtml_allSpecialChars() {
-    String input = "&<>\"'/";
-    String result = InputSanitizer.escapeHtml(input);
-
-    assertEquals("&amp;&lt;&gt;&quot;&#x27;&#x2F;", result);
-  }
-
-  @Test
-  void testEscapeHtml_nullInput_returnsNull() {
-    assertNull(InputSanitizer.escapeHtml(null));
-  }
-
-  @Test
-  void testSanitizeAndValidate_safeInput_returnsSanitized() {
-    String input = "  Normal text  ";
-    String result = InputSanitizer.sanitizeAndValidate(input);
-    assertEquals("Normal text", result);
-  }
-
-  @Test
-  void testSanitizeAndValidate_maliciousInput_throwsException() {
-    String[] attacks = {"'; DROP TABLE--", "<script>alert('XSS')</script>", "../../../etc/passwd"};
-
-    for (String attack : attacks) {
-      assertThrows(
-          IllegalArgumentException.class,
-          () -> InputSanitizer.sanitizeAndValidate(attack),
-          "Should throw exception for: " + attack);
-    }
-  }
-
-  @Test
-  void testSanitizeAndValidate_nullInput_returnsNull() {
-    assertNull(InputSanitizer.sanitizeAndValidate(null));
-  }
-
-  @Test
-  void testEmptyString_allChecks_returnsTrue() {
-    assertTrue(InputSanitizer.isSafeFromSqlInjection(""));
-    assertTrue(InputSanitizer.isSafeFromXss(""));
-    assertTrue(InputSanitizer.isSafeFromPathTraversal(""));
-    assertTrue(InputSanitizer.isSafeFromNullBytes(""));
-    assertTrue(InputSanitizer.isComprehensiveSafe(""));
-  }
-
-  @Test
-  void testNullString_allChecks_returnsTrue() {
-    assertTrue(InputSanitizer.isSafeFromSqlInjection(null));
-    assertTrue(InputSanitizer.isSafeFromXss(null));
-    assertTrue(InputSanitizer.isSafeFromPathTraversal(null));
-    assertTrue(InputSanitizer.isSafeFromNullBytes(null));
-    assertTrue(InputSanitizer.isComprehensiveSafe(null));
-  }
-
-  @Test
-  void testRealWorldInputs_portugueseNames_safe() {
-    String[] names = {
-      "João Silva", "Maria José de Oliveira", "José da Silva-Santos", "Ana D'Ávila"
-    };
-
-    for (String name : names) {
-      assertTrue(
-          InputSanitizer.isComprehensiveSafe(name), "Should accept Portuguese name: " + name);
-    }
-  }
-
-  @Test
-  void testRealWorldInputs_emails_safe() {
-    String[] emails = {
-      "user@example.com", "test.user+tag@domain.co.uk", "user_123@test-domain.org"
-    };
-
-    for (String email : emails) {
-      assertTrue(InputSanitizer.isComprehensiveSafe(email), "Should accept valid email: " + email);
-    }
-  }
-
-  @Test
-  void testRealWorldInputs_descriptions_safe() {
-    String description =
-        "Sou um mentor com mais de 10 anos de experiência em tecnologia. "
-            + "Trabalho com Java, Spring Boot e arquitetura de microsserviços. "
-            + "Adoro ensinar e compartilhar conhecimento!";
-
-    assertTrue(InputSanitizer.isComprehensiveSafe(description));
-  }
-
-  @Test
-  void testRealWorldInputs_socialMedia_safe() {
-    String[] socialMedias = {
-      "@username",
-      "linkedin.com/in/user",
-      "github.com/developer",
-      "twitter.com/user, instagram.com/user"
-    };
-
-    for (String social : socialMedias) {
-      assertTrue(
-          InputSanitizer.isComprehensiveSafe(social), "Should accept social media: " + social);
-    }
+    assertFalse(sanitizer.isSafePathTraversal("../file"));
+    assertFalse(sanitizer.isSafePathTraversal("..\\file"));
   }
 }

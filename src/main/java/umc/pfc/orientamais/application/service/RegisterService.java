@@ -71,7 +71,8 @@ public class RegisterService implements RegisterUseCase {
 
   private AuthUser createAuthUser(UserRegisterModelRequest request, AuthUserRole role) {
     String encryptedPassword = passwordEncoder.encode(request.password());
-    String decodedEmail = URLDecoder.decode(request.email(), StandardCharsets.UTF_8);
+    String safeEmail = request.email().replace("%2B", "+");
+    String decodedEmail = URLDecoder.decode(safeEmail, StandardCharsets.UTF_8);
     return new AuthUser(decodedEmail, encryptedPassword, role);
   }
 

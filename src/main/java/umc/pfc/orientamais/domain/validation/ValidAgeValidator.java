@@ -5,9 +5,6 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
 import java.time.Period;
 
-/**
- * Validator implementation for the @ValidAge annotation. Ensures age is within reasonable bounds.
- */
 public class ValidAgeValidator implements ConstraintValidator<ValidAge, LocalDate> {
 
   private int minAge;

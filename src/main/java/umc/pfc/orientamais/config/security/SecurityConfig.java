@@ -44,12 +44,9 @@ public class SecurityConfig {
                         "/api/mentor/validate-email",
                         "/api/mentor/register",
                         "/api/mentored/validate-email",
-                        "/api/mentored/register",
-                        "/api/terms/**")
+                        "/api/mentored/register")
                     .permitAll()
-
-                    // /admin/** - ADMIN
-                    .requestMatchers(HttpMethod.POST, "/api/admin/**")
+                    .requestMatchers(HttpMethod.GET, "/api/stats/**")
                     .hasRole("ADMIN")
 
                     // GET /api/mentor/** - ADMIN, MENTOR, MENTORED

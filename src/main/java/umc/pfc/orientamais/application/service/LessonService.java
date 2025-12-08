@@ -4,12 +4,12 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,6 @@ public class LessonService implements LessonUseCase {
   private final MentorRepository mentorRepository;
   private final MentoredRepository mentoredRepository;
   private final LessonMentoredRepository lessonMentoredRepository;
-  private final ModelMapper mapper;
   private final LessonMapper lessonMapper;
   private final CalendarPort calendarPort;
   private final CreateMeetingPort createMeetingPort;
@@ -128,10 +127,7 @@ public class LessonService implements LessonUseCase {
   public List<LessonDetailsModelResponse> listLessonByMentoredId(UUID request) {
     List<Lesson> lessons = new ArrayList<>();
     List<LessonMentored> lessonsMentored = lessonMentoredRepository.findByMentoredId(request);
-    lessonsMentored.forEach(
-        lessonMentored -> {
-          lessons.add(lessonMentored.getLesson());
-        });
+    lessonsMentored.forEach(lessonMentored -> lessons.add(lessonMentored.getLesson()));
     return lessonMapper.entityToDetailsResponse(lessons);
   }
 
@@ -175,7 +171,7 @@ public class LessonService implements LessonUseCase {
     try {
       calendarPort.sendInviteToMentored(lesson, mentored.getUser().getEmail());
     } catch (Exception ex) {
-      System.err.println("Erro ao enviar convite para o mentorado: " + ex.getMessage());
+      System.err.println("Erro ao adicionar mentorado ao evento: " + ex.getMessage());
     }
 
     return new GenericModelResponse(
@@ -186,10 +182,12 @@ public class LessonService implements LessonUseCase {
   public PagedModelResponse<LessonModelResponse> listLesson(
       String title, LocalDate date, String order, int page, int size) {
     AuthUserRole userRole = SecurityUtils.getCurrentUserRole();
-    UUID profileId = SecurityUtils.getCurrentProfileId();
 
     Pageable pageable = PageRequest.of(page, size, getSort(order));
     Specification<Lesson> spec = (root, query, cb) -> cb.conjunction();
+
+    spec =
+        spec.and((root, query, cb) -> cb.greaterThan(root.get("startTime"), LocalDateTime.now()));
 
     if (title != null && !title.isBlank()) {
       spec =
@@ -267,6 +265,9 @@ public class LessonService implements LessonUseCase {
 
     if (role == AuthUserRole.MENTORED) {
       response.setPresentCode(null);
+      if (!lesson.getMentor().getActive()) {
+        response.setMentorId(null);
+      }
     }
 
     return response;

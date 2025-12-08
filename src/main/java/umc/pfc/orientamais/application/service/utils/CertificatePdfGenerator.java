@@ -30,6 +30,7 @@ public class CertificatePdfGenerator {
       "https://orienta.org/certificados/validar/";
   private static final float PAGE_WIDTH = PageSize.A4.rotate().getWidth();
   private static final float PAGE_HEIGHT = PageSize.A4.rotate().getHeight();
+  private static final Locale PT_BR = Locale.forLanguageTag("pt-BR");
 
   public byte[] generateCertificate(Mentored mentored, Lesson lesson) {
     try {
@@ -66,15 +67,15 @@ public class CertificatePdfGenerator {
       Font nameFont = new Font(Font.FontFamily.HELVETICA, 30, Font.BOLD, new BaseColor(0, 0, 0));
       Paragraph name = new Paragraph(mentored.getName() + " " + mentored.getLastName(), nameFont);
       name.setAlignment(Element.ALIGN_CENTER);
-      // name.setSpacingBefore(5);
       document.add(name);
 
       String date =
           lesson
               .getStartTime()
               .toLocalDate()
-              .format(DateTimeFormatter.ofPattern("dd/MM/yyyy", new Locale("pt", "BR")));
-      long duration = Duration.between(lesson.getStartTime(), lesson.getEndTime()).toHours();
+              .format(DateTimeFormatter.ofPattern("dd/MM/yyyy", PT_BR));
+      long minutes = Duration.between(lesson.getStartTime(), lesson.getEndTime()).toMinutes();
+      long hoursRounded = (long) Math.ceil(minutes / 60.0);
 
       Font bodyFont =
           new Font(Font.FontFamily.HELVETICA, 15, Font.NORMAL, new BaseColor(70, 70, 70));
@@ -87,7 +88,7 @@ public class CertificatePdfGenerator {
                   + ", realizada em "
                   + date
                   + ", com duração de "
-                  + duration
+                  + hoursRounded
                   + " hora(s).",
               bodyFont);
       body.setAlignment(Element.ALIGN_CENTER);
@@ -96,8 +97,7 @@ public class CertificatePdfGenerator {
       body.setLeading(22f);
       document.add(body);
 
-      addFooter(document, lesson);
-      addQrCode(document, mentored, lesson);
+      addFooter(document);
 
       document.close();
       return applyDigitalSignature(output.toByteArray());
@@ -140,33 +140,45 @@ public class CertificatePdfGenerator {
     canvas.fill();
   }
 
-  private void addFooter(Document document, Lesson lesson) throws DocumentException {
-    PdfPTable footer = new PdfPTable(2);
+  private void addFooter(Document document) throws DocumentException {
+    PdfPTable footer = new PdfPTable(1);
     footer.setWidthPercentage(80);
-    footer.setWidths(new int[] {1, 1});
     footer.setSpacingBefore(40);
     footer.setHorizontalAlignment(Element.ALIGN_CENTER);
 
     Font footerFont =
         new Font(Font.FontFamily.HELVETICA, 11, Font.NORMAL, new BaseColor(90, 90, 90));
 
-    PdfPCell mentorCell =
-        new PdfPCell(
-            new Phrase(
-                "__________________________\n\n" + lesson.getMentor().getName() + "\nMentor(a)",
-                footerFont));
-    mentorCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-    mentorCell.setBorder(Rectangle.NO_BORDER);
+    try {
+      ClassPathResource signatureResource = new ClassPathResource("static/assinatura_orienta.png");
+      Image logo = Image.getInstance(signatureResource.getURL());
 
-    PdfPCell platformCell =
-        new PdfPCell(
-            new Phrase(
-                "__________________________\n\nOrienta+\nPlataforma de Mentorias", footerFont));
-    platformCell.setHorizontalAlignment(Element.ALIGN_CENTER);
-    platformCell.setBorder(Rectangle.NO_BORDER);
+      logo.scaleAbsolute(120, 10);
+      logo.setAlignment(Element.ALIGN_CENTER);
 
-    footer.addCell(mentorCell);
-    footer.addCell(platformCell);
+      PdfPCell platformCell = new PdfPCell();
+      platformCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+      platformCell.setBorder(Rectangle.NO_BORDER);
+
+      platformCell.addElement(logo);
+
+      Paragraph p = new Paragraph("\nOrienta+\nPlataforma de Mentorias", footerFont);
+      p.setAlignment(Element.ALIGN_CENTER);
+      platformCell.addElement(p);
+
+      footer.addCell(platformCell);
+
+    } catch (IOException e) {
+      PdfPCell platformCell =
+          new PdfPCell(
+              new Phrase(
+                  "__________________________\n\nOrienta+\nPlataforma de Mentorias", footerFont));
+      platformCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+      platformCell.setBorder(Rectangle.NO_BORDER);
+      footer.addCell(platformCell);
+    }
+  }
+
     document.add(footer);
   }
 
@@ -194,9 +206,9 @@ public class CertificatePdfGenerator {
     return Image.getInstance(pngOutput.toByteArray());
   }
 
-  private Image loadLogo() throws IOException, BadElementException {
+  private Image loadLogo() throws IOException {
     String[] possibleFiles = {
-      "static/logo.png", "static/logo.png", "static/Logo.webp", "static/logo.jpg"
+      "static/logo.png", "static/Logo.webp", "static/logo.jpg", "static/logo.svg"
     };
     for (String path : possibleFiles) {
       try {
@@ -204,7 +216,6 @@ public class CertificatePdfGenerator {
         if (!resource.exists()) continue;
         return Image.getInstance(resource.getURL());
       } catch (Exception e) {
-        System.out.println(e.getMessage());
       }
     }
     throw new IOException("Logo não encontrado para o selo do certificado.");
@@ -212,9 +223,10 @@ public class CertificatePdfGenerator {
 
   private byte[] applyDigitalSignature(byte[] pdfBytes) {
     try {
-      File p12File = new ClassPathResource("static/certificado_assinatura.p12").getFile();
-      if (!p12File.exists()) return pdfBytes;
+      ClassPathResource p12Resource = new ClassPathResource("static/certificado_assinatura.p12");
+      if (!p12Resource.exists()) return pdfBytes;
 
+      File p12File = p12Resource.getFile();
       char[] password = "senha-secreta".toCharArray();
       KeyStore ks = KeyStore.getInstance("PKCS12");
       ks.load(new FileInputStream(p12File), password);

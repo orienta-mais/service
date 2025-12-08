@@ -32,8 +32,7 @@ public record MentoredUpdateModelRequest(
         @SafeInput(message = "Redes sociais contém caracteres suspeitos")
         String socialMedias,
     @Size(max = 5000, message = "Descrição deve ter no máximo 5000 caracteres")
-        @Pattern(regexp = "^[^<>{}\\\\]*$", message = "Descrição contém caracteres inválidos")
-        @SafeInput(message = "Descrição contém caracteres suspeitos")
+        @SafeInput(allowHtml = true, message = "Descrição contém conteúdo suspeito")
         String description,
     @NotBlank(message = "Este campo é obrigatório!")
         @Pattern(regexp = "^[a-zA-ZÀ-ÿ\\s-]{2,100}$", message = "Estado inválido")

@@ -18,4 +18,6 @@ public interface MentorUseCase {
   void deleteMentor(UUID id);
 
   Integer countMentors();
+
+  void anonymizeMentorData(UUID id);
 }

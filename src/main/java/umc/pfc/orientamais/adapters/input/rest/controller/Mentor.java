@@ -59,7 +59,7 @@ public class Mentor {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteMentor(@PathVariable UUID id) {
-    mentorUseCase.deleteMentor(id);
+    mentorUseCase.anonymizeMentorData(id);
     return ResponseEntity.noContent().build();
   }
 

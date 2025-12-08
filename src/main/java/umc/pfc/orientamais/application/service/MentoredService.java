@@ -11,6 +11,8 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.MentoredUpdateModelRe
 import umc.pfc.orientamais.adapters.input.rest.dto.response.CountByStateResponse;
 import umc.pfc.orientamais.adapters.input.rest.dto.response.MentoredModelResponse;
 import umc.pfc.orientamais.adapters.output.persistence.repository.AuthUserRepository;
+import umc.pfc.orientamais.adapters.output.persistence.repository.LessonMentoredRepository;
+import umc.pfc.orientamais.adapters.output.persistence.repository.MentorReviewRepository;
 import umc.pfc.orientamais.adapters.output.persistence.repository.MentoredRepository;
 import umc.pfc.orientamais.application.mapper.MentoredMapper;
 import umc.pfc.orientamais.application.port.input.MentoredUseCase;
@@ -25,6 +27,8 @@ public class MentoredService implements MentoredUseCase {
   private final MentoredRepository mentoredRepository;
   private final MentoredMapper mentoredMapper;
   private final AuthUserRepository authUserRepository;
+  private final LessonMentoredRepository lessonMentoredRepository;
+  private final MentorReviewRepository mentorReviewRepository;
 
   @Override
   public List<MentoredModelResponse> getAllMentoreds() {
@@ -89,5 +93,17 @@ public class MentoredService implements MentoredUseCase {
   public CountByStateResponse countMentoredsByState() {
     var repositoryResponse = mentoredRepository.countByState();
     return mentoredMapper.toCountByStateResponse(repositoryResponse);
+  }
+
+  @Override
+  public void deleteMentoredCascade(UUID id) {
+    var mentored =
+        mentoredRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
+    lessonMentoredRepository.deleteLessonByMentoredId(id);
+    mentorReviewRepository.deleteReviewByMentoredId(id);
+    mentoredRepository.deleteMentored(id);
+    authUserRepository.anonymizeAuthUserData(mentored.getUser().getId());
   }
 }

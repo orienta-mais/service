@@ -10,7 +10,6 @@ import umc.pfc.orientamais.adapters.input.rest.dto.request.UserRegisterModelRequ
 import umc.pfc.orientamais.domain.model.auth.AuthUser;
 import umc.pfc.orientamais.domain.model.auth.Profile;
 import umc.pfc.orientamais.domain.model.clazz.Lesson;
-import umc.pfc.orientamais.domain.utils.InputSanitizer;
 
 @Getter
 @Setter
@@ -45,6 +44,10 @@ public class Mentor implements Profile {
 
   private String nationality;
 
+  @Column(insertable = false)
+  @org.hibernate.annotations.ColumnDefault("true")
+  private Boolean active;
+
   @OneToMany(mappedBy = "mentor")
   private List<Lesson> classes;
 
@@ -54,12 +57,12 @@ public class Mentor implements Profile {
   @Override
   public void fillFromRequest(AuthUser user, UserRegisterModelRequest request) {
     this.user = user;
-    this.name = InputSanitizer.sanitize(request.name());
-    this.lastName = InputSanitizer.sanitize(request.lastName());
+    this.name = request.name();
+    this.lastName = request.lastName();
     this.birthDate = request.birthDate();
-    this.socialMedias = InputSanitizer.sanitize(request.socialMedias());
-    this.description = InputSanitizer.sanitize(request.description());
-    this.state = InputSanitizer.sanitize(request.state());
-    this.nationality = InputSanitizer.sanitize(request.nationality());
+    this.socialMedias = request.socialMedias();
+    this.description = request.description();
+    this.state = request.state();
+    this.nationality = request.nationality();
   }
 }
