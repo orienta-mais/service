@@ -18,12 +18,13 @@ public class InputSanitizer {
 
   public boolean isSafeXss(String raw, boolean allowHtml) {
     if (raw == null || raw.isEmpty()) return true;
+
     if (allowHtml) {
       String sanitized = sanitizeAllowHtml(raw);
       return sanitized.equals(raw);
     } else {
       String stripped = SAFE_HTML_POLICY.sanitize(raw);
-      return stripped.isEmpty();
+      return stripped.equals(raw) || stripped.isEmpty();
     }
   }
 
