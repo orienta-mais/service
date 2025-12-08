@@ -1,12 +1,11 @@
 package umc.pfc.orientamais.adapters.input.rest.dto.response;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
 public class CountByStateResponse {
-    private List<CountMentorAndMentoredByStateResponse> total;
+  private List<CountMentorAndMentoredByStateResponse> total;
 }

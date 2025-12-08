@@ -6,10 +6,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MentorReviewSummary {
-    private double didactics;
-    private double subjectMastery;
-    private double punctuality;
-    private double communication;
-    private double engagement;
-    private double overallFeedback;
+  private double didactics;
+  private double subjectMastery;
+  private double punctuality;
+  private double communication;
+  private double engagement;
+  private double overallFeedback;
 }

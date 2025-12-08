@@ -19,33 +19,33 @@ import umc.pfc.orientamais.application.port.input.MentoredUseCase;
 @RequiredArgsConstructor
 public class Stats {
 
-    private final MentoredUseCase mentoredUseCase;
-    private final MentorUseCase mentorUseCase;
-    private final LessonUseCase lessonUseCase;
+  private final MentoredUseCase mentoredUseCase;
+  private final MentorUseCase mentorUseCase;
+  private final LessonUseCase lessonUseCase;
 
-    @GetMapping("/count-mentoreds")
-    public ResponseEntity<CountMentoredsResponse> countMentoreds() {
-        var mentorsResponse = new CountMentoredsResponse();
-        mentorsResponse.setMentoreds(mentoredUseCase.countMentoreds());
-        return ResponseEntity.status(HttpStatus.OK).body(mentorsResponse);
-    }
+  @GetMapping("/count-mentoreds")
+  public ResponseEntity<CountMentoredsResponse> countMentoreds() {
+    var mentorsResponse = new CountMentoredsResponse();
+    mentorsResponse.setMentoreds(mentoredUseCase.countMentoreds());
+    return ResponseEntity.status(HttpStatus.OK).body(mentorsResponse);
+  }
 
-    @GetMapping("/count-by-state")
-    public ResponseEntity<CountByStateResponse> countByState() {
-        var response = mentoredUseCase.countMentoredsByState();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
+  @GetMapping("/count-by-state")
+  public ResponseEntity<CountByStateResponse> countByState() {
+    var response = mentoredUseCase.countMentoredsByState();
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
 
-    @GetMapping("/count-mentors")
-    public ResponseEntity<CountMentorsResponse> countMentors() {
-        var mentorsResponse = new CountMentorsResponse();
-        mentorsResponse.setMentors(mentorUseCase.countMentors());
-        return ResponseEntity.status(HttpStatus.OK).body(mentorsResponse);
-    }
+  @GetMapping("/count-mentors")
+  public ResponseEntity<CountMentorsResponse> countMentors() {
+    var mentorsResponse = new CountMentorsResponse();
+    mentorsResponse.setMentors(mentorUseCase.countMentors());
+    return ResponseEntity.status(HttpStatus.OK).body(mentorsResponse);
+  }
 
-    @GetMapping("/count-lessons")
-    public ResponseEntity<CountLessonsResponse> countUpcomingLessons() {
-        CountLessonsResponse response = lessonUseCase.countUpcomingAndUnavailabLessons();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
+  @GetMapping("/count-lessons")
+  public ResponseEntity<CountLessonsResponse> countUpcomingLessons() {
+    CountLessonsResponse response = lessonUseCase.countUpcomingAndUnavailabLessons();
+    return ResponseEntity.status(HttpStatus.OK).body(response);
+  }
 }

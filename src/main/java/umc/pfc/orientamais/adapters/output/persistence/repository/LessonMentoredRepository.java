@@ -1,7 +1,9 @@
 package umc.pfc.orientamais.adapters.output.persistence.repository;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,26 +11,24 @@ import org.springframework.stereotype.Repository;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentored;
 import umc.pfc.orientamais.domain.model.clazz.LessonMentoredId;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 @Repository
 public interface LessonMentoredRepository extends JpaRepository<LessonMentored, LessonMentoredId> {
-    boolean existsByLessonIdAndMentoredId(UUID lessonId, UUID mentoredId);
+  boolean existsByLessonIdAndMentoredId(UUID lessonId, UUID mentoredId);
 
-    List<LessonMentored> findByMentoredId(UUID mentoredId);
+  List<LessonMentored> findByMentoredId(UUID mentoredId);
 
-    Optional<LessonMentored> findByLessonId(UUID lessonId);
+  Optional<LessonMentored> findByLessonId(UUID lessonId);
 
-    long countByLessonId(UUID lessonId);
+  long countByLessonId(UUID lessonId);
 
-    Optional<LessonMentored> findByLessonIdAndMentoredId(UUID lessonId, UUID mentoredId);
+  Optional<LessonMentored> findByLessonIdAndMentoredId(UUID lessonId, UUID mentoredId);
 
-    @Modifying
-    @Transactional
-    @Query(value = """
+  @Modifying
+  @Transactional
+  @Query(
+      value = """
             delete from class_mentored where mentored_id = :id;
-            """, nativeQuery = true)
-    void deleteLessonByMentoredId(UUID id);
+            """,
+      nativeQuery = true)
+  void deleteLessonByMentoredId(UUID id);
 }

@@ -1,9 +1,10 @@
 package umc.pfc.orientamais.application.port.output.calendar;
 
-import umc.pfc.orientamais.domain.model.clazz.Lesson;
 import java.util.List;
+import umc.pfc.orientamais.domain.model.clazz.Lesson;
 
 public interface CalendarPort {
-    String createEvent(Lesson lesson, List<String> attendees);
-    void sendInviteToMentored(Lesson lesson, String mentoredEmail);
+  String createEvent(Lesson lesson, List<String> attendees);
+
+  void sendInviteToMentored(Lesson lesson, String mentoredEmail);
 }

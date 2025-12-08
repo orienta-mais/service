@@ -14,38 +14,38 @@ import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
 @RequiredArgsConstructor
 public class EmailSenderService {
 
-    private final JavaMailSender mailSender;
+  private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
-    String senderAddress;
+  @Value("${spring.mail.username}")
+  String senderAddress;
 
-    public void sendEmail(String to, String subject, String content) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(content, true);
-            helper.setFrom(senderAddress);
-            mailSender.send(message);
-        } catch (MessagingException e) {
-            throw new InternalErrorException("Erro ao enviar email");
-        }
+  public void sendEmail(String to, String subject, String content) {
+    try {
+      MimeMessage message = mailSender.createMimeMessage();
+      MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+      helper.setTo(to);
+      helper.setSubject(subject);
+      helper.setText(content, true);
+      helper.setFrom(senderAddress);
+      mailSender.send(message);
+    } catch (MessagingException e) {
+      throw new InternalErrorException("Erro ao enviar email");
     }
+  }
 
-    public void sendEmailWithAttachment(String to, String subject, String content, String filename, byte[] fileData) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(content, true);
-            helper.setFrom(senderAddress);
-            helper.addAttachment(filename, new ByteArrayResource(fileData));
-            mailSender.send(message);
-        } catch (MessagingException e) {
-            throw new InternalErrorException("Erro ao enviar e-mail com anexo");
-        }
+  public void sendEmailWithAttachment(
+      String to, String subject, String content, String filename, byte[] fileData) {
+    try {
+      MimeMessage message = mailSender.createMimeMessage();
+      MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+      helper.setTo(to);
+      helper.setSubject(subject);
+      helper.setText(content, true);
+      helper.setFrom(senderAddress);
+      helper.addAttachment(filename, new ByteArrayResource(fileData));
+      mailSender.send(message);
+    } catch (MessagingException e) {
+      throw new InternalErrorException("Erro ao enviar e-mail com anexo");
     }
-
+  }
 }

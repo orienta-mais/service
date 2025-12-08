@@ -5,6 +5,6 @@ import lombok.*;
 @Getter
 @Setter
 public class CountLessonsResponse {
-    private Integer countUpcomingLessons;
-    private Integer countUnavailableLessons;
+  private Integer countUpcomingLessons;
+  private Integer countUnavailableLessons;
 }

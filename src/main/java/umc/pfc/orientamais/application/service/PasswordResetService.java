@@ -24,104 +24,111 @@ import umc.pfc.orientamais.domain.model.auth.PasswordResetToken;
 @RequiredArgsConstructor
 public class PasswordResetService implements PasswordResetUseCase {
 
-    private final AuthUserRepository authUserRepository;
-    private final PasswordResetTokenRepository tokenRepository;
-    private final PasswordResetTokenFactory tokenFactory;
-    private final EmailSenderService emailSender;
-    private final EmailTemplateBuilder templateBuilder;
-    private final BCryptPasswordEncoder passwordEncoder;
+  private final AuthUserRepository authUserRepository;
+  private final PasswordResetTokenRepository tokenRepository;
+  private final PasswordResetTokenFactory tokenFactory;
+  private final EmailSenderService emailSender;
+  private final EmailTemplateBuilder templateBuilder;
+  private final BCryptPasswordEncoder passwordEncoder;
 
-    @Value("${app.reset-password.url}")
-    private String resetUrl;
+  @Value("${app.reset-password.url}")
+  private String resetUrl;
 
-    @Value("${app.reset-password.ttl-seconds:86400}")
-    private long tokenTtlSeconds;
+  @Value("${app.reset-password.ttl-seconds:86400}")
+  private long tokenTtlSeconds;
 
-    @Override
-    public void requestPasswordReset(EmailModelRequest request) {
-        boolean exists = authUserRepository.existsByEmail(request.email());
-        if (!exists) {
-            throw new BadRequestException("Email ou senha inválidos!");
-        }
-
-        PasswordResetToken token = tokenFactory.create(request.email(), tokenTtlSeconds);
-
-        try {
-            tokenRepository.deleteByEmail(request.email());
-            tokenRepository.save(token);
-        } catch (Exception e) {
-            throw new InternalErrorException("Erro ao gerar token de recuperação");
-        }
-
-        String link = UriComponentsBuilder.fromUriString(resetUrl)
-                .queryParam("token", token.token())
-                .queryParam("email", token.email())
-                .toUriString();
-
-        String html = templateBuilder.buildPasswordResetEmail(link);
-
-        try {
-            emailSender.sendEmail(request.email(), "Recuperação de senha - Orienta+", html);
-        } catch (Exception e) {
-            tokenRepository.delete(token);
-            throw new InternalErrorException("Erro ao enviar email de recuperação");
-        }
+  @Override
+  public void requestPasswordReset(EmailModelRequest request) {
+    boolean exists = authUserRepository.existsByEmail(request.email());
+    if (!exists) {
+      throw new BadRequestException("Email ou senha inválidos!");
     }
 
-    @Override
-    public void resetPassword(ResetPasswordModelRequest request) {
-        PasswordResetToken token = tokenRepository.findByToken(request.token())
-                .orElseThrow(InvalidOrExpiredTokenException::new);
+    PasswordResetToken token = tokenFactory.create(request.email(), tokenTtlSeconds);
 
-        if (token.isExpired()) {
-            tokenRepository.delete(token);
-            throw new InvalidOrExpiredTokenException();
-        }
-
-        if (!token.email().equalsIgnoreCase(request.email())) {
-            throw new InvalidOrExpiredTokenException();
-        }
-
-        AuthUser user = authUserRepository.findByEmail(request.email())
-                .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
-
-        user.updatePassword(request.newPassword(), passwordEncoder);
-
-        try {
-            authUserRepository.save(user);
-            tokenRepository.delete(token);
-        } catch (Exception e) {
-            throw new InternalErrorException("Erro ao atualizar senha");
-        }
-
-        String html = templateBuilder.buildPasswordChangedEmail();
-        try {
-            emailSender.sendEmail(user.getEmail(), "Senha alterada com sucesso - Orienta+", html);
-        } catch (Exception ignored) {
-        }
+    try {
+      tokenRepository.deleteByEmail(request.email());
+      tokenRepository.save(token);
+    } catch (Exception e) {
+      throw new InternalErrorException("Erro ao gerar token de recuperação");
     }
 
-    @Override
-    public void changePassword(ChangePasswordModelRequest request) {
-        AuthUser user = authUserRepository.findByEmail(request.email())
-                .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
+    String link =
+        UriComponentsBuilder.fromUriString(resetUrl)
+            .queryParam("token", token.token())
+            .queryParam("email", token.email())
+            .toUriString();
 
-        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
-            throw new BadRequestException("Email ou senha inválidos!");
-        }
+    String html = templateBuilder.buildPasswordResetEmail(link);
 
-        user.updatePassword(request.newPassword(), passwordEncoder);
-
-        try {
-            authUserRepository.save(user);
-        } catch (Exception e) {
-            throw new InternalErrorException("Erro ao atualizar senha");
-        }
-
-        String html = templateBuilder.buildPasswordChangedEmail();
-        try {
-            emailSender.sendEmail(user.getEmail(), "Senha alterada com sucesso - Orienta+", html);
-        } catch (Exception ignored) {
-        }
+    try {
+      emailSender.sendEmail(request.email(), "Recuperação de senha - Orienta+", html);
+    } catch (Exception e) {
+      tokenRepository.delete(token);
+      throw new InternalErrorException("Erro ao enviar email de recuperação");
     }
+  }
+
+  @Override
+  public void resetPassword(ResetPasswordModelRequest request) {
+    PasswordResetToken token =
+        tokenRepository
+            .findByToken(request.token())
+            .orElseThrow(InvalidOrExpiredTokenException::new);
+
+    if (token.isExpired()) {
+      tokenRepository.delete(token);
+      throw new InvalidOrExpiredTokenException();
+    }
+
+    if (!token.email().equalsIgnoreCase(request.email())) {
+      throw new InvalidOrExpiredTokenException();
+    }
+
+    AuthUser user =
+        authUserRepository
+            .findByEmail(request.email())
+            .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
+
+    user.updatePassword(request.newPassword(), passwordEncoder);
+
+    try {
+      authUserRepository.save(user);
+      tokenRepository.delete(token);
+    } catch (Exception e) {
+      throw new InternalErrorException("Erro ao atualizar senha");
+    }
+
+    String html = templateBuilder.buildPasswordChangedEmail();
+    try {
+      emailSender.sendEmail(user.getEmail(), "Senha alterada com sucesso - Orienta+", html);
+    } catch (Exception ignored) {
+    }
+  }
+
+  @Override
+  public void changePassword(ChangePasswordModelRequest request) {
+    AuthUser user =
+        authUserRepository
+            .findByEmail(request.email())
+            .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
+
+    if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+      throw new BadRequestException("Email ou senha inválidos!");
+    }
+
+    user.updatePassword(request.newPassword(), passwordEncoder);
+
+    try {
+      authUserRepository.save(user);
+    } catch (Exception e) {
+      throw new InternalErrorException("Erro ao atualizar senha");
+    }
+
+    String html = templateBuilder.buildPasswordChangedEmail();
+    try {
+      emailSender.sendEmail(user.getEmail(), "Senha alterada com sucesso - Orienta+", html);
+    } catch (Exception ignored) {
+    }
+  }
 }
