@@ -133,14 +133,15 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
     SimpleMailMessage message = new SimpleMailMessage();
     message.setSubject(subject);
     message.setText(text);
-    mentoredEmails.forEach(email -> {
-      try {
-        message.setTo(email);
-        mailSender.send(message);
-      } catch (Exception e) {
-        log.error("Erro ao enviar email de cancelamento para {}: {}", email, e.getMessage());
-      }
-    });
+    mentoredEmails.forEach(
+        email -> {
+          try {
+            message.setTo(email);
+            mailSender.send(message);
+          } catch (Exception e) {
+            log.error("Erro ao enviar email de cancelamento para {}: {}", email, e.getMessage());
+          }
+        });
   }
 
   private String buildHtmlBody(Lesson lesson) {
@@ -169,9 +170,10 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
         + "<p>Cumprimentos,<br/>Equipe Orientamais</p>";
   }
 
-  private String buildLessonCanceledEmailText(Lesson lesson, DateTimeFormatter dateFormatter, DateTimeFormatter timeFormatter) {
+  private String buildLessonCanceledEmailText(
+      Lesson lesson, DateTimeFormatter dateFormatter, DateTimeFormatter timeFormatter) {
     return String.format(
-      """
+        """
       Olá,
 
       Informamos que a aula "%s" foi cancelada.
@@ -185,10 +187,9 @@ public class IcsEmailCalendarAdapter implements CalendarPort {
       Atenciosamente,
       Equipe Orienta+
       """,
-      lesson.getTitle(),
-      lesson.getStartTime().format(dateFormatter),
-      lesson.getStartTime().format(timeFormatter),
-      lesson.getEndTime().format(timeFormatter)
-    );
+        lesson.getTitle(),
+        lesson.getStartTime().format(dateFormatter),
+        lesson.getStartTime().format(timeFormatter),
+        lesson.getEndTime().format(timeFormatter));
   }
 }

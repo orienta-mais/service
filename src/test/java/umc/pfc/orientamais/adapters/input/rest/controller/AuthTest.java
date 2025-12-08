@@ -51,7 +51,8 @@ class AuthTest {
             "SUCCESS", "Login realizado com sucesso", "accessToken", "refreshToken", true);
     emailModelRequest = new EmailModelRequest("user@email.com");
     resetPasswordModelRequest =
-        new ResetPasswordModelRequest("token", "user@email.com", "newPassword123", "newPassword123");
+        new ResetPasswordModelRequest(
+            "token", "user@email.com", "newPassword123", "newPassword123");
     changePasswordModelRequest =
         new ChangePasswordModelRequest("user@email.com", "currentPassword123", "newPassword456");
   }

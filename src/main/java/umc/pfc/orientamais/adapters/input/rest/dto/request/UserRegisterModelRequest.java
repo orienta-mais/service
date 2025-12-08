@@ -3,7 +3,6 @@ package umc.pfc.orientamais.adapters.input.rest.dto.request;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 import org.hibernate.validator.constraints.Length;
-import umc.pfc.orientamais.domain.model.auth.AuthUserRole;
 import umc.pfc.orientamais.domain.validation.SafeInput;
 import umc.pfc.orientamais.domain.validation.ValidAge;
 
@@ -42,13 +41,13 @@ public record UserRegisterModelRequest(
                 "Senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial")
         String password,
     @NotBlank(message = "Este campo é obrigatório!")
-    @Length(min = 8, max = 128, message = "Sua senha deve conter entre 8 e 128 caracteres")
-    @Pattern(
-      regexp =
-        "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#^()_+=\\-\\[\\]{}|;:,.<>~`])[A-Za-z\\d@$!%*?&#^()_+=\\-\\[\\]{}|;:,.<>~`]{8,128}$",
-      message =
-        "Senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial")
-    String confirmPassword,
+        @Length(min = 8, max = 128, message = "Sua senha deve conter entre 8 e 128 caracteres")
+        @Pattern(
+            regexp =
+                "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&#^()_+=\\-\\[\\]{}|;:,.<>~`])[A-Za-z\\d@$!%*?&#^()_+=\\-\\[\\]{}|;:,.<>~`]{8,128}$",
+            message =
+                "Senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial")
+        String confirmPassword,
     @NotNull(message = "Este campo é obrigatório!")
         @Past(message = "Data de nascimento deve ser no passado")
         @ValidAge(min = 16, max = 100, message = "Idade deve estar entre 16 e 100 anos")

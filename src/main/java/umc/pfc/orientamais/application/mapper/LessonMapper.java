@@ -1,5 +1,10 @@
 package umc.pfc.orientamais.application.mapper;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,18 +16,11 @@ import umc.pfc.orientamais.adapters.output.zoom.CreateMeetingAdapter;
 import umc.pfc.orientamais.domain.model.clazz.Lesson;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
 @Component
 @RequiredArgsConstructor
 public class LessonMapper {
 
-  @Autowired
-  private final CreateMeetingAdapter createMeetingAdapter;
+  @Autowired private final CreateMeetingAdapter createMeetingAdapter;
 
   public Lesson requestToEntity(CreateLessonModelRequest request) {
     var lesson = new Lesson();
@@ -34,7 +32,7 @@ public class LessonMapper {
     lesson.setEndTime(request.getDate().atTime(request.getEndTime()));
     lesson.setPresentCode(request.getPresentCode());
     lesson.setAdditionalLinks(
-      request.getAdditionalLinks() == null ? new ArrayList<>() : request.getAdditionalLinks());
+        request.getAdditionalLinks() == null ? new ArrayList<>() : request.getAdditionalLinks());
     var mentor = new Mentor();
     mentor.setId(request.getMentorId());
     lesson.setMentor(mentor);
@@ -55,9 +53,9 @@ public class LessonMapper {
     mentor.setId(request.getMentorId());
     lesson.setMentor(mentor);
     lesson.setAdditionalLinks(
-      request.getAdditionalLinks() == null
-        ? Collections.emptyList()
-        : request.getAdditionalLinks());
+        request.getAdditionalLinks() == null
+            ? Collections.emptyList()
+            : request.getAdditionalLinks());
     return lesson;
   }
 
@@ -98,16 +96,14 @@ public class LessonMapper {
     }
 
     response.setAdditionalLinks(
-      lesson.getAdditionalLinks() == null
-        ? Collections.emptyList()
-        : lesson.getAdditionalLinks()
-    );
+        lesson.getAdditionalLinks() == null
+            ? Collections.emptyList()
+            : lesson.getAdditionalLinks());
 
     response.setPresentCodeFilled(null);
 
     return response;
   }
-
 
   public LessonModelResponse entityToResponse(Lesson lesson) {
     var response = new LessonModelResponse();

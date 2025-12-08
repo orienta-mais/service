@@ -1,5 +1,7 @@
 package umc.pfc.orientamais.application.service;
 
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,20 +15,12 @@ import umc.pfc.orientamais.adapters.output.persistence.repository.*;
 import umc.pfc.orientamais.application.mapper.MentorMapper;
 import umc.pfc.orientamais.application.mapper.MentorReviewMapper;
 import umc.pfc.orientamais.application.port.input.MentorUseCase;
-import umc.pfc.orientamais.application.service.utils.MentorReviewUtils;
 import umc.pfc.orientamais.application.service.utils.SecurityUtils;
-import umc.pfc.orientamais.application.service.utils.TimeUtils;
 import umc.pfc.orientamais.domain.exceptions.NotFoundException;
 import umc.pfc.orientamais.domain.model.auth.AuthUser;
-import umc.pfc.orientamais.domain.model.clazz.Lesson;
-import umc.pfc.orientamais.domain.model.clazz.LessonStatus;
 import umc.pfc.orientamais.domain.model.mentor.Mentor;
 import umc.pfc.orientamais.domain.model.mentor.MentorReview;
 import umc.pfc.orientamais.domain.model.mentored.Mentored;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -48,9 +42,9 @@ public class MentorService implements MentorUseCase {
   @Override
   public MentorModelResponse getMentorById(UUID id) {
     Mentor mentor =
-      mentorRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+        mentorRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
     return mentorMapper.entityToResponse(mentor);
   }
 
@@ -58,32 +52,32 @@ public class MentorService implements MentorUseCase {
   public MentorInfoModelResponse getMentorInfosById(UUID mentorId) {
     UUID mentoredAuthUserUUID = SecurityUtils.getCurrentProfileId();
     Mentored mentored =
-      mentoredRepository
-        .findByUserId(mentoredAuthUserUUID)
-        .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
+        mentoredRepository
+            .findByUserId(mentoredAuthUserUUID)
+            .orElseThrow(() -> new NotFoundException("Mentorado não encontrado"));
 
     Mentor mentor =
-      mentorRepository
-        .findById(mentorId)
-        .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+        mentorRepository
+            .findById(mentorId)
+            .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
     List<MentorReview> reviews = mentorReviewRepository.findByMentorId(mentorId);
 
     boolean hasReviewed =
-      reviews.stream().anyMatch(review -> review.getMentoredId().equals(mentored.getId()));
+        reviews.stream().anyMatch(review -> review.getMentoredId().equals(mentored.getId()));
 
     List<MentorReviewResponse> reviewResponses =
-      reviews.stream()
-        .map(
-          review -> {
-            Mentored reviewMentored =
-              mentoredRepository.findById(review.getMentoredId()).orElse(null);
-            String mentoredName =
-              reviewMentored != null
-                ? reviewMentored.getName() + " " + reviewMentored.getLastName()
-                : "Usuário não encontrado";
-            return mentorReviewMapper.toResponse(review, mentoredName);
-          })
-        .toList();
+        reviews.stream()
+            .map(
+                review -> {
+                  Mentored reviewMentored =
+                      mentoredRepository.findById(review.getMentoredId()).orElse(null);
+                  String mentoredName =
+                      reviewMentored != null
+                          ? reviewMentored.getName() + " " + reviewMentored.getLastName()
+                          : "Usuário não encontrado";
+                  return mentorReviewMapper.toResponse(review, mentoredName);
+                })
+            .toList();
 
     int totalClasses = lessonRepository.findByMentorId(mentorId).size();
     return mentorMapper.entityToInfoResponse(mentor, totalClasses, !hasReviewed, reviewResponses);
@@ -93,9 +87,9 @@ public class MentorService implements MentorUseCase {
   @Transactional
   public MentorModelResponse updateMentor(UUID id, MentorUpdateModelRequest request) {
     Mentor mentor =
-      mentorRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+        mentorRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
     checkPermission(mentor);
     mentorMapper.updateEntityFromRequest(mentor, request);
     return mentorMapper.entityToResponse(mentorRepository.save(mentor));
@@ -105,9 +99,9 @@ public class MentorService implements MentorUseCase {
   @Transactional
   public void deleteMentor(UUID id) {
     Mentor mentor =
-      mentorRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+        mentorRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
     checkPermission(mentor);
     AuthUser authUser = mentor.getUser();
     mentorRepository.delete(mentor);
@@ -119,8 +113,8 @@ public class MentorService implements MentorUseCase {
     AuthUser authUser = (AuthUser) authentication.getPrincipal();
 
     boolean isAdmin =
-      authentication.getAuthorities().stream()
-        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        authentication.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
     boolean isOwner = mentor.getUser().getEmail().equalsIgnoreCase(authUser.getEmail());
 
@@ -139,9 +133,9 @@ public class MentorService implements MentorUseCase {
   public void anonymizeMentorData(UUID id) {
     UUID mentorAuthUserUUID = SecurityUtils.getCurrentProfileId();
     var mentor =
-      mentorRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
+        mentorRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Mentor não encontrado"));
 
     mentor.setUser(null);
     mentor.setBirthDate(null);

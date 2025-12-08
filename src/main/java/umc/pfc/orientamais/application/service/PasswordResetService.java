@@ -1,5 +1,6 @@
 package umc.pfc.orientamais.application.service;
 
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,8 +20,6 @@ import umc.pfc.orientamais.domain.exceptions.InternalErrorException;
 import umc.pfc.orientamais.domain.exceptions.InvalidOrExpiredTokenException;
 import umc.pfc.orientamais.domain.model.auth.AuthUser;
 import umc.pfc.orientamais.domain.model.auth.PasswordResetToken;
-
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -56,10 +55,10 @@ public class PasswordResetService implements PasswordResetUseCase {
     }
 
     String link =
-      UriComponentsBuilder.fromUriString(resetUrl)
-        .queryParam("token", token.token())
-        .queryParam("email", token.email())
-        .toUriString();
+        UriComponentsBuilder.fromUriString(resetUrl)
+            .queryParam("token", token.token())
+            .queryParam("email", token.email())
+            .toUriString();
 
     String html = templateBuilder.buildPasswordResetEmail(link);
 
@@ -74,9 +73,9 @@ public class PasswordResetService implements PasswordResetUseCase {
   @Override
   public void resetPassword(ResetPasswordModelRequest request) {
     PasswordResetToken token =
-      tokenRepository
-        .findByToken(request.token())
-        .orElseThrow(InvalidOrExpiredTokenException::new);
+        tokenRepository
+            .findByToken(request.token())
+            .orElseThrow(InvalidOrExpiredTokenException::new);
 
     if (token.isExpired()) {
       tokenRepository.delete(token);
@@ -88,9 +87,9 @@ public class PasswordResetService implements PasswordResetUseCase {
     }
 
     AuthUser user =
-      authUserRepository
-        .findByEmail(request.email())
-        .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
+        authUserRepository
+            .findByEmail(request.email())
+            .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
 
     if (!Objects.equals(request.newPassword(), request.confirmPassword())) {
       throw new IllegalArgumentException("As novas senhas não coincidem.");
@@ -114,9 +113,9 @@ public class PasswordResetService implements PasswordResetUseCase {
   @Override
   public void changePassword(ChangePasswordModelRequest request) {
     AuthUser user =
-      authUserRepository
-        .findByEmail(request.email())
-        .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
+        authUserRepository
+            .findByEmail(request.email())
+            .orElseThrow(() -> new BadRequestException("Email ou senha inválidos!"));
 
     if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
       throw new BadRequestException("Senha atual incorrera!");
